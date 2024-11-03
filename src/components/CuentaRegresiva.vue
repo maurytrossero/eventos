@@ -82,7 +82,7 @@ onMounted(() => {
 
 .cuenta-regresiva {
   position: relative;
-  height: 50vh; /* Reduce la altura total */
+  height: 40vh; /* Reduce la altura total */
   margin: 5px;
   background-repeat: no-repeat;
   background-position: center center;
