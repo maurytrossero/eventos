@@ -1,28 +1,27 @@
 <template>
   <div class="evento-detalle">
-    <h1>{{ evento?.nombre }}</h1>
-    <p>Fecha: {{ evento?.fecha ? formatDate(evento.fecha) : 'Fecha no disponible' }}</p>
-    <p>Lugar: {{ evento?.lugar }}</p>
+  <h1>{{ evento?.nombre }}</h1>
+  <p>Fecha: {{ evento?.fecha ? formatDate(evento.fecha) : 'Fecha no disponible' }}</p>
+  <p>Lugar: {{ evento?.lugar }}</p>
 
-    <div class="links-container">
-      <!--<router-link to="/invitados/lista" class="card link">Lista de Invitados</router-link>
-      <router-link to="/mesas/lista" class="card link">Lista de Mesas</router-link>
-          -->
-      <router-link :to="{ name: 'eventos-canciones', params: { eventoId: eventoId } }" class="card link">Lista de Canciones</router-link>
+  <CuentaRegresiva v-if="evento?.fecha" :targetDate="evento.fecha" />
 
-    </div>
-
-    <button @click="abrirModal" class="sugerir-cancion-button">Sugerir Canción</button>
-
-    <ModalDialog 
-      :isVisible="mostrarModal" 
-      title="Enviar Sugerencia de Canción" 
-      message="Por favor, envíanos tus sugerencias de canciones." 
-      :showInputs="true" 
-      @onClose="cerrarModal" 
-      @enviarSugerencia="enviarSugerencia"
-    />
+  <div class="links-container">
+    <router-link :to="{ name: 'eventos-canciones', params: { eventoId: eventoId } }" class="card link">Lista de Canciones</router-link>
   </div>
+
+  <button @click="abrirModal" class="sugerir-cancion-button">Sugerir Canción</button>
+
+  <ModalDialog
+    :isVisible="mostrarModal"
+    title="Enviar Sugerencia de Canción"
+    message="Por favor, envíanos tus sugerencias de canciones."
+    :showInputs="true"
+    @onClose="cerrarModal"
+    @enviarSugerencia="enviarSugerencia"
+  />
+</div>
+
 </template>
 
 <script setup lang="ts">
@@ -31,6 +30,8 @@ import { useRoute } from 'vue-router';
 import { getEventoById } from '../services/firestoreService';
 import ModalDialog from './ModalDialog.vue'; 
 import { addCancion } from '@/services/firestoreService'; 
+import CuentaRegresiva from './CuentaRegresiva.vue';
+
 
 interface Evento {
   id?: string;

@@ -33,40 +33,47 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, computed } from 'vue'
+// Código de lógica sigue igual
+import { ref, onMounted, computed, watch, defineProps } from 'vue';
 
-const targetDate = new Date('2024-12-14T21:00:00').getTime()
-const days = ref<string[]>(['0', '0'])
-const hours = ref<string[]>(['0', '0'])
-const minutes = ref<string[]>(['0', '0'])
-const seconds = ref<string[]>(['0', '0'])
+const props = defineProps<{ targetDate: string }>();
+const days = ref<string[]>(['0', '0']);
+const hours = ref<string[]>(['0', '0']);
+const minutes = ref<string[]>(['0', '0']);
+const seconds = ref<string[]>(['0', '0']);
 
-// Computed property for background image
+let targetDate = new Date(props.targetDate).getTime();
+
+watch(() => props.targetDate, (newDate) => {
+  targetDate = new Date(newDate).getTime();
+  updateCountdown();
+});
+
 const backgroundImage = computed(() => {
   return window.innerWidth <= 768 
-    ? "url('https://instagram.fcor3-1.fna.fbcdn.net/v/t51.29350-15/414680098_773981024769161_674733366260869586_n.jpg?stp=dst-jpg_e35&efg=eyJ2ZW5jb2RlX3RhZyI6ImltYWdlX3VybGdlbi4xMDgweDEwODAuc2RyLmYyOTM1MC5kZWZhdWx0X2ltYWdlIn0&_nc_ht=instagram.fcor3-1.fna.fbcdn.net&_nc_cat=105&_nc_ohc=mOdlU4r-j1wQ7kNvgFTdLeU&_nc_gid=de6c976760b1412fa29c9742ab78e806&edm=AP4sbd4BAAAA&ccb=7-5&ig_cache_key=MzI3MDM2NzEyODkwODQ1MjI0OA%3D%3D.3-ccb7-5&oh=00_AYB4KvFcWQ8mQDCG7kkRlKeDGxQkO7_30p1HwOEt7Ry7jg&oe=672D5405&_nc_sid=7a9f4b')" // URL de la imagen para móviles
-    : "url('https://instagram.fcor3-1.fna.fbcdn.net/v/t51.29350-15/414680098_773981024769161_674733366260869586_n.jpg?stp=dst-jpg_e35&efg=eyJ2ZW5jb2RlX3RhZyI6ImltYWdlX3VybGdlbi4xMDgweDEwODAuc2RyLmYyOTM1MC5kZWZhdWx0X2ltYWdlIn0&_nc_ht=instagram.fcor3-1.fna.fbcdn.net&_nc_cat=105&_nc_ohc=mOdlU4r-j1wQ7kNvgFTdLeU&_nc_gid=de6c976760b1412fa29c9742ab78e806&edm=AP4sbd4BAAAA&ccb=7-5&ig_cache_key=MzI3MDM2NzEyODkwODQ1MjI0OA%3D%3D.3-ccb7-5&oh=00_AYB4KvFcWQ8mQDCG7kkRlKeDGxQkO7_30p1HwOEt7Ry7jg&oe=672D5405&_nc_sid=7a9f4b')" // URL de la imagen para desktop
-})
+    ? "url('')" // URL de la imagen para móviles
+    : "url('')" // URL de la imagen para desktop
+});
 
 const updateCountdown = () => {
-  const now = new Date().getTime()
-  const distance = targetDate - now
+  const now = new Date().getTime();
+  const distance = targetDate - now;
 
-  const d = Math.floor(distance / (1000 * 60 * 60 * 24))
-  const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-  const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))
-  const s = Math.floor((distance % (1000 * 60)) / 1000)
+  const d = Math.floor(distance / (1000 * 60 * 60 * 24));
+  const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  const s = Math.floor((distance % (1000 * 60)) / 1000);
 
-  days.value = d.toString().padStart(2, '0').split('')
-  hours.value = h.toString().padStart(2, '0').split('')
-  minutes.value = m.toString().padStart(2, '0').split('')
-  seconds.value = s.toString().padStart(2, '0').split('')
-}
+  days.value = d.toString().padStart(2, '0').split('');
+  hours.value = h.toString().padStart(2, '0').split('');
+  minutes.value = m.toString().padStart(2, '0').split('');
+  seconds.value = s.toString().padStart(2, '0').split('');
+};
 
 onMounted(() => {
-  updateCountdown()
-  setInterval(updateCountdown, 1000) // Actualiza cada segundo
-})
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+});
 </script>
 
 <style scoped>
@@ -75,15 +82,15 @@ onMounted(() => {
 
 .cuenta-regresiva {
   position: relative;
-  height: calc(100vh - 50px); /* Reduce el margen inferior */
-  margin: 5px; /* Aplica margen de 10px alrededor */
+  height: 50vh; /* Reduce la altura total */
+  margin: 5px;
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
   overflow: hidden;
-  border: 2px solid white; /* Añade el borde blanco */
-  border-radius: 15px; /* Esquinas redondeadas */
-  box-sizing: border-box; /* Incluye el borde en el tamaño del elemento */
+  border: 2px solid white;
+  border-radius: 15px;
+  box-sizing: border-box;
 }
 
 .overlay {
@@ -92,7 +99,7 @@ onMounted(() => {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(55, 64, 146, 0.99);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -100,21 +107,21 @@ onMounted(() => {
   text-align: center;
   color: white;
   font-family: 'Great Vibes', cursive;
-  padding: 20px;
+  padding: 15px; /* Reduce el padding */
 }
 
 h1 {
-  font-size: 3em;
+  font-size: 2.5em; /* Tamaño reducido */
   margin: 0;
   text-align: center;
-  line-height: 1.1; /* Ajusta la altura de la línea para mejorar la legibilidad */
-  overflow-wrap: break-word; /* Permite que el texto se rompa para ajustarse al contenedor */
+  line-height: 1.1;
+  overflow-wrap: break-word;
 }
 
 .contador {
   display: flex;
-  gap: 10px;
-  margin-top: 20px;
+  gap: 8px; /* Espacio reducido entre contadores */
+  margin-top: 15px;
   justify-content: center;
 }
 
@@ -123,24 +130,24 @@ h1 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 0 5px;
+  margin: 0 4px; /* Espacio reducido en los márgenes */
 }
 
 .digit {
   display: flex;
   flex-direction: row;
-  height: 60px;
+  height: 50px; /* Reduce la altura del dígito */
   overflow: hidden;
 }
 
 .digit span {
-  font-size: 2em;
+  font-size: 1.8em; /* Tamaño reducido */
   display: inline-block;
   width: 100%;
 }
 
 .tiempo p {
-  font-size: 1em;
+  font-size: 0.9em; /* Tamaño de texto reducido */
   margin: 0;
 }
 
@@ -154,10 +161,9 @@ h1 {
   opacity: 0;
 }
 
-/* Responsive styling */
 @media (max-width: 768px) {
   h1 {
-    font-size: 2em;
+    font-size: 1.8em;
     display: block;
     white-space: pre-wrap;
     overflow-wrap: break-word;
@@ -165,7 +171,7 @@ h1 {
   }
 
   .digit span {
-    font-size: 1.5em;
+    font-size: 1.4em;
   }
 
   .tiempo p {
