@@ -46,10 +46,13 @@ const evento = ref<Evento | null>(null);
 const mostrarModal = ref(false);
 
 const formatDate = (dateString: string) => {
+  // Crear la fecha con la zona horaria local
+  const date = new Date(new Date(dateString).getTime() + new Date().getTimezoneOffset() * 60000);
+  
   const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric' };
-  const date = new Date(dateString);
-  return date.toLocaleDateString('es-ES', options); // Change 'es-ES' to your desired locale
+  return date.toLocaleDateString('es-ES', options);
 };
+
 
 // Cargar los detalles del evento
 const cargarEvento = async () => {
