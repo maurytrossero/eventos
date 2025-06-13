@@ -1,10 +1,7 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-import PortfolioView from '../views/PortfolioView.vue';
 import InvitationView from '../views/InvitationView.vue';
 import AuthCallback from '@/components/AuthCallback.vue';
 import SongsList from '@/views/SongsList.vue';
-import MapaDeMesasView from '@/views/MapaDeMesasView.vue';
-import GestionMesasInvitados from '../components/GestionMesasInvitados.vue';
 import EventosComponent from '../components/EventosComponent.vue';
 import HomeView from '../views/HomeView.vue';
 
@@ -13,11 +10,6 @@ const routes: Array<RouteRecordRaw> = [
     path: '/',
     name: 'Home-view',
     component: HomeView
-  },
-  {
-    path: '/inicio',
-    name: 'Inicio',
-    component: PortfolioView
   },
   {
     path: '/about',
@@ -46,15 +38,6 @@ const routes: Array<RouteRecordRaw> = [
   },
   
   {
-    path: '/mesas',
-    name: 'MapaDeMesas',
-    component: MapaDeMesasView
-  },
-  {
-    path: '/gestion',
-    component: GestionMesasInvitados
-  },
-  {
     path: '/evento/:eventoId',
     name: 'evento',
     component: EventosComponent,
@@ -72,15 +55,24 @@ const routes: Array<RouteRecordRaw> = [
   },
   // Mantén solo una definición para la ruta de detalle del evento
   {
+    path: '/eventos/:eventoId/invitacion',
+    name: 'evento-invitacion',
+    component: () => import('@/views/InvitationView.vue'),
+    props: true
+  },
+  {
     path: '/eventos/:eventoId',
     name: 'EventoDetalle',
     component: () => import('@/components/EventoDetalle.vue')
-  }
+  },
+
+
 ];
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
 });
+
 
 export default router;

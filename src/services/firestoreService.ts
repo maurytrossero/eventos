@@ -1,5 +1,5 @@
 import { db } from "../firebase";
-import { collection, addDoc, getDocs, doc, getDoc } from "firebase/firestore";
+import { collection, addDoc, getDocs, doc, getDoc, updateDoc , FieldValue  } from "firebase/firestore";
 
 interface Cancion {
     id?: string;
@@ -11,8 +11,10 @@ interface Evento {
     id?: string;
     nombre: string;
     fecha: string;
-    lugar?: string; // Si también necesitas el lugar
+    lugar?: string;
+    invitacion?: string; // 👈 Agregá esta línea
 }
+
 
 const eventosCollection = "eventos"; // Colección para eventos
 const cancionesCollection = "canciones"; // Colección para canciones asociadas a cada evento
@@ -61,4 +63,18 @@ export const getEventoById = async (eventoId: string): Promise<Evento> => {
     } else {
         throw new Error("Evento no encontrado");
     }
+};
+// Función para actualizar un evento por su ID
+export const updateEvento = async (
+  eventoId: string,
+  data: { [key: string]: any } // Acepta cualquier campo, incluso FieldValue
+): Promise<void> => {
+  const eventoRef = doc(db, eventosCollection, eventoId);
+  try {
+    await updateDoc(eventoRef, data);
+    console.log("Evento actualizado con éxito:", data);
+  } catch (e) {
+    console.error("Error actualizando el evento:", e);
+    throw e;
+  }
 };

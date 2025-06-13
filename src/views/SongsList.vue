@@ -1,13 +1,13 @@
 <template>
-  <div class="background-container"> <!-- Contenedor de fondo -->
-    <div class="songs-list"> <!-- Este es tu formulario existente -->
+  <div class="background-container">
+    <div class="songs-list">
       <h2 class="title">Listado de Canciones</h2>
-      <button @click="goBack" class="back-button">Volver</button>
+      <button @click="goBack" class="back-button">← Volver</button>
       <ul class="song-items">
         <li v-for="cancion in canciones" :key="cancion.id" class="song-item">
           <div class="song-info">
             <span class="song-name">{{ cancion.nombre }}</span>
-            <span class="song-artist"> - {{ cancion.interprete }}</span>
+            <span class="song-artist">{{ cancion.interprete }}</span>
           </div>
         </li>
       </ul>
@@ -30,7 +30,7 @@ export default defineComponent({
   setup() {
     const canciones = ref<Cancion[]>([]);
     const route = useRoute();
-    const idEvento = route.params.eventoId as string; // Obtener el ID del evento desde los parámetros de la ruta
+    const idEvento = route.params.eventoId as string;
 
     const loadCanciones = async () => {
       try {
@@ -41,7 +41,6 @@ export default defineComponent({
     };
 
     const goBack = () => {
-      // Use Vue Router's method to go back to the previous page
       window.history.back();
     };
 
@@ -55,96 +54,133 @@ export default defineComponent({
 </script>
 
 <style scoped>
-html, body {
-  height: 100%; /* Asegura que el HTML y el cuerpo ocupen toda la altura */
-  margin: 0; /* Elimina márgenes predeterminados */
-}
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
 .background-container {
-  width: 100%; /* Ancho completo */
-  height: 100%; /* Alto completo */
-  background-color: #ffffff; /* Fondo blanco */
-  display: flex; /* Flex para centrar contenido */
-  justify-content: center; /* Centra horizontalmente */
-  align-items: center; /* Centra verticalmente */
+  width: 100%;
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #f9fbfe, #dee9f7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px 15px;
+  font-family: 'Poppins', sans-serif;
 }
 
 .songs-list {
-  max-width: 800px; /* Ajustar el ancho máximo según sea necesario */
-  margin: 20px auto; /* Centrar la lista con margen superior */
-  padding: 20px;
-  background-color: #ffffff; /* Fondo blanco para la lista de canciones */
-  border-radius: 8px; /* Esquinas redondeadas */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 700px;
+  text-align: center;
 }
 
 .title {
-  font-size: 2.5em; /* Tamaño del título más grande */
-  text-align: center; /* Alinear el título al centro */
-  color: #2c3e50; /* Color más oscuro para el título */
-  margin-bottom: 20px; /* Espacio debajo del título */
-}
-
-.song-items {
-  list-style: none; /* Eliminar el estilo de lista predeterminado */
-  padding: 0; /* Eliminar el padding */
-}
-
-.song-item {
-  margin: 10px 0; /* Espaciado entre los elementos */
-  padding: 15px; /* Espaciado interno */
-  background-color: #ffffff; /* Fondo blanco para las canciones */
-  border-radius: 5px; /* Esquinas redondeadas */
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Sombra sutil */
-  transition: transform 0.3s; /* Transición suave para el efecto hover */
-}
-
-.song-item:hover {
-  transform: translateY(-2px); /* Efecto de elevación al pasar el mouse */
-}
-
-.song-info {
-  display: flex; /* Flex para el nombre de la canción y el artista */
-  justify-content: space-between; /* Espacio entre los elementos */
-}
-
-.song-name {
-  font-size: 1.2em; /* Tamaño del nombre de la canción */
-  color: #333; /* Color para el nombre de la canción */
-}
-
-.song-artist {
-  font-size: 1em; /* Tamaño del nombre del artista */
-  color: #555; /* Color más claro para el nombre del artista */
+  font-size: 2.2em;
+  color: #1f3b5b;
+  margin-bottom: 25px;
 }
 
 .back-button {
-  padding: 10px 20px;
-  background-color: #007bff;
+  background-color: #1976d2;
   color: white;
   border: none;
-  border-radius: 5px;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 1em;
+  font-weight: 500;
   cursor: pointer;
-  font-size: 1.1em;
-  transition: background-color 0.3s;
+  margin-bottom: 20px;
+  transition: background-color 0.3s, transform 0.2s;
 }
 
 .back-button:hover {
-  background-color: #0056b3; 
+  background-color: #0d47a1;
+  transform: scale(1.03);
 }
 
-/* Estilos responsivos */
-@media (max-width: 768px) {
-  .title {
-    font-size: 2em; /* Tamaño ajustado para pantallas pequeñas */
+.song-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.song-item {
+  padding: 16px 20px;
+  background-color: #fdfdfd;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  transition: transform 0.2s;
+}
+
+.song-item:hover {
+  transform: translateY(-3px);
+}
+
+.song-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.05em;
+  font-weight: 500;
+  color: #333;
+}
+
+.song-artist {
+  color: #777;
+  font-weight: 400;
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  .background-container {
+    background: linear-gradient(to bottom right, #1e1f26, #2c2f39);
   }
 
-  .song-name {
-    font-size: 1.1em; /* Tamaño ajustado para el nombre de la canción */
+  .songs-list {
+    background-color: #2a2d3a;
+    color: #e0e0e0;
+  }
+
+  .title {
+    color: #90caf9;
+  }
+
+  .song-item {
+    background-color: #3b3f4f;
+    color: #e0e0e0;
   }
 
   .song-artist {
-    font-size: 0.9em; /* Tamaño ajustado para el nombre del artista */
+    color: #b0bec5;
+  }
+
+  .back-button {
+    background-color: #64b5f6;
+    color: #10151b;
+  }
+
+  .back-button:hover {
+    background-color: #42a5f5;
+  }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .title {
+    font-size: 1.8em;
+  }
+
+  .song-info {
+    flex-direction: column;
+    gap: 5px;
+    align-items: flex-start;
+  }
+
+  .back-button {
+    width: 100%;
   }
 }
 </style>

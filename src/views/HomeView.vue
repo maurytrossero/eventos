@@ -1,25 +1,26 @@
 <template>
   <div class="home">
-    <h1>Bienvenido al Sistema Gestor de Eventos</h1>
-    <h2>Categorías</h2>
+    <h1>Gestor de Eventos</h1>
+    <h2>Elige una categoría</h2>
+
     <div class="categories">
       <div class="category">
-        <h3>Eventos</h3>
+        <h3><PhCalendarPlus size="24" /> Eventos</h3>
         <ul>
-          <li><router-link to="/eventos">Agregar un Nuevo Evento</router-link></li>
-          <li><router-link to="/eventos/lista">Lista de Eventos</router-link></li>
+          <li><router-link to="/eventos">Agregar Evento</router-link></li>
+          <li><router-link to="/eventos/lista">Ver Lista</router-link></li>
         </ul>
       </div>
 
       <div class="category">
-        <h3>Inicio</h3>
+        <h3><PhHouse size="24" /> Inicio</h3>
         <ul>
           <li><router-link to="/inicio">Ir a Inicio</router-link></li>
         </ul>
       </div>
 
       <div class="category">
-        <h3>Acerca de</h3>
+        <h3><PhInfo size="24" /> Acerca de</h3>
         <ul>
           <li><router-link to="/about">Sobre Nosotros</router-link></li>
         </ul>
@@ -29,104 +30,152 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent } from 'vue'
+import { PhHouse, PhCalendarPlus, PhInfo } from '@phosphor-icons/vue'
 
 export default defineComponent({
-  name: 'HomeView'
-});
+  name: 'HomeView',
+  components: {
+    PhHouse,
+    PhCalendarPlus,
+    PhInfo
+  }
+})
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
 .home {
-  max-width: 100%; /* Occupy full width */
-  min-height: 100vh; /* Ensure it occupies full height */
-  margin: 0;
-  text-align: center;
-  font-family: 'Arial', sans-serif; /* Use a pleasant font */
-  color: #333; /* Text color for better readability */
-  background-color: #f8f9fa; /* Light background for contrast */
-  padding: 20px; /* Padding for spacing */
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-}
-
-h1 {
-  font-size: 2.5em; /* Increase main title size */
-  color: #2c3e50; /* Darker color for title */
-}
-
-h2 {
-  font-size: 2em; /* Increase subtitle size */
-  color: #34495e; /* Slightly lighter color for subtitle */
-}
-
-.categories {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 40px 20px;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(to bottom right, #f9fbfc, #e8f1f8);
+  color: #1f2d3d;
+}
+
+h1 {
+  font-size: 2.8em;
+  color: #1a3c64;
+  margin-bottom: 10px;
+  animation: fadeInDown 0.8s ease-out;
+}
+
+h2 {
+  font-size: 1.6em;
+  color: #406d9e;
+  margin-bottom: 30px;
+  animation: fadeIn 1s ease-out;
+}
+
+.categories {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  width: 100%;
+  max-width: 960px;
 }
 
 .category {
-  width: 60%; /* Set fixed width for categories */
-  margin: 20px 0;
-  padding: 15px; /* Padding inside each category */
-  border: 2px solid #ccc; /* Increase border width */
-  border-radius: 8px; /* Rounded corners for elegance */
-  background-color: #ffffff; /* White background for categories */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Slight shadow for categories */
-  transition: box-shadow 0.3s ease; /* Smooth transition for hover effect */
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: fadeInUp 0.8s ease;
 }
 
 .category:hover {
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Darker shadow on hover */
+  transform: translateY(-6px);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.08);
 }
 
 .category h3 {
-  margin-bottom: 10px;
-  font-size: 1.5em; /* Increase category title size */
-  color: #2c3e50; /* Darker color for category titles */
+  font-size: 1.4em;
+  color: #333;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .category ul {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
 .category li {
-  margin: 5px 0;
+  margin-bottom: 10px;
 }
 
 .category li a {
-  text-decoration: none; /* Remove underline from links */
-  color: #2980b9; /* Link color */
-  font-size: 1.2em; /* Increase link size */
-  transition: color 0.3s ease; /* Smooth color transition */
+  font-size: 1.05em;
+  color: #1976d2;
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
 }
 
 .category li a:hover {
-  color: #3498db; /* Lighter color on hover */
-  text-decoration: underline; /* Underline on hover */
+  color: #0d47a1;
+  text-decoration: underline;
 }
 
-/* Responsive styles */
-@media (max-width: 768px) {
+/* Animaciones */
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  .home {
+    background: linear-gradient(to bottom right, #1e1e2f, #2c3e50);
+    color: #f5f5f5;
+  }
+
   h1 {
-    font-size: 2em; /* Adjust size for smaller screens */
+    color: #e1ecf4;
   }
 
   h2 {
-    font-size: 1.5em; /* Adjust size for smaller screens */
+    color: #bcdffb;
   }
 
   .category {
-    width: 80%; /* Adjust category width for smaller screens */
+    background-color: #2e3b4e;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
   }
 
   .category h3 {
-    font-size: 1.3em; /* Adjust size for smaller screens */
+    color: #f0f8ff;
   }
 
   .category li a {
-    font-size: 1em; /* Adjust size for smaller screens */
+    color: #90caf9;
   }
+
+  .category li a:hover {
+    color: #64b5f6;
+  }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  h1 { font-size: 2.2em; }
+  h2 { font-size: 1.4em; }
 }
 </style>
