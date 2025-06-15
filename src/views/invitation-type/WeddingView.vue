@@ -1,3 +1,4 @@
+<!-- invitation-type/WeddingView.vue -->
 <template>
   <div class="home">
     <div ref="introductionComponentRef"><IntroductionComponent /></div>

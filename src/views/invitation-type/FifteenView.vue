@@ -1,4 +1,4 @@
-<!-- FifteenView.vue -->
+<!-- invitation-type/FifteenView.vue -->
 <template>
   <div class="fifteen-view" ref="container">
     <section ref="section1" class="section">

@@ -1,3 +1,4 @@
+<!-- HomeView.vue -->
 <template>
   <div class="home">
     <h1>Gestor de Eventos</h1>

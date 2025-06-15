@@ -1,3 +1,60 @@
+<!--InvitationView.vue-->
+<template>
+  <div>
+    <div v-if="seleccionando" class="selector-contenedor">
+      <div class="selector">
+        <h2>Seleccioná un diseño de invitación para el evento</h2>
+        <div class="plantillas">
+          <button
+            v-for="plantilla in plantillasDisponibles"
+            :key="plantilla"
+            @click="seleccionarPlantilla(plantilla)"
+          >
+            {{ plantilla }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <component
+      :is="componenteInvitacion"
+      :key="evento?.invitacion || 'sin-invitacion'"
+      v-else-if="componenteInvitacion"
+      :evento="evento"
+    />
+
+    <div 
+      v-if="!seleccionando && evento?.invitacion && !abrirModalConfiguracion" 
+      class="acciones-superiores"
+    >
+      <button class="accion editar" @click="abrirModalConfiguracion = true">✏️</button>
+      <button class="accion eliminar" @click="eliminarInvitacion">🗑️</button>
+    </div>
+
+
+
+    <div v-else class="cargando">
+      <p>Cargando...</p>
+    </div>
+  </div>
+
+  <Teleport to="body">
+    <div
+      v-if="abrirModalConfiguracion"
+      class="modal-overlay"
+      @click.self="abrirModalConfiguracion = false"
+    >
+      <div class="modal-content">
+        <CountdownSetting 
+          :idEvento="eventoId" 
+          @actualizarEvento="actualizarEventoLocal" 
+        />
+        <button class="cerrar" @click="abrirModalConfiguracion = false">✖</button>
+      </div>
+    </div>
+  </Teleport>
+</template>
+
 <script setup lang="ts">
 import { defineAsyncComponent, ref, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
@@ -124,163 +181,133 @@ function actualizarEventoLocal(nuevosDatos: { nombreQuinceanera: string, fecha: 
 
 </script>
 
-<template>
-  <div>
-    <div v-if="seleccionando" class="selector-contenedor">
-      <div class="selector">
-        <h2>Seleccioná un diseño de invitación para el evento</h2>
-        <div class="plantillas">
-          <button
-            v-for="plantilla in plantillasDisponibles"
-            :key="plantilla"
-            @click="seleccionarPlantilla(plantilla)"
-          >
-            {{ plantilla }}
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <component
-      :is="componenteInvitacion"
-      :key="evento?.invitacion || 'sin-invitacion'"
-      v-else-if="componenteInvitacion"
-      :evento="evento"
-    />
-
-    <button
-      @click="eliminarInvitacion"
-      v-if="!seleccionando && evento?.invitacion"
-      style="margin-top: 1rem; background-color: #e74c3c; color: white; border: none; padding: 0.5rem 1rem; cursor: pointer;"
-    >
-      Eliminar invitación
-    </button>
-
-    <button
-      @click="abrirModalConfiguracion = true"
-      v-if="!seleccionando && evento?.invitacion"
-      style="margin-top: 1rem; background-color: #3498db; color: white; border: none; padding: 0.5rem 1rem; cursor: pointer; margin-left: 1rem;"
-    >
-      ✏️ Editar invitación
-    </button>
-
-    <div v-else class="cargando">
-      <p>Cargando...</p>
-    </div>
-  </div>
-
-  <Teleport to="body">
-    <div
-      v-if="abrirModalConfiguracion"
-      class="modal-overlay"
-      @click.self="abrirModalConfiguracion = false"
-    >
-      <div class="modal-content">
-        <CountdownSetting 
-          :idEvento="eventoId" 
-          @actualizarEvento="actualizarEventoLocal" 
-        />
-        <button class="cerrar" @click="abrirModalConfiguracion = false">✖</button>
-      </div>
-    </div>
-  </Teleport>
-</template>
-
-
-
 <style scoped>
-.selector-contenedor {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 80vh;
-  background: linear-gradient(to right, #f8fbff, #eaf3ff);
-  padding: 2rem;
-}
+  .selector-contenedor {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    background: linear-gradient(to right, #f8fbff, #eaf3ff);
+    padding: 2rem;
+  }
 
-.selector {
-  text-align: center;
-  max-width: 600px;
-  width: 100%;
-  background-color: white;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-}
+  .selector {
+    text-align: center;
+    max-width: 600px;
+    width: 100%;
+    background-color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  }
 
-.selector h2 {
-  margin-bottom: 1.5rem;
-  color: #1a3c64;
-  font-size: 1.4rem;
-  font-weight: 600;
-}
+  .selector h2 {
+    margin-bottom: 1.5rem;
+    color: #1a3c64;
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
 
-.plantillas {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
+  .plantillas {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
 
-button {
-  padding: 12px 20px;
-  font-size: 1rem;
-  border: none;
-  background-color: #1976d2;
-  color: white;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
+  button {
+    padding: 12px 20px;
+    font-size: 1rem;
+    border: none;
+    background-color: #1976d2;
+    color: white;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
 
-button:hover {
-  background-color: #0d47a1;
-  transform: translateY(-2px);
-}
+  button:hover {
+    background-color: #0d47a1;
+    transform: translateY(-2px);
+  }
 
-.cargando {
-  text-align: center;
-  padding: 4rem;
-  color: #888;
-  font-style: italic;
-}
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+  .cargando {
+    text-align: center;
+    padding: 4rem;
+    color: #888;
+    font-style: italic;
+  }
 
-.modal-content {
-  background: #ffffff;
-  padding: 2rem;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 600px;
-  position: relative;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-}
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-.cerrar {
-  position: absolute;
-  top: 0.5rem;
-  right: 1rem;
-  background: transparent;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #888;
-}
+  .modal-content {
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    position: relative;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  }
 
-.cerrar:hover {
-  color: #333;
-}
+  .cerrar {
+    position: absolute;
+    top: 0.5rem;
+    right: 1rem;
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #888;
+  }
+
+  .cerrar:hover {
+    color: #333;
+  }
+
+  .acciones-superiores {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    gap: 0.6rem;
+    z-index: 500;
+  }
+
+  .accion {
+    background: white;
+    border: none;
+    padding: 0.4rem 0.6rem;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s, background-color 0.3s;
+  }
+
+  .accion:hover {
+    background-color: #f0f0f0;
+    transform: translateY(-2px);
+  }
+
+  .accion.editar {
+    color: #2980b9;
+  }
+
+  .accion.eliminar {
+    color: #e74c3c;
+  }
 
 </style>
