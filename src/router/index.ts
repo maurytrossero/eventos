@@ -50,9 +50,10 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: '/eventos/lista',
-    name: 'ListaEventos',
+    name: 'eventos-listado',
     component: () => import('@/components/ListaEventos.vue')
   },
+
   // Mantén solo una definición para la ruta de detalle del evento
   {
     path: '/eventos/:eventoId/invitacion',

@@ -1,83 +1,74 @@
 <template>
-    <div class="cuenta-regresiva" :style="{ backgroundImage: backgroundImage }">
-      <div class="overlay">
-        <h1>Cuenta Regresiva</h1>
-        <div class="contador">
-          <div class="tiempo">
-            <transition-group name="slide-fade" tag="div" class="digit">
-              <span v-for="(digit, index) in days" :key="'days-' + index">{{ digit }}</span>
-            </transition-group>
-            <p>Días</p>
-          </div>
-          <div class="tiempo">
-            <transition-group name="slide-fade" tag="div" class="digit">
-              <span v-for="(digit, index) in hours" :key="'hours-' + index">{{ digit }}</span>
-            </transition-group>
-            <p>Horas</p>
-          </div>
-          <div class="tiempo">
-            <transition-group name="slide-fade" tag="div" class="digit">
-              <span v-for="(digit, index) in minutes" :key="'minutes-' + index">{{ digit }}</span>
-            </transition-group>
-            <p>Minutos</p>
-          </div>
-          <div class="tiempo">
-            <transition-group name="slide-fade" tag="div" class="digit">
-              <span v-for="(digit, index) in seconds" :key="'seconds-' + index">{{ digit }}</span>
-            </transition-group>
-            <p>Segundos</p>
-          </div>
+  <div class="cuenta-regresiva" :style="{ backgroundImage: backgroundImage }">
+    <div class="overlay">
+      <h1>Cuenta Regresiva</h1>
+      
+      <div class="contador">
+        <div class="tiempo" v-for="(segmento, key) in contador" :key="key">
+          <transition-group name="slide-fade" tag="div" class="digit">
+            <span v-for="(digit, i) in segmento" :key="key + '-' + i">{{ digit }}</span>
+          </transition-group>
+          <p>{{ key.charAt(0).toUpperCase() + key.slice(1) }}</p>
         </div>
       </div>
     </div>
-  </template>
-  
+  </div>
+</template>
+
 <script lang="ts" setup>
-  import { ref, onMounted, computed } from 'vue'
-  
-  const targetDate = new Date('2024-11-23T17:00:00').getTime()
-  const days = ref<string[]>(['0', '0'])
-  const hours = ref<string[]>(['0', '0'])
-  const minutes = ref<string[]>(['0', '0'])
-  const seconds = ref<string[]>(['0', '0'])
-  
-  // Computed property for background image
-  const backgroundImage = computed(() => {
-    return window.innerWidth <= 768 
-      ? "url('https://dl.dropboxusercontent.com/scl/fi/rgynuaxbx2bnlomrbovqa/DSC_5877V.jpg?rlkey=pvoiylrouwt9ez1gdi90wi5eh&dl=1')" // URL de la imagen para móviles
-      : "url('https://dl.dropboxusercontent.com/scl/fi/tomyp07mxjuvdeixwe94z/DSC_5877.jpg?rlkey=gshrm2a20w49dspunprs89top&st=1snq9htw')" // URL de la imagen para desktop
-  })
-  
-  const updateCountdown = () => {
-    const now = new Date().getTime();
-    let distance = targetDate - now;
+import { ref, onMounted, computed, watch } from 'vue';
 
-    // Si la fecha ya pasó, establece la cuenta en cero
-    if (distance <= 0) {
-      days.value = ['0', '0'];
-      hours.value = ['0', '0'];
-      minutes.value = ['0', '0'];
-      seconds.value = ['0', '0'];
-      return; // No continúa calculando el tiempo
-    }
+const props = defineProps<{
+  fecha?: string
+}>();
 
-    const d = Math.floor(distance / (1000 * 60 * 60 * 24));
-    const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    const s = Math.floor((distance % (1000 * 60)) / 1000);
+const days = ref<string[]>(['0', '0']);
+const hours = ref<string[]>(['0', '0']);
+const minutes = ref<string[]>(['0', '0']);
+const seconds = ref<string[]>(['0', '0']);
 
-    days.value = d.toString().padStart(2, '0').split('');
-    hours.value = h.toString().padStart(2, '0').split('');
-    minutes.value = m.toString().padStart(2, '0').split('');
-    seconds.value = s.toString().padStart(2, '0').split('');
+const contador = computed(() => ({
+  días: days.value,
+  horas: hours.value,
+  minutos: minutes.value,
+  segundos: seconds.value
+}));
+
+const backgroundImage = computed(() => {
+  return window.innerWidth <= 768
+    ? "url('https://dl.dropboxusercontent.com/scl/fi/rgynuaxbx2bnlomrbovqa/DSC_5877V.jpg?rlkey=pvoiylrouwt9ez1gdi90wi5eh&dl=1')"
+    : "url('https://dl.dropboxusercontent.com/scl/fi/tomyp07mxjuvdeixwe94z/DSC_5877.jpg?rlkey=gshrm2a20w49dspunprs89top&st=1snq9htw')";
+});
+
+const updateCountdown = (fechaMs: number) => {
+  const now = Date.now();
+  const distance = fechaMs - now;
+
+  if (distance <= 0) {
+    days.value = hours.value = minutes.value = seconds.value = ['0', '0'];
+    return;
   }
-  
-  onMounted(() => {
-    updateCountdown()
-    setInterval(updateCountdown, 1000) // Actualiza cada segundo
-  })
+
+  const d = Math.floor(distance / (1000 * 60 * 60 * 24));
+  const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  const s = Math.floor((distance % (1000 * 60)) / 1000);
+
+  days.value = d.toString().padStart(2, '0').split('');
+  hours.value = h.toString().padStart(2, '0').split('');
+  minutes.value = m.toString().padStart(2, '0').split('');
+  seconds.value = s.toString().padStart(2, '0').split('');
+};
+
+onMounted(() => {
+  if (!props.fecha) return;
+
+  const fechaMs = new Date(props.fecha).getTime();
+  updateCountdown(fechaMs);
+  setInterval(() => updateCountdown(fechaMs), 1000);
+});
 </script>
-  
+
 <style scoped>
   @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
   @import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');

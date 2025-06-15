@@ -10,7 +10,7 @@
       {{ evento?.lugar }}
     </p>
 
-    <CuentaRegresiva v-if="evento?.fecha" :targetDate="evento.fecha" />
+    <!-- <CuentaRegresiva v-if="evento?.fecha" :targetDate="evento.fecha" />-->
 
     <div class="links-container">
       <router-link
@@ -44,6 +44,10 @@
       <button @click="crearGaleria" class="accion-button">
         Crear Galería Interactiva
       </button>
+      <button @click="eliminarEvento" class="accion-button eliminar">
+        Eliminar Evento
+      </button>
+
     </div>
 
     <ModalDialog
@@ -64,6 +68,7 @@ import { getEventoById, addCancion, updateEvento  } from '@/services/firestoreSe
 import ModalDialog from './ModalDialog.vue';
 import CuentaRegresiva from './CuentaRegresiva.vue';
 import { deleteField } from 'firebase/firestore';
+import { deleteEvento } from '@/services/firestoreService'; // Asegúrate de que esta función exista y funcione
 
 
 import { FieldValue } from 'firebase/firestore';
@@ -92,6 +97,20 @@ const formatDate = (dateString: string) => {
 
 const cargarEvento = async () => {
   evento.value = await getEventoById(eventoId) as Evento;
+};
+
+const eliminarEvento = async () => {
+  const confirmacion = window.confirm('¿Estás seguro de que querés eliminar este evento? Esta acción no se puede deshacer.');
+  if (!confirmacion) return;
+
+  try {
+    await deleteEvento(eventoId);
+    alert('Evento eliminado con éxito.');
+    router.push({ name: 'eventos-listado' }); // Asegúrate de tener esta ruta configurada
+  } catch (error) {
+    console.error('Error al eliminar el evento:', error);
+    alert('Ocurrió un error al eliminar el evento.');
+  }
 };
 
 onMounted(() => {

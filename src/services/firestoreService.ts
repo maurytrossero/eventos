@@ -1,5 +1,5 @@
 import { db } from "../firebase";
-import { collection, addDoc, getDocs, doc, getDoc, updateDoc , FieldValue  } from "firebase/firestore";
+import { collection, addDoc, getDocs, doc, getDoc, updateDoc , FieldValue, deleteDoc  } from "firebase/firestore";
 
 interface Cancion {
     id?: string;
@@ -77,4 +77,9 @@ export const updateEvento = async (
     console.error("Error actualizando el evento:", e);
     throw e;
   }
+};
+
+export const deleteEvento = async (eventoId: string) => {
+  const docRef = doc(db, 'eventos', eventoId);
+  await deleteDoc(docRef);
 };
