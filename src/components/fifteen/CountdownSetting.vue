@@ -1,3 +1,4 @@
+<!-- component/fifteen/CountdownSetting.vue -->
 <template>
   <div class="config-box">
     <h2>🛠️ Configurar Cuenta Regresiva</h2>
@@ -110,17 +111,23 @@
   padding: 1rem;
   border-radius: 10px;
   max-width: 500px;
+  width: 90vw;
   max-height: 90vh;
   overflow-y: auto;
   margin: auto;
   display: flex;
   flex-direction: column;
   gap: 0.7rem;
+  box-sizing: border-box;
 }
 
 input {
   padding: 0.5rem;
   font-size: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 6px;
 }
 
 .preview img {
@@ -135,6 +142,7 @@ input {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
+  justify-content: center;
 }
 
 button {
@@ -144,15 +152,42 @@ button {
   background-color: #6a5acd;
   border-radius: 6px;
   cursor: pointer;
+  flex-grow: 1;
+  min-width: 120px;
+  text-align: center;
+  box-sizing: border-box;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #5747c0;
 }
 
 button.danger {
   background-color: #b22222;
 }
 
+button.danger:hover {
+  background-color: #7f2c2c;
+}
+
 .mensaje {
   margin-top: 0.5rem;
   font-weight: bold;
+  text-align: center;
+  color: #333;
 }
 
+/* Responsivo para móviles */
+@media (max-width: 500px) {
+  .buttons {
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+
+  button {
+    min-width: 100%;
+    flex-grow: 0;
+  }
+}
 </style>

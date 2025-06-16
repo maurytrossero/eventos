@@ -8,7 +8,7 @@
       />
     </section>
     <section ref="section2" class="section">
-      <CarouselComponent />
+<CarouselComponent :event-id="eventoId" />
     </section>
     <section ref="section3" class="section">
       <InformationComponent />
@@ -39,57 +39,68 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
-import CountdownComponent from '@/components/fifteen/CountdownComponent.vue'
-import CarouselComponent from '@/components/fifteen/CarouselComponent.vue'
-import InformationComponent from '@/components/fifteen/InformationComponent.vue'
-import ConfirmComponent from '@/components/fifteen/ConfirmAttendance.vue'
+    import { ref, onMounted, onUnmounted } from 'vue'
+    import CountdownComponent from '@/components/fifteen/CountdownComponent.vue'
+    import CarouselComponent from '@/components/fifteen/CarouselComponent.vue'
+    import InformationComponent from '@/components/fifteen/InformationComponent.vue'
+    import ConfirmComponent from '@/components/fifteen/ConfirmAttendance.vue'
+import { useRoute } from 'vue-router'
+const route = useRoute()
 
-const props = defineProps<{
-  evento: {
-    fecha: string,
-    nombreQuinceanera: string,
-  }
-}>()
+    const eventoId = route.params.eventoId as string;
 
-const container = ref<HTMLElement | null>(null)
-const section1 = ref<HTMLElement | null>(null)
-const section2 = ref<HTMLElement | null>(null)
-const section3 = ref<HTMLElement | null>(null)
-const section4 = ref<HTMLElement | null>(null)
+    const props = defineProps<{
+    evento: {
+        fecha: string
+        nombreQuinceanera: string
+        carouselConfig?: {
+        adornoSuperior?: string
+        adornoInferior?: string
+        frase?: string
+        imagenes?: string[]
+        }
+    }
+    }>()
 
-const currentSection = ref(0)
-const sections = ref<HTMLElement[]>([])
 
-function scrollToSection(index: number) {
-  if (index >= 0 && index < sections.value.length) {
-    currentSection.value = index
-    sections.value[index].scrollIntoView({ behavior: 'smooth' })
-  }
-}
+    const container = ref<HTMLElement | null>(null)
+    const section1 = ref<HTMLElement | null>(null)
+    const section2 = ref<HTMLElement | null>(null)
+    const section3 = ref<HTMLElement | null>(null)
+    const section4 = ref<HTMLElement | null>(null)
 
-function onScroll() {
-  if (!container.value) return
-  const scrollPos = container.value.scrollTop
-  const height = window.innerHeight
-  const index = Math.round(scrollPos / height)
-  if (index !== currentSection.value) {
-    currentSection.value = index
-  }
-}
+    const currentSection = ref(0)
+    const sections = ref<HTMLElement[]>([])
 
-onMounted(() => {
-  sections.value = [section1.value, section2.value, section3.value, section4.value].filter(Boolean) as HTMLElement[]
-  if (container.value) {
-    container.value.addEventListener('scroll', onScroll, { passive: true })
-  }
-})
+    function scrollToSection(index: number) {
+    if (index >= 0 && index < sections.value.length) {
+        currentSection.value = index
+        sections.value[index].scrollIntoView({ behavior: 'smooth' })
+    }
+    }
 
-onUnmounted(() => {
-  if (container.value) {
-    container.value.removeEventListener('scroll', onScroll)
-  }
-})
+    function onScroll() {
+    if (!container.value) return
+    const scrollPos = container.value.scrollTop
+    const height = window.innerHeight
+    const index = Math.round(scrollPos / height)
+    if (index !== currentSection.value) {
+        currentSection.value = index
+    }
+    }
+
+    onMounted(() => {
+    sections.value = [section1.value, section2.value, section3.value, section4.value].filter(Boolean) as HTMLElement[]
+    if (container.value) {
+        container.value.addEventListener('scroll', onScroll, { passive: true })
+    }
+    })
+
+    onUnmounted(() => {
+    if (container.value) {
+        container.value.removeEventListener('scroll', onScroll)
+    }
+    })
 </script>
 
 
@@ -172,5 +183,4 @@ onUnmounted(() => {
         bottom: 0.5rem;
     }
     }
-
 </style>

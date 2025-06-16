@@ -37,22 +37,43 @@
       <p>Cargando...</p>
     </div>
   </div>
-
-  <Teleport to="body">
-    <div
-      v-if="abrirModalConfiguracion"
-      class="modal-overlay"
-      @click.self="abrirModalConfiguracion = false"
-    >
-      <div class="modal-content">
-        <CountdownSetting 
-          :idEvento="eventoId" 
-          @actualizarEvento="actualizarEventoLocal" 
-        />
-        <button class="cerrar" @click="abrirModalConfiguracion = false">✖</button>
+<Teleport to="body">
+  <div
+    v-if="abrirModalConfiguracion"
+    class="modal-overlay"
+    @click.self="abrirModalConfiguracion = false"
+  >
+    <div class="modal-content">
+      <div class="tabs">
+        <button
+          :class="{ active: tabActual === 'countdown' }"
+          @click="tabActual = 'countdown'"
+        >
+          Cuenta Regresiva
+        </button>
+        <button
+          :class="{ active: tabActual === 'carousel' }"
+          @click="tabActual = 'carousel'"
+        >
+          Carrusel
+        </button>
       </div>
+
+      <CountdownSetting
+        v-if="tabActual === 'countdown'"
+        :idEvento="eventoId"
+        @actualizarEvento="actualizarEventoLocal"
+      />
+      <CarouselSetting
+        v-if="tabActual === 'carousel'"
+        :event-id="eventoId"
+        @actualizarEvento="actualizarEventoLocal"
+      />
+      <button class="cerrar" @click="abrirModalConfiguracion = false">✖</button>
     </div>
-  </Teleport>
+  </div>
+</Teleport>
+
 </template>
 
 <script setup lang="ts">
@@ -60,9 +81,12 @@ import { defineAsyncComponent, ref, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { updateEvento } from '@/services/firestoreService';
 import CountdownSetting from '@/components/fifteen/CountdownSetting.vue';
+import CarouselSetting from '@/components/fifteen/CarouselSetting.vue'
 import { doc, onSnapshot, getFirestore } from 'firebase/firestore';
 
 const db = getFirestore();
+
+const tabActual = ref<'countdown' | 'carousel'>('countdown')
 
 const route = useRoute();
 const eventoId = route.params.eventoId as string;
@@ -309,5 +333,24 @@ function actualizarEventoLocal(nuevosDatos: { nombreQuinceanera: string, fecha: 
   .accion.eliminar {
     color: #e74c3c;
   }
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.tabs button {
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  background-color: #eee;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.tabs button.active {
+  background-color: #1976d2;
+  color: white;
+  font-weight: 600;
+}
 
 </style>

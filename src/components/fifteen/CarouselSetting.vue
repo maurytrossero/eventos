@@ -1,0 +1,221 @@
+<template>
+  <div class="config-box">
+    <h2>🖼️ Configurar Carrusel</h2>
+
+    <label>Frase</label>
+    <textarea v-model="frase" rows="3" />
+
+    <label>Adorno superior</label>
+    <input v-model="adornoSuperior" type="text" />
+
+    <label>Adorno inferior</label>
+    <input v-model="adornoInferior" type="text" />
+
+    <label>Imágenes (una por línea)</label>
+    <textarea v-model="imagenesRaw" rows="4" />
+
+    <div class="buttons">
+      <button @click="guardarConfiguracion">💾 Guardar Cambios</button>
+    </div>
+
+    <p v-if="mensaje" class="mensaje">{{ mensaje }}</p>
+
+  </div>
+</template>
+
+<script setup>
+  import { ref, onMounted } from 'vue'
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
+import { db } from '@/firebase'
+
+const props = defineProps({
+  eventId: {
+    type: String,
+    required: true
+  }
+})
+
+const adornoSuperior = ref('')
+const adornoInferior = ref('')
+const frase = ref('')
+const imagenes = ref([])
+const imagenesRaw = ref('')
+const mensaje = ref('')
+
+function syncImagenesToRaw() {
+  imagenesRaw.value = imagenes.value.join('\n')
+}
+
+function syncRawToImagenes() {
+  imagenes.value = imagenesRaw.value
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line !== '')
+}
+
+async function cargarConfiguracion() {
+  if (!props.eventId) {
+    console.error('eventId no está definido')
+    return
+  }
+
+  const docRef = doc(db, 'eventos', props.eventId, 'configuracion', 'carousel')
+  const docSnap = await getDoc(docRef)
+
+  if (docSnap.exists()) {
+    const data = docSnap.data()
+    adornoSuperior.value = data.adornoSuperior || ''
+    adornoInferior.value = data.adornoInferior || ''
+    frase.value = data.frase || ''
+    imagenes.value = Array.isArray(data.imagenes) ? data.imagenes : []
+    syncImagenesToRaw()
+  } else {
+    await setDoc(docRef, {
+      adornoSuperior: '',
+      adornoInferior: '',
+      frase: '',
+      imagenes: []
+    })
+    imagenes.value = []
+    syncImagenesToRaw()
+  }
+}
+
+async function guardarConfiguracion() {
+  if (!props.eventId) {
+    console.error('No se puede guardar: eventId es undefined')
+    return
+  }
+
+  syncRawToImagenes()
+
+  const docRef = doc(db, 'eventos', props.eventId, 'configuracion', 'carousel')
+
+  try {
+    await updateDoc(docRef, {
+      adornoSuperior: adornoSuperior.value,
+      adornoInferior: adornoInferior.value,
+      frase: frase.value,
+      imagenes: imagenes.value
+    })
+
+    localStorage.setItem(
+      `carousel-${props.eventId}`,
+      JSON.stringify({
+        adornoSuperior: adornoSuperior.value,
+        adornoInferior: adornoInferior.value,
+        frase: frase.value,
+        imagenes: imagenes.value
+      })
+    )
+
+    mensaje.value = '✅ Cambios guardados correctamente.'
+
+    // Ocultar mensaje después de 3 segundos
+    setTimeout(() => {
+      mensaje.value = ''
+    }, 3000)
+
+  } catch (e) {
+    console.error(e)
+    mensaje.value = '❌ Error al guardar cambios.'
+  }
+}
+
+onMounted(cargarConfiguracion)
+
+</script>
+
+<style scoped>
+  .config-box {
+    background: #fafafa;
+    padding: 1rem;
+    border-radius: 10px;
+    max-width: 500px;       /* ancho max para escritorio */
+    width: 90vw;            /* ancho adaptable a móvil */
+    max-height: 90vh;       /* altura máxima con scroll */
+    overflow-y: auto;
+    margin: 1rem auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    box-sizing: border-box;
+  }
+
+  /* Inputs y textarea ocupan todo el ancho del contenedor */
+  textarea,
+  input {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    resize: vertical;
+    box-sizing: border-box;
+  }
+
+  /* Botones ocupan su contenido y están alineados horizontalmente */
+  .buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  button {
+    padding: 0.5rem 1rem;
+    border: none;
+    color: white;
+    background-color: #6a5acd;
+    border-radius: 6px;
+    cursor: pointer;
+    flex-grow: 1; /* para que ocupen ancho proporcional en móviles */
+    min-width: 120px;
+    text-align: center;
+    box-sizing: border-box;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: #5747c0;
+  }
+
+  /* Media query para orientación horizontal en móviles/tablets */
+  @media (orientation: landscape) and (max-width: 768px) {
+    .config-box {
+      max-width: 700px;
+      max-height: 80vh;
+      padding: 1.5rem;
+    }
+
+    textarea,
+    input {
+      font-size: 1.1rem;
+    }
+  }
+
+  /* Media query para pantallas muy pequeñas */
+  @media (max-width: 400px) {
+    .config-box {
+      padding: 0.8rem;
+      max-height: 85vh;
+    }
+
+    textarea,
+    input {
+      font-size: 0.9rem;
+    }
+
+    button {
+      min-width: 100%;
+      flex-grow: 0;
+    }
+  }
+
+  .mensaje {
+    margin-top: 0.5rem;
+    font-weight: bold;
+    color: #2a7a2a; /* verde */
+    user-select: none;
+    transition: opacity 0.3s ease;
+  }
+
+</style>

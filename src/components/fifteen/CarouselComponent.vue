@@ -1,3 +1,4 @@
+<!-- fifteen/CarouselComponent -->
 <template>
   <div class="container">
     <!-- Adornos -->
@@ -15,11 +16,8 @@
     />
 
     <div class="content">
-      <p class="quote">
-        "El futuro pertenece<br />
-        a quienes creen en la belleza<br />
-        de sus sueños"
-      </p>
+      <!-- Frase dinámica -->
+      <p class="quote" v-html="fraseFormatted"></p>
 
       <div class="carousel">
         <transition-group name="fade" tag="div" class="carousel-inner">
@@ -42,226 +40,290 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { doc, getDoc, onSnapshot } from 'firebase/firestore'
+import { db } from '@/firebase'
 
-const adornoSuperior =
-  "https://dl.dropboxusercontent.com/scl/fi/ng7hgiehcw270vy5fpkld/adorno-superior.png?rlkey=siwe9gz2wlzlaeq2ihi8jtdbd&st=j89m0pxm";
-const adornoInferior =
-  "https://dl.dropboxusercontent.com/scl/fi/fqccte9ioz89kmlog4lb3/adorno-inferior.png?rlkey=rsgkpbj2ty8jhwvh5kf2kwsy5&st=t9nn5t20";
+const props = defineProps({
+  eventId: {
+    type: String,
+    required: true
+  }
+})
 
-const images = [
-  "https://picsum.photos/id/1015/600/400",
-  "https://picsum.photos/id/1016/600/400",
-  "https://picsum.photos/id/1018/600/400",
-];
+const adornoSuperior = ref('')
+const adornoInferior = ref('')
+const frase = ref('')
+const images = ref([])
+const currentIndex = ref(0)
 
-const currentIndex = ref(0);
-let interval = null;
+let interval = null
+let unsubscribe = null
+
+const defaultData = {
+  adornoSuperior: 'https://dl.dropboxusercontent.com/scl/fi/ng7hgiehcw270vy5fpkld/adorno-superior.png?rlkey=siwe9gz2wlzlaeq2ihi8jtdbd&st=j89m0pxm',
+  adornoInferior: 'https://dl.dropboxusercontent.com/scl/fi/fqccte9ioz89kmlog4lb3/adorno-inferior.png?rlkey=rsgkpbj2ty8jhwvh5kf2kwsy5&st=t9nn5t20',
+  frase: `El futuro pertenece\na quienes creen en la belleza\nde sus sueños`,
+  imagenes: [
+    'https://picsum.photos/id/1015/600/400',
+    'https://picsum.photos/id/1016/600/400',
+    'https://picsum.photos/id/1018/600/400'
+  ]
+}
+
+// Frase con saltos de línea convertidos a <br>
+const fraseFormatted = computed(() =>
+  (frase.value || defaultData.frase).replace(/\n/g, '<br />')
+)
+
+function applyCarouselData(data) {
+  adornoSuperior.value = data.adornoSuperior || defaultData.adornoSuperior
+  adornoInferior.value = data.adornoInferior || defaultData.adornoInferior
+  frase.value = data.frase || defaultData.frase
+  images.value = Array.isArray(data.imagenes) && data.imagenes.length
+    ? data.imagenes
+    : defaultData.imagenes
+
+  currentIndex.value = 0
+}
 
 function nextImage() {
-  currentIndex.value = (currentIndex.value + 1) % images.length;
+  currentIndex.value = (currentIndex.value + 1) % images.value.length
+}
+
+async function loadCarouselData() {
+  const local = localStorage.getItem(`carousel-${props.eventId}`)
+  if (local) {
+    applyCarouselData(JSON.parse(local))
+  } else {
+    const docRef = doc(db, 'eventos', props.eventId, 'configuracion', 'carousel')
+    const docSnap = await getDoc(docRef)
+    if (docSnap.exists()) {
+      const data = docSnap.data()
+      applyCarouselData(data)
+      localStorage.setItem(`carousel-${props.eventId}`, JSON.stringify(data))
+    } else {
+      applyCarouselData(defaultData)
+    }
+  }
+
+  const docRef = doc(db, 'eventos', props.eventId, 'configuracion', 'carousel')
+  unsubscribe = onSnapshot(docRef, (docSnap) => {
+    if (docSnap.exists()) {
+      const data = docSnap.data()
+      applyCarouselData(data)
+      localStorage.setItem(`carousel-${props.eventId}`, JSON.stringify(data))
+    }
+  })
 }
 
 onMounted(() => {
-  interval = setInterval(nextImage, 11000);
-});
+  if (!props.eventId) {
+    console.error('CarouselComponent: eventId no está definido')
+    return
+  }
+  loadCarouselData()
+  interval = setInterval(nextImage, 11000)
+})
 
 onUnmounted(() => {
-  clearInterval(interval);
-});
+  if (interval) clearInterval(interval)
+  if (unsubscribe) unsubscribe()
+})
 </script>
 
+
 <style scoped>
-@font-face {
-  font-family: 'Bahnschrift';
-  src: url('../../assets/fonts/Bahnschrift.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'FairProsper';
-  src: url('../../assets/fonts/FairProsper.woff') format('woff');
-}
-
-
-:global(html, body) {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  overflow-x: hidden;
-}
-
-.container {
-  position: relative;
-  width: 100%;
-  min-height: 100vh;
-  background-color: #fff;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0;
-  box-sizing: border-box;
-  flex-direction: column;
-}
-
-.adorno {
-  position: absolute;
-  user-select: none;
-  pointer-events: none;
-  z-index: 10;
-  opacity: 0.7;
-  width: 25vw;
-  height: auto;
-  margin: 0;
-  padding: 0;
-}
-
-.adorno.superior {
-  top: 0;
-  left: 0;
-}
-.adorno.inferior {
-  bottom: 0;
-  right: 0;
-}
-
-@media (max-width: 600px) {
-  .adorno {
-    width: 40vw;
-    opacity: 0.6;
-  }
-}
-
-.content {
-  position: relative;
-  z-index: 20;
-  max-width: 700px;
-  width: 100%;
-  text-align: center;
-  user-select: none;
-  padding: 1rem;
-}
-
-.quote {
-  font-family: "FairProsper", serif;  /* Aquí cambio a Fair Prosper */
-  font-weight: 400;
-  font-size: 2rem;
-  line-height: 1.3;
-  margin-bottom: 1.5rem;
-  color: #b6afa0;
-}
-
-.carousel {
-  width: 100%;
-  aspect-ratio: 3 / 2;
-  border-radius: 2rem;
-  overflow: hidden;
-  position: relative;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
-  background-color: #eee;
-  margin-bottom: 1rem;
-}
-
-.carousel-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-.carousel-image {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 2rem;
-  opacity: 0;
-  transform: scale(1);
-  transition: opacity 1s ease;
-  animation: zoomIn 10s ease forwards;
-}
-
-.carousel-image[v-show="true"] {
-  opacity: 1;
-  animation: zoomIn 10s ease forwards;
-}
-
-@keyframes zoomIn {
-  from {
-    transform: scale(1);
-  }
-  to {
-    transform: scale(1.1);
-  }
-}
-
-.gallery-title {
-  font-family: 'Bahnschrift', sans-serif;
-  font-weight: 700;
-  font-size: 1.6rem;
-  color: #000;
-  margin-top: 0.5rem;
-  letter-spacing: 0.05em;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 1s ease;
-}
-.fade-enter-to,
-.fade-leave-from {
-  opacity: 1;
-}
-
-@media (max-width: 600px) and (orientation: portrait) {
-  .carousel {
-    width: 80%;
-    aspect-ratio: 3 / 2;
-    border-radius: 1rem;
-    margin: 0 auto 1rem auto;
+  @font-face {
+    font-family: 'Bahnschrift';
+    src: url('../../assets/fonts/Bahnschrift.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
   }
 
-  .quote {
-    font-size: 1.4rem;
-    padding: 0 1rem;
+  @font-face {
+    font-family: 'FairProsper';
+    src: url('../../assets/fonts/FairProsper.woff') format('woff');
   }
 
-  .gallery-title {
-    font-size: 1.3rem;
-    margin-top: 0.75rem;
-  }
-}
 
-@media (max-width: 800px) and (orientation: landscape) {
+  :global(html, body) {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;
+  }
+
   .container {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    background-color: #fff;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    box-sizing: border-box;
+    flex-direction: column;
+  }
+
+  .adorno {
+    position: absolute;
+    user-select: none;
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0.7;
+    width: 25vw;
+    height: auto;
+    margin: 0;
+    padding: 0;
+  }
+
+  .adorno.superior {
+    top: 0;
+    left: 0;
+  }
+  .adorno.inferior {
+    bottom: 0;
+    right: 0;
+  }
+
+  @media (max-width: 600px) {
+    .adorno {
+      width: 40vw;
+      opacity: 0.6;
+    }
+  }
+
+  .content {
+    position: relative;
+    z-index: 20;
+    max-width: 700px;
+    width: 100%;
+    text-align: center;
+    user-select: none;
     padding: 1rem;
-    justify-content: flex-start;
   }
 
   .quote {
-    font-size: 1rem;
-    margin-bottom: 0.5rem;
+    font-family: "FairProsper", serif;  /* Aquí cambio a Fair Prosper */
+    font-weight: 400;
+    font-size: 2rem;
+    line-height: 1.3;
+    margin-bottom: 1.5rem;
+    color: #b6afa0;
   }
 
   .carousel {
-    width: auto;
-    height: calc(100vh - 7rem); /* ajustamos según espacio de la quote */
+    width: 100%;
     aspect-ratio: 3 / 2;
-    max-height: 60vh;
-    margin: 0 auto 1rem auto;
-    border-radius: 1rem;
+    border-radius: 2rem;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+    background-color: #eee;
+    margin-bottom: 1rem;
+  }
+
+  .carousel-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .carousel-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 2rem;
+    opacity: 0;
+    transform: scale(1);
+    transition: opacity 1s ease;
+    animation: zoomIn 10s ease forwards;
+  }
+
+  .carousel-image[v-show="true"] {
+    opacity: 1;
+    animation: zoomIn 10s ease forwards;
+  }
+
+  @keyframes zoomIn {
+    from {
+      transform: scale(1);
+    }
+    to {
+      transform: scale(1.1);
+    }
   }
 
   .gallery-title {
-    font-size: 1rem;
+    font-family: 'Bahnschrift', sans-serif;
+    font-weight: 700;
+    font-size: 1.6rem;
+    color: #000;
+    margin-top: 0.5rem;
+    letter-spacing: 0.05em;
   }
-}
+
+  .fade-enter-from,
+  .fade-leave-to {
+    opacity: 0;
+  }
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 1s ease;
+  }
+  .fade-enter-to,
+  .fade-leave-from {
+    opacity: 1;
+  }
+
+  @media (max-width: 600px) and (orientation: portrait) {
+    .carousel {
+      width: 80%;
+      aspect-ratio: 3 / 2;
+      border-radius: 1rem;
+      margin: 0 auto 1rem auto;
+    }
+
+    .quote {
+      font-size: 1.4rem;
+      padding: 0 1rem;
+    }
+
+    .gallery-title {
+      font-size: 1.3rem;
+      margin-top: 0.75rem;
+    }
+  }
+
+  @media (max-width: 800px) and (orientation: landscape) {
+    .container {
+      padding: 1rem;
+      justify-content: flex-start;
+    }
+
+    .quote {
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .carousel {
+      width: auto;
+      height: calc(100vh - 7rem); /* ajustamos según espacio de la quote */
+      aspect-ratio: 3 / 2;
+      max-height: 60vh;
+      margin: 0 auto 1rem auto;
+      border-radius: 1rem;
+    }
+
+    .gallery-title {
+      font-size: 1rem;
+    }
+  }
 
 
 </style>
