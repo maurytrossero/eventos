@@ -3,14 +3,14 @@
     <!-- Adorno superior -->
     <img
       class="adorno superior"
-      src="https://dl.dropboxusercontent.com/scl/fi/ng7hgiehcw270vy5fpkld/adorno-superior.png?rlkey=siwe9gz2wlzlaeq2ihi8jtdbd&st=j89m0pxm"
+      :src="adornoSuperior"
       alt="Adorno superior"
       aria-hidden="true"
     />
 
     <!-- Texto invitación -->
     <div class="mensaje-invitacion">
-      <p>El regalo es opcional,<br />la asistencia es obligatoria</p>
+      <p v-html="texto.replaceAll('\n', '<br>')"></p>
 
       <img
         class="separador-img"
@@ -39,17 +39,32 @@
     <!-- Adorno inferior -->
     <img
       class="adorno inferior"
-      src="https://dl.dropboxusercontent.com/scl/fi/fqccte9ioz89kmlog4lb3/adorno-inferior.png?rlkey=rsgkpbj2ty8jhwvh5kf2kwsy5&st=t9nn5t20"
+      :src="adornoInferior"
       alt="Adorno inferior"
       aria-hidden="true"
     />
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
+
+<script setup lang="ts">
+import { ref, computed } from 'vue'
 import ModalComponent from './ModalComponent.vue'
 import ModalMusic from './ModalMusic.vue'
+
+const props = defineProps<{
+  informacion?: {
+    textoInvitacion: string
+    adornoSuperior: string
+    adornoInferior: string
+    tarjetas: Array<{
+      frontImage: string
+      frontText: string
+      frontIcon: string
+      backContent: any
+    }>
+  }
+}>()
 
 const showMusicModal = ref(false)
 
@@ -61,41 +76,61 @@ function cerrarFormularioMusica() {
   showMusicModal.value = false
 }
 
-const modals = [
-  {
-    frontImage: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTO0h0CMgMLU-zuXvv31t2jhUWKhY2HwJCrhA&s',
-    frontText: 'Precio',
-    frontIcon: 'cake',
-    backContent: {
-      type: 'price',
-      prices: [
-        { description: 'Mayores', amount: '$40.000' },
-        { description: 'Menores', amount: '$25.000' },
-        { description: 'Juvenil', amount: '$35.000' },
-        { description: 'Brindis', amount: '$20.000' }
+const texto = computed(() =>
+  props.informacion?.textoInvitacion ||
+  'El regalo es opcional,\nla asistencia es obligatoria'
+)
+
+const adornoSuperior = computed(() =>
+  props.informacion?.adornoSuperior ||
+  'https://dl.dropboxusercontent.com/scl/fi/ng7hgiehcw270vy5fpkld/adorno-superior.png?rlkey=siwe9gz2wlzlaeq2ihi8jtdbd&st=j89m0pxm'
+)
+
+const adornoInferior = computed(() =>
+  props.informacion?.adornoInferior ||
+  'https://dl.dropboxusercontent.com/scl/fi/fqccte9ioz89kmlog4lb3/adorno-inferior.png?rlkey=rsgkpbj2ty8jhwvh5kf2kwsy5&st=t9nn5t20'
+)
+
+const modals = computed(() =>
+  props.informacion?.tarjetas?.length
+    ? props.informacion.tarjetas
+    : [
+        {
+          frontImage: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTO0h0CMgMLU-zuXvv31t2jhUWKhY2HwJCrhA&s',
+          frontText: 'Precio',
+          frontIcon: 'cake',
+          backContent: {
+            type: 'price',
+            prices: [
+              { description: 'Mayores', amount: '$40.000' },
+              { description: 'Menores', amount: '$25.000' },
+              { description: 'Juvenil', amount: '$35.000' },
+              { description: 'Brindis', amount: '$20.000' }
+            ]
+          }
+        },
+        {
+          frontImage: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUPnVDxHNIJTBlHK9JwfncsixbV8SwKb5Fvg&s',
+          frontText: 'Lugar',
+          frontIcon: 'gift',
+          backContent: {
+            type: 'location',
+            address: `AGOSTO | 16 | 2025\nAsociación Italiana príncipe Humberto. Porteña.`,
+            googleMapsUrl: 'https://www.google.com/maps/search/?api=1&query=Asociación+Italiana+Príncipe+Humberto,+Porteña'
+          }
+        },
+        {
+          frontImage: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTb54uUvljGEDIhS6QTp1I-JrL4PDd6xKOjfQ&s',
+          frontText: 'Música',
+          frontIcon: 'music',
+          backContent: {
+            type: 'music'
+          }
+        }
       ]
-    }
-  },
-  {
-    frontImage: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUPnVDxHNIJTBlHK9JwfncsixbV8SwKb5Fvg&s',
-    frontText: 'Lugar',
-    frontIcon: 'gift',
-    backContent: {
-      type: 'location',
-      address: `AGOSTO | 16 | 2025\nAsociación Italiana príncipe Humberto. Porteña.`,
-      googleMapsUrl: 'https://www.google.com/maps/search/?api=1&query=Asociación+Italiana+Príncipe+Humberto,+Porteña'
-    }
-  },
-  {
-    frontImage: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTb54uUvljGEDIhS6QTp1I-JrL4PDd6xKOjfQ&s',
-    frontText: 'Música',
-    frontIcon: 'music',
-    backContent: {
-      type: 'music'
-    }
-  }
-]
+)
 </script>
+
 
 
 <style scoped>

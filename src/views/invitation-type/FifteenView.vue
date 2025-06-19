@@ -8,11 +8,13 @@
       />
     </section>
     <section ref="section2" class="section">
-<CarouselComponent :event-id="eventoId" />
+      <CarouselComponent :event-id="eventoId" />
     </section>
-    <section ref="section3" class="section">
-      <InformationComponent />
-    </section>
+    <InformationComponent
+      :event-id="eventoId"
+      :informacion="evento.informacionInvitacion"
+    />
+
     <section ref="section4" class="section">
       <ConfirmComponent />
     </section>
@@ -44,23 +46,35 @@
     import CarouselComponent from '@/components/fifteen/CarouselComponent.vue'
     import InformationComponent from '@/components/fifteen/InformationComponent.vue'
     import ConfirmComponent from '@/components/fifteen/ConfirmAttendance.vue'
-import { useRoute } from 'vue-router'
-const route = useRoute()
+    import { useRoute } from 'vue-router'
+    const route = useRoute()
 
     const eventoId = route.params.eventoId as string;
 
-    const props = defineProps<{
-    evento: {
-        fecha: string
-        nombreQuinceanera: string
-        carouselConfig?: {
-        adornoSuperior?: string
-        adornoInferior?: string
-        frase?: string
-        imagenes?: string[]
-        }
+const props = defineProps<{
+  evento: {
+    fecha: string
+    nombreQuinceanera: string
+    carouselConfig?: {
+      adornoSuperior?: string
+      adornoInferior?: string
+      frase?: string
+      imagenes?: string[]
+    },
+    informacionInvitacion?: {
+      textoInvitacion: string
+      adornoSuperior: string
+      adornoInferior: string
+      tarjetas: Array<{
+        frontImage: string
+        frontText: string
+        frontIcon: string
+        backContent: any
+      }>
     }
-    }>()
+  }
+}>()
+
 
 
     const container = ref<HTMLElement | null>(null)

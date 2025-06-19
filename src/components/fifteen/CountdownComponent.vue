@@ -23,7 +23,7 @@
 
 <script setup lang="ts">
   import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
-import { parseISO, format } from 'date-fns'
+import { parseISO, format,  isValid  } from 'date-fns'
 import { es } from 'date-fns/locale'
 
 const props = defineProps<{
@@ -33,11 +33,14 @@ const props = defineProps<{
     imagenFondo?: string  // <-- nuevo campo esperado
   }
 }>()
+const defaultDate = new Date() // por ejemplo, hoy
 
 const eventDate = ref<Date>(parseISO(props.evento.fecha))
 
 const fechaFormateada = computed(() => {
-  return format(eventDate.value, "d '·' MMMM '·' yyyy", { locale: es })
+  const date = eventDate.value ? new Date(eventDate.value) : defaultDate
+  if (!isValid(date)) return 'Fecha inválida'
+  return format(date, "d '·' MMMM '·' yyyy", { locale: es })
 })
 
 const time = ref({

@@ -31,8 +31,6 @@
       <button class="accion eliminar" @click="eliminarInvitacion">🗑️</button>
     </div>
 
-
-
     <div v-else class="cargando">
       <p>Cargando...</p>
     </div>
@@ -45,30 +43,44 @@
   >
     <div class="modal-content">
       <div class="tabs">
-        <button
-          :class="{ active: tabActual === 'countdown' }"
-          @click="tabActual = 'countdown'"
-        >
+        <button :class="{ active: tabActual === 'countdown' }" @click="tabActual = 'countdown'">
           Cuenta Regresiva
         </button>
-        <button
-          :class="{ active: tabActual === 'carousel' }"
-          @click="tabActual = 'carousel'"
-        >
+        <button :class="{ active: tabActual === 'carousel' }" @click="tabActual = 'carousel'">
           Carrusel
+        </button>
+        <button :class="{ active: tabActual === 'info' }" @click="tabActual = 'info'">
+          Información
         </button>
       </div>
 
+    <div v-if="tabActual === 'countdown'">
       <CountdownSetting
-        v-if="tabActual === 'countdown'"
         :idEvento="eventoId"
         @actualizarEvento="actualizarEventoLocal"
       />
+    </div>
+
+    <div v-else-if="tabActual === 'carousel'">
       <CarouselSetting
-        v-if="tabActual === 'carousel'"
         :event-id="eventoId"
         @actualizarEvento="actualizarEventoLocal"
       />
+    </div>
+
+    <div v-else-if="tabActual === 'info'">
+      <InformationSetting
+        :modelValue="evento.informacionInvitacion || {
+          adornoSuperior: '',
+          adornoInferior: '',
+          textoInvitacion: '',
+          tarjetas: []
+        }"
+        @update:modelValue="handleUpdateInfo"
+        :idEvento="eventoId"
+      />
+    </div>
+
       <button class="cerrar" @click="abrirModalConfiguracion = false">✖</button>
     </div>
   </div>
@@ -82,11 +94,13 @@ import { useRoute } from 'vue-router';
 import { updateEvento } from '@/services/firestoreService';
 import CountdownSetting from '@/components/fifteen/CountdownSetting.vue';
 import CarouselSetting from '@/components/fifteen/CarouselSetting.vue'
+import InformationSetting from '@/components/fifteen/InformationSetting.vue';
+
 import { doc, onSnapshot, getFirestore } from 'firebase/firestore';
 
 const db = getFirestore();
 
-const tabActual = ref<'countdown' | 'carousel'>('countdown')
+const tabActual = ref<'countdown' | 'carousel' | 'info'>('countdown')
 
 const route = useRoute();
 const eventoId = route.params.eventoId as string;
@@ -189,19 +203,47 @@ const eliminarInvitacion = async () => {
     console.error('Error al eliminar invitación:', error);
   }
 };
+function handleUpdateInfo(nuevaInfo: any) {
+  // Guardar en memoria
+  evento.value.informacionInvitacion = nuevaInfo
 
-function actualizarEventoLocal(nuevosDatos: { nombreQuinceanera: string, fecha: string, imagenFondo: string }) {
+  // Guardar en Firestore
+  actualizarEventoLocal({ informacionInvitacion: nuevaInfo })
+}
+
+function actualizarEventoLocal(nuevosDatos: {
+  nombreQuinceanera?: string,
+  fecha?: string,
+  imagenFondo?: string,
+  informacionInvitacion?: {
+    adornoSuperior: string,
+    adornoInferior: string,
+    textoInvitacion: string,
+    tarjetas: {
+      frontImage: string,
+      frontText: string,
+      frontIcon: string,
+      backContent: any
+    }[]
+  }
+}) {
   if (!evento.value) return;
 
+  // Actualiza solo los campos que vienen definidos
   evento.value = {
     ...evento.value,
-    nombreQuinceanera: nuevosDatos.nombreQuinceanera,
-    fecha: nuevosDatos.fecha,
-    imagenFondo: nuevosDatos.imagenFondo
+    ...nuevosDatos
   };
 
+  // Actualiza localStorage
   localStorage.setItem(`eventoCache_${eventoId}`, JSON.stringify(evento.value));
+
+  // Si querés también guardarlo en Firestore:
+  updateEvento(eventoId, nuevosDatos).catch((e) => {
+    console.error("Error actualizando Firestore:", e);
+  });
 }
+
 
 </script>
 
@@ -346,7 +388,9 @@ function actualizarEventoLocal(nuevosDatos: { nombreQuinceanera: string, fecha: 
   border: none;
   border-radius: 8px;
   cursor: pointer;
+  color: #333; /* ✅ AÑADIDO */
 }
+
 .tabs button.active {
   background-color: #1976d2;
   color: white;
