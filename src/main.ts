@@ -1,4 +1,5 @@
 import { createApp } from 'vue'
+import './vue-feature-flags';
 import App from './App.vue'
 import router from './router'
 import { library } from '@fortawesome/fontawesome-svg-core';

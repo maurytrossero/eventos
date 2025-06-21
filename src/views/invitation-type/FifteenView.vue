@@ -8,15 +8,14 @@
       />
     </section>
     <section ref="section2" class="section">
-      <CarouselComponent :event-id="eventoId" />
+      <CarouselComponent :evento-id="eventoId" />
     </section>
     <InformationComponent
-      :event-id="eventoId"
+      :evento-id="eventoId"
       :informacion="evento.informacionInvitacion"
     />
-
     <section ref="section4" class="section">
-      <ConfirmComponent />
+      <ConfirmComponent :evento-id="eventoId" />
     </section>
 
     <!-- Botones navegación -->
@@ -41,15 +40,15 @@
 </template>
 
 <script setup lang="ts">
-    import { ref, onMounted, onUnmounted } from 'vue'
-    import CountdownComponent from '@/components/fifteen/CountdownComponent.vue'
-    import CarouselComponent from '@/components/fifteen/CarouselComponent.vue'
-    import InformationComponent from '@/components/fifteen/InformationComponent.vue'
-    import ConfirmComponent from '@/components/fifteen/ConfirmAttendance.vue'
-    import { useRoute } from 'vue-router'
-    const route = useRoute()
+import { ref, onMounted, onUnmounted } from 'vue'
+import CountdownComponent from '@/components/fifteen/CountdownComponent.vue'
+import CarouselComponent from '@/components/fifteen/CarouselComponent.vue'
+import InformationComponent from '@/components/fifteen/InformationComponent.vue'
+import ConfirmComponent from '@/components/fifteen/ConfirmAttendance.vue'
+import { useRoute } from 'vue-router'
 
-    const eventoId = route.params.eventoId as string;
+const route = useRoute()
+const eventoId = route.params.eventoId as string
 
 const props = defineProps<{
   evento: {
@@ -75,47 +74,45 @@ const props = defineProps<{
   }
 }>()
 
+const container = ref<HTMLElement | null>(null)
+const section1 = ref<HTMLElement | null>(null)
+const section2 = ref<HTMLElement | null>(null)
+const section4 = ref<HTMLElement | null>(null)  // Eliminé section3 porque no existe
 
+const currentSection = ref(0)
+const sections = ref<HTMLElement[]>([])
 
-    const container = ref<HTMLElement | null>(null)
-    const section1 = ref<HTMLElement | null>(null)
-    const section2 = ref<HTMLElement | null>(null)
-    const section3 = ref<HTMLElement | null>(null)
-    const section4 = ref<HTMLElement | null>(null)
+function scrollToSection(index: number) {
+  if (index >= 0 && index < sections.value.length) {
+    currentSection.value = index
+    sections.value[index].scrollIntoView({ behavior: 'smooth' })
+  }
+}
 
-    const currentSection = ref(0)
-    const sections = ref<HTMLElement[]>([])
+function onScroll() {
+  if (!container.value) return
+  const scrollPos = container.value.scrollTop
+  const height = window.innerHeight
+  const index = Math.round(scrollPos / height)
+  if (index !== currentSection.value) {
+    currentSection.value = index
+  }
+}
 
-    function scrollToSection(index: number) {
-    if (index >= 0 && index < sections.value.length) {
-        currentSection.value = index
-        sections.value[index].scrollIntoView({ behavior: 'smooth' })
-    }
-    }
+onMounted(() => {
+  sections.value = [section1.value, section2.value, section4.value].filter(Boolean) as HTMLElement[]
+  if (container.value) {
+    container.value.addEventListener('scroll', onScroll, { passive: true })
+  }
+})
 
-    function onScroll() {
-    if (!container.value) return
-    const scrollPos = container.value.scrollTop
-    const height = window.innerHeight
-    const index = Math.round(scrollPos / height)
-    if (index !== currentSection.value) {
-        currentSection.value = index
-    }
-    }
-
-    onMounted(() => {
-    sections.value = [section1.value, section2.value, section3.value, section4.value].filter(Boolean) as HTMLElement[]
-    if (container.value) {
-        container.value.addEventListener('scroll', onScroll, { passive: true })
-    }
-    })
-
-    onUnmounted(() => {
-    if (container.value) {
-        container.value.removeEventListener('scroll', onScroll)
-    }
-    })
+onUnmounted(() => {
+  if (container.value) {
+    container.value.removeEventListener('scroll', onScroll)
+  }
+})
 </script>
+
 
 
 <style scoped>

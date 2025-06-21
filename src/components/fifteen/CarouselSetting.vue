@@ -29,7 +29,7 @@ import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
 import { db } from '@/firebase'
 
 const props = defineProps({
-  eventId: {
+  eventoId: {
     type: String,
     required: true
   }
@@ -54,12 +54,12 @@ function syncRawToImagenes() {
 }
 
 async function cargarConfiguracion() {
-  if (!props.eventId) {
-    console.error('eventId no está definido')
+  if (!props.eventoId) {
+    console.error('eventoId no está definido')
     return
   }
 
-  const docRef = doc(db, 'eventos', props.eventId, 'configuracion', 'carousel')
+  const docRef = doc(db, 'eventos', props.eventoId, 'configuracion', 'carousel')
   const docSnap = await getDoc(docRef)
 
   if (docSnap.exists()) {
@@ -82,14 +82,14 @@ async function cargarConfiguracion() {
 }
 
 async function guardarConfiguracion() {
-  if (!props.eventId) {
-    console.error('No se puede guardar: eventId es undefined')
+  if (!props.eventoId) {
+    console.error('No se puede guardar: eventoId es undefined')
     return
   }
 
   syncRawToImagenes()
 
-  const docRef = doc(db, 'eventos', props.eventId, 'configuracion', 'carousel')
+  const docRef = doc(db, 'eventos', props.eventoId, 'configuracion', 'carousel')
 
   try {
     await updateDoc(docRef, {
@@ -100,7 +100,7 @@ async function guardarConfiguracion() {
     })
 
     localStorage.setItem(
-      `carousel-${props.eventId}`,
+      `carousel-${props.eventoId}`,
       JSON.stringify({
         adornoSuperior: adornoSuperior.value,
         adornoInferior: adornoInferior.value,

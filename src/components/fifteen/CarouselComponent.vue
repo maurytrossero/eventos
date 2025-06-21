@@ -45,7 +45,7 @@ import { doc, getDoc, onSnapshot } from 'firebase/firestore'
 import { db } from '@/firebase'
 
 const props = defineProps({
-  eventId: {
+  eventoId: {
     type: String,
     required: true
   }
@@ -92,34 +92,34 @@ function nextImage() {
 }
 
 async function loadCarouselData() {
-  const local = localStorage.getItem(`carousel-${props.eventId}`)
+  const local = localStorage.getItem(`carousel-${props.eventoId}`)
   if (local) {
     applyCarouselData(JSON.parse(local))
   } else {
-    const docRef = doc(db, 'eventos', props.eventId, 'configuracion', 'carousel')
+    const docRef = doc(db, 'eventos', props.eventoId, 'configuracion', 'carousel')
     const docSnap = await getDoc(docRef)
     if (docSnap.exists()) {
       const data = docSnap.data()
       applyCarouselData(data)
-      localStorage.setItem(`carousel-${props.eventId}`, JSON.stringify(data))
+      localStorage.setItem(`carousel-${props.eventoId}`, JSON.stringify(data))
     } else {
       applyCarouselData(defaultData)
     }
   }
 
-  const docRef = doc(db, 'eventos', props.eventId, 'configuracion', 'carousel')
+  const docRef = doc(db, 'eventos', props.eventoId, 'configuracion', 'carousel')
   unsubscribe = onSnapshot(docRef, (docSnap) => {
     if (docSnap.exists()) {
       const data = docSnap.data()
       applyCarouselData(data)
-      localStorage.setItem(`carousel-${props.eventId}`, JSON.stringify(data))
+      localStorage.setItem(`carousel-${props.eventoId}`, JSON.stringify(data))
     }
   })
 }
 
 onMounted(() => {
-  if (!props.eventId) {
-    console.error('CarouselComponent: eventId no está definido')
+  if (!props.eventoId) {
+    console.error('CarouselComponent: eventoId no está definido')
     return
   }
   loadCarouselData()
