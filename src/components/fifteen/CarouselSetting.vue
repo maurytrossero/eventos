@@ -17,7 +17,9 @@
 
     <div class="buttons">
       <button @click="guardarConfiguracion">💾 Guardar Cambios</button>
+      <button class="reset" @click="reestablecerConfiguracion">♻️ Reestablecer</button>
     </div>
+
 
     <p v-if="mensaje" class="mensaje">{{ mensaje }}</p>
 
@@ -123,6 +125,39 @@ async function guardarConfiguracion() {
   }
 }
 
+async function reestablecerConfiguracion() {
+  if (!props.eventoId) {
+    console.error('No se puede reestablecer: eventoId es undefined')
+    mensaje.value = '❌ No se puede reestablecer: eventoId es inválido.'
+    return
+  }
+
+  adornoSuperior.value = ''
+  adornoInferior.value = ''
+  frase.value = ''
+  imagenes.value = []
+  syncImagenesToRaw()
+
+  const docRef = doc(db, 'eventos', props.eventoId, 'configuracion', 'carousel')
+  try {
+    await updateDoc(docRef, {
+      adornoSuperior: '',
+      adornoInferior: '',
+      frase: '',
+      imagenes: []
+    })
+
+    localStorage.removeItem(`carousel-${props.eventoId}`)
+    mensaje.value = '✅ Configuración reestablecida.'
+    setTimeout(() => (mensaje.value = ''), 3000)
+  } catch (error) {
+    console.error(error)
+    mensaje.value = '❌ Error al reestablecer configuración.'
+  }
+}
+
+
+
 onMounted(cargarConfiguracion)
 
 </script>
@@ -217,6 +252,14 @@ onMounted(cargarConfiguracion)
     color: #2a7a2a; /* verde */
     user-select: none;
     transition: opacity 0.3s ease;
+  }
+
+  button.reset {
+    background-color: #d9534f;
+  }
+
+  button.reset:hover {
+    background-color: #c9302c;
   }
 
 </style>
