@@ -1,3 +1,5 @@
+<!-- components/fifteen/ConfirmAttendance.vue -->
+
 <template>
   <div
     class="container"

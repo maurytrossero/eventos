@@ -1,3 +1,4 @@
+<!-- components/fifteen/MesaList.vue -->
 <template>
   <div class="mesa-container">
     <div class="mesas-wrapper">

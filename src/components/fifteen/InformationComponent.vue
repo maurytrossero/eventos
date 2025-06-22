@@ -1,3 +1,4 @@
+<!-- components/fifteen/InformationComponent.vue -->
 <template>
   <div class="information-wrapper">
     <!-- Adorno superior -->

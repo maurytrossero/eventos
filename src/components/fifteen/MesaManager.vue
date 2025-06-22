@@ -1,3 +1,4 @@
+<!-- components/fifteen/CMesaManager.vue -->
 <template>
   <div class="mesa-container">
     <div class="mesas-wrapper">

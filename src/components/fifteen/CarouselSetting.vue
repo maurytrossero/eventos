@@ -1,3 +1,4 @@
+<!-- components/fifteen/CarouselSetting.vue -->
 <template>
   <div class="config-box">
     <h2>🖼️ Configurar Carrusel</h2>

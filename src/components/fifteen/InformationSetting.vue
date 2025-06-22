@@ -1,4 +1,4 @@
-<!-- fifteen/InformationSetting.vue -->
+<!-- components/fifteen/InformationSetting.vue -->
 <template>
   <div class="config-section">
     <h2 class="text-xl font-bold mb-4">Configuración de Información</h2>

@@ -1,4 +1,4 @@
-<!-- component/fifteen/CountdownComponent.vue -->
+<!-- components/fifteen/CountdownComponent.vue -->
 <template>
   <div class="container" :style="{ backgroundImage: `url('${backgroundUrl}')` }">
     <div class="overlay">

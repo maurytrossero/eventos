@@ -1,3 +1,4 @@
+<!-- components/fifteen/MusicComponent.vue -->
 <template>
   <div class="background-container">
     <div class="overlay">

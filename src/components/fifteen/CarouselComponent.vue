@@ -1,4 +1,4 @@
-<!-- fifteen/CarouselComponent -->
+<!-- components/fifteen/CarouselComponent.vue -->
 <template>
   <div class="container">
     <!-- Adornos -->

@@ -1,3 +1,4 @@
+<!-- components/fifteen/ManagerComponent.vue -->
 <template>
   <nav class="nav-container">
     <div class="overlay">

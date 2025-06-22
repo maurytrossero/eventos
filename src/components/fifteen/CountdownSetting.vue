@@ -1,4 +1,4 @@
-<!-- component/fifteen/CountdownSetting.vue -->
+<!-- components/fifteen/CountdownSetting.vue -->
 <template>
   <div class="config-box">
     <h2>🛠️ Configurar Cuenta Regresiva</h2>
