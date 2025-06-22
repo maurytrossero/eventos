@@ -126,11 +126,13 @@
         + Agregar tarjeta
       </button>
     </div>
+    
     <!-- Botones guardar/restablecer -->
-<div class="buttons mt-4">
-  <button @click="guardarCambios">Guardar cambios</button>
-  <button @click="restablecerCambios" class="text-blue-600">Restablecer</button>
-</div>
+    <div class="buttons mt-4">
+      <button @click="guardarCambios">💾 Guardar cambios</button>
+      <button class="reset" @click="restablecerCambios">♻️ Reestablecer</button>
+    </div>
+
 
   </div>
   
