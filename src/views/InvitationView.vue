@@ -35,217 +35,185 @@
       <p>Cargando...</p>
     </div>
   </div>
-<Teleport to="body">
-  <div
-    v-if="abrirModalConfiguracion"
-    class="modal-overlay"
-    @click.self="abrirModalConfiguracion = false"
-  >
-    <div class="modal-content">
-      <div class="tabs">
-        <button :class="{ active: tabActual === 'countdown' }" @click="tabActual = 'countdown'">
-          Cuenta Regresiva
-        </button>
-        <button :class="{ active: tabActual === 'carousel' }" @click="tabActual = 'carousel'">
-          Carrusel
-        </button>
-        <button :class="{ active: tabActual === 'info' }" @click="tabActual = 'info'">
-          Información
-        </button>
+
+  <Teleport to="body">
+    <div
+      v-if="abrirModalConfiguracion"
+      class="modal-overlay"
+      @click.self="abrirModalConfiguracion = false"
+    >
+      <div class="modal-content">
+        <div class="tabs">
+          <button :class="{ active: tabActual === 'countdown' }" @click="tabActual = 'countdown'">
+            Cuenta Regresiva
+          </button>
+          <button :class="{ active: tabActual === 'carousel' }" @click="tabActual = 'carousel'">
+            Carrusel
+          </button>
+          <button :class="{ active: tabActual === 'info' }" @click="tabActual = 'info'">
+            Información
+          </button>
+        </div>
+
+        <div v-if="tabActual === 'countdown'">
+          <CountdownSetting :idEvento="eventoId" @actualizarEvento="actualizarEventoLocal" />
+        </div>
+        <div v-else-if="tabActual === 'carousel'">
+          <CarouselSetting :event-id="eventoId" @actualizarEvento="actualizarEventoLocal" />
+        </div>
+        <div v-else-if="tabActual === 'info'">
+          <InformationSetting
+            :modelValue="evento.informacionInvitacion || {
+              adornoSuperior: '',
+              adornoInferior: '',
+              textoInvitacion: '',
+              tarjetas: []
+            }"
+            @update:modelValue="handleUpdateInfo"
+            :idEvento="eventoId"
+          />
+        </div>
+
+        <button class="cerrar" @click="abrirModalConfiguracion = false">✖</button>
       </div>
-
-    <div v-if="tabActual === 'countdown'">
-      <CountdownSetting
-        :idEvento="eventoId"
-        @actualizarEvento="actualizarEventoLocal"
-      />
     </div>
-
-    <div v-else-if="tabActual === 'carousel'">
-      <CarouselSetting
-        :event-id="eventoId"
-        @actualizarEvento="actualizarEventoLocal"
-      />
-    </div>
-
-    <div v-else-if="tabActual === 'info'">
-      <InformationSetting
-        :modelValue="evento.informacionInvitacion || {
-          adornoSuperior: '',
-          adornoInferior: '',
-          textoInvitacion: '',
-          tarjetas: []
-        }"
-        @update:modelValue="handleUpdateInfo"
-        :idEvento="eventoId"
-      />
-    </div>
-
-      <button class="cerrar" @click="abrirModalConfiguracion = false">✖</button>
-    </div>
-  </div>
-</Teleport>
-
+  </Teleport>
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, ref, onMounted, onUnmounted } from 'vue';
-import { useRoute } from 'vue-router';
-import { updateEvento } from '@/services/firestoreService';
-import CountdownSetting from '@/components/fifteen/CountdownSetting.vue';
+import { defineAsyncComponent, ref, onMounted, onUnmounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { updateEvento } from '@/services/firestoreService'
+import { doc, onSnapshot, getFirestore } from 'firebase/firestore'
+
+import CountdownSetting from '@/components/fifteen/CountdownSetting.vue'
 import CarouselSetting from '@/components/fifteen/CarouselSetting.vue'
-import InformationSetting from '@/components/fifteen/InformationSetting.vue';
-
-import { doc, onSnapshot, getFirestore } from 'firebase/firestore';
-
-const db = getFirestore();
+import InformationSetting from '@/components/fifteen/InformationSetting.vue'
 
 const tabActual = ref<'countdown' | 'carousel' | 'info'>('countdown')
+const route = useRoute()
+const eventoId = route.params.eventoId as string
+const evento = ref<any>(null)
+const componenteInvitacion = ref<any>(null)
+const seleccionando = ref(false)
+const abrirModalConfiguracion = ref(false)
 
-const route = useRoute();
-const eventoId = route.params.eventoId as string;
+const db = getFirestore()
 
-const evento = ref<any>(null);
-const componenteInvitacion = ref<any>(null);
-const seleccionando = ref(false);
-const abrirModalConfiguracion = ref(false);
+const plantillasDisponibles = ['FifteenView', 'WeddingView']
 
-const plantillasDisponibles = ['FifteenView', 'WeddingView'];
+// ✅ Registro seguro de componentes
+const componentesInvitacion: Record<string, () => Promise<any>> = {
+  FifteenView: () => import('@/views/invitation-type/FifteenView.vue'),
+  WeddingView: () => import('@/views/invitation-type/WeddingView.vue')
+}
 
-// Función para cargar componentes de invitación de forma dinámica
-const cargarComponente = (nombre: string) => defineAsyncComponent({
-  loader: () => import(`@/views/invitation-type/${nombre}.vue`),
-  delay: 200,
-  timeout: 10000,
-  errorComponent: {
-    template: `<div style="color:red; padding:1rem; text-align:center;">
-                Error al cargar la invitación.<br>
-                Probá recargar la página.
-              </div>`
-  },
-  loadingComponent: {
-    template: `<div style="padding:1rem; text-align:center;">
-                Cargando invitación...
-              </div>`
-  }
-});
+const cargarComponente = (nombre: string) => {
+  const loader = componentesInvitacion[nombre]
+  if (!loader) return null
+
+  return defineAsyncComponent({
+    loader,
+    delay: 200,
+    timeout: 10000,
+    errorComponent: {
+      template: `<div style="color:red; padding:1rem; text-align:center;">
+                  Error al cargar la invitación.<br>
+                  Probá recargar la página.
+                </div>`
+    },
+    loadingComponent: {
+      template: `<div style="padding:1rem; text-align:center;">
+                  Cargando invitación...
+                </div>`
+    }
+  })
+}
 
 onMounted(() => {
-  // Cargar rápido desde cache local si existe
-  let eventoCache = localStorage.getItem(`eventoCache_${eventoId}`);
+  const eventoCache = localStorage.getItem(`eventoCache_${eventoId}`)
   if (eventoCache) {
-    evento.value = JSON.parse(eventoCache);
-
+    evento.value = JSON.parse(eventoCache)
     if (evento.value?.invitacion) {
-      componenteInvitacion.value = cargarComponente(evento.value.invitacion);
-      seleccionando.value = false;
+      componenteInvitacion.value = cargarComponente(evento.value.invitacion)
+      seleccionando.value = false
     } else {
-      seleccionando.value = true;
+      seleccionando.value = true
     }
   }
 
-  // Configurar el listener en tiempo real con Firestore
-  const refEvento = doc(db, 'eventos', eventoId);
+  const refEvento = doc(db, 'eventos', eventoId)
   const unsubscribe = onSnapshot(refEvento, (snapshot) => {
     if (snapshot.exists()) {
-      const data = snapshot.data();
-
-      // Actualizo solo si hubo cambios para no forzar recarga innecesaria
+      const data = snapshot.data()
       if (JSON.stringify(data) !== JSON.stringify(evento.value)) {
-        evento.value = data;
-        localStorage.setItem(`eventoCache_${eventoId}`, JSON.stringify(data));
+        evento.value = data
+        localStorage.setItem(`eventoCache_${eventoId}`, JSON.stringify(data))
 
         if (data.invitacion) {
-          componenteInvitacion.value = cargarComponente(data.invitacion);
-          seleccionando.value = false;
+          componenteInvitacion.value = cargarComponente(data.invitacion)
+          seleccionando.value = false
         } else {
-          seleccionando.value = true;
-          componenteInvitacion.value = null;
+          seleccionando.value = true
+          componenteInvitacion.value = null
         }
       }
     }
-  });
+  })
 
   onUnmounted(() => {
-    unsubscribe();
-  });
-});
+    unsubscribe()
+  })
+})
 
 const seleccionarPlantilla = async (nombre: string) => {
   try {
-    localStorage.removeItem(`eventoCache_${eventoId}`);
-    await updateEvento(eventoId, { invitacion: nombre });
+    localStorage.removeItem(`eventoCache_${eventoId}`)
+    await updateEvento(eventoId, { invitacion: nombre })
 
     if (evento.value) {
-      evento.value.invitacion = nombre;
-      localStorage.setItem(`eventoCache_${eventoId}`, JSON.stringify(evento.value));
+      evento.value.invitacion = nombre
+      localStorage.setItem(`eventoCache_${eventoId}`, JSON.stringify(evento.value))
     }
 
-    componenteInvitacion.value = cargarComponente(nombre);
-    seleccionando.value = false;
+    componenteInvitacion.value = cargarComponente(nombre)
+    seleccionando.value = false
   } catch (error) {
-    console.error('Error al seleccionar plantilla:', error);
+    console.error('Error al seleccionar plantilla:', error)
   }
-};
+}
 
 const eliminarInvitacion = async () => {
   try {
-    await updateEvento(eventoId, { invitacion: '' });
+    await updateEvento(eventoId, { invitacion: '' })
 
     if (evento.value) {
-      evento.value.invitacion = '';
-      localStorage.removeItem(`eventoCache_${eventoId}`);
+      evento.value.invitacion = ''
+      localStorage.removeItem(`eventoCache_${eventoId}`)
     }
 
-    componenteInvitacion.value = null;
-    seleccionando.value = true;
+    componenteInvitacion.value = null
+    seleccionando.value = true
   } catch (error) {
-    console.error('Error al eliminar invitación:', error);
+    console.error('Error al eliminar invitación:', error)
   }
-};
-function handleUpdateInfo(nuevaInfo: any) {
-  // Guardar en memoria
-  evento.value.informacionInvitacion = nuevaInfo
+}
 
-  // Guardar en Firestore
+function handleUpdateInfo(nuevaInfo: any) {
+  evento.value.informacionInvitacion = nuevaInfo
   actualizarEventoLocal({ informacionInvitacion: nuevaInfo })
 }
 
-function actualizarEventoLocal(nuevosDatos: {
-  nombreQuinceanera?: string,
-  fecha?: string,
-  imagenFondo?: string,
-  informacionInvitacion?: {
-    adornoSuperior: string,
-    adornoInferior: string,
-    textoInvitacion: string,
-    tarjetas: {
-      frontImage: string,
-      frontText: string,
-      frontIcon: string,
-      backContent: any
-    }[]
-  }
-}) {
-  if (!evento.value) return;
-
-  // Actualiza solo los campos que vienen definidos
-  evento.value = {
-    ...evento.value,
-    ...nuevosDatos
-  };
-
-  // Actualiza localStorage
-  localStorage.setItem(`eventoCache_${eventoId}`, JSON.stringify(evento.value));
-
-  // Si querés también guardarlo en Firestore:
+function actualizarEventoLocal(nuevosDatos: any) {
+  if (!evento.value) return
+  evento.value = { ...evento.value, ...nuevosDatos }
+  localStorage.setItem(`eventoCache_${eventoId}`, JSON.stringify(evento.value))
   updateEvento(eventoId, nuevosDatos).catch((e) => {
-    console.error("Error actualizando Firestore:", e);
-  });
+    console.error('Error actualizando Firestore:', e)
+  })
 }
-
-
 </script>
+
 
 <style scoped>
   .selector-contenedor {
