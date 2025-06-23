@@ -45,7 +45,7 @@
     height: 25vh; /* Ajuste en relación a la altura del viewport */
     max-width: 150px; /* Tamaño máximo para evitar imágenes muy grandes */
     max-height: 150px; /* Tamaño máximo para evitar imágenes muy grandes */
-    background-image: url('@/../public/images/flor.png'); /* Imagen decorativa */
+    background-image: url('https://dl.dropboxusercontent.com/scl/fi/vvhdd2b8d2d0bqd294dth/flor.png?rlkey=ws8bjbiufh3xd32h6758z4c0p&raw=1'); /* Imagen decorativa */
   }
   
   .invitacion::before {
