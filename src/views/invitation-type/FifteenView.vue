@@ -45,6 +45,7 @@ import CountdownComponent from '@/components/fifteen/CountdownComponent.vue'
 import CarouselComponent from '@/components/fifteen/CarouselComponent.vue'
 import InformationComponent from '@/components/fifteen/InformationComponent.vue'
 import ConfirmComponent from '@/components/fifteen/ConfirmAttendance.vue'
+
 import { useRoute } from 'vue-router'
 
 const route = useRoute()

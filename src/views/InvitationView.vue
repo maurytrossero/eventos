@@ -53,6 +53,9 @@
           <button :class="{ active: tabActual === 'info' }" @click="tabActual = 'info'">
             Información
           </button>
+          <button :class="{ active: tabActual === 'confirm' }" @click="tabActual = 'confirm'">
+            Fondo Confirmación
+          </button>          
         </div>
 
         <div v-if="tabActual === 'countdown'">
@@ -73,6 +76,14 @@
             :idEvento="eventoId"
           />
         </div>
+        <div v-else-if="tabActual === 'confirm'">
+        <ConfirmBackgroundSetting
+          :idEvento="eventoId"
+          @actualizarEvento="actualizarEventoLocal"
+        />
+        </div>
+
+
 
         <button class="cerrar" @click="abrirModalConfiguracion = false">✖</button>
       </div>
@@ -89,8 +100,9 @@ import { doc, onSnapshot, getFirestore } from 'firebase/firestore'
 import CountdownSetting from '@/components/fifteen/CountdownSetting.vue'
 import CarouselSetting from '@/components/fifteen/CarouselSetting.vue'
 import InformationSetting from '@/components/fifteen/InformationSetting.vue'
+import ConfirmBackgroundSetting from '@/components/fifteen/ConfirmSetting.vue'
 
-const tabActual = ref<'countdown' | 'carousel' | 'info'>('countdown')
+const tabActual = ref<'countdown' | 'carousel' | 'info' | 'confirm'>('countdown')
 const route = useRoute()
 const eventoId = route.params.eventoId as string
 const evento = ref<any>(null)
