@@ -1,7 +1,7 @@
 <!-- components/fifteen/InformationSetting.vue -->
 <template>
   <div class="config-section">
-    <h2 class="text-xl font-bold mb-4">Configuración de Información</h2>
+    <h2 class="text-xl font-bold mb-4">📝 Configuración de Información</h2>
 
     <!-- Texto invitación -->
     <div class="form-group">
@@ -130,7 +130,7 @@
     <!-- Botones guardar/restablecer -->
     <div class="buttons mt-4">
       <button @click="guardarCambios">💾 Guardar cambios</button>
-      <button class="reset" @click="restablecerCambios">♻️ Reestablecer</button>
+      <button class="danger" @click="restablecerCambios">♻️ Reestablecer</button>
     </div>
 
 
@@ -499,27 +499,52 @@ select {
 }
 
 /* Botones dentro del form */
+/* Estilos unificados para botones principales */
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
 button {
-  padding: 0.4rem 0.8rem;
-  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
   border: none;
+  color: white;
+  background-color: #6a5acd;
   border-radius: 6px;
   cursor: pointer;
-  background-color: #6a5acd;
-  color: white;
+  flex-grow: 1;
+  min-width: 120px;
+  text-align: center;
+  box-sizing: border-box;
   transition: background-color 0.3s ease;
+  font-weight: 600;
 }
 
 button:hover {
   background-color: #5747c0;
 }
 
-button.text-red-500:hover {
-  color: #a30000;
+button.danger {
+  background-color: #b22222;
 }
 
-button.text-blue-600:hover {
-  color: #2c2cb2;
+button.danger:hover {
+  background-color: #7f2c2c;
+}
+
+/* Responsive para móviles */
+@media (max-width: 500px) {
+  .buttons {
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+
+  button {
+    min-width: 100%;
+    flex-grow: 0;
+  }
 }
 
 /* Responsivo para móviles */

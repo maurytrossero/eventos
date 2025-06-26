@@ -76,31 +76,33 @@
     }
 
     const restablecerValores = async () => {
-    const refEvento = doc(db, 'eventos', props.idEvento)
-    try {
-        await updateDoc(refEvento, {
-        nombreQuinceanera: '',
-        fecha: '',
-        imagenFondo: ''
-        })
+      const refEvento = doc(db, 'eventos', props.idEvento)
 
-        nombre.value = ''
-        fecha.value = ''
-        imagenFondo.value = ''
+      // Valores por defecto sugeridos
+      const valoresPorDefecto = {
+        nombreQuinceanera: 'Quinceañera',
+        fecha: '2025-12-31',
+        imagenFondo: 'https://dl.dropboxusercontent.com/scl/fi/3pe534n3rtymvhtlpxf34/fondo-cuenta-regresiva-horizontal.jpg?rlkey=2i5soo6xdsd7jz7rirv06kim2&st=b5x2h244'
+      }
 
-        // Emitir evento para que el padre actualice localmente
-        emit('actualizarEvento', {
-        nombreQuinceanera: '',
-        fecha: '',
-        imagenFondo: ''
-        })
+      try {
+        await updateDoc(refEvento, valoresPorDefecto)
 
-        mensaje.value = '🔄 Se restablecieron los valores y cache actualizado.'
-    } catch (e) {
+        // Actualizar reactividad local
+        nombre.value = valoresPorDefecto.nombreQuinceanera
+        fecha.value = valoresPorDefecto.fecha
+        imagenFondo.value = valoresPorDefecto.imagenFondo
+
+        // Emitir evento para que el padre también actualice
+        emit('actualizarEvento', valoresPorDefecto)
+
+        mensaje.value = '🔄 Se restablecieron los valores por defecto correctamente.'
+      } catch (e) {
         console.error(e)
-        mensaje.value = '❌ Error al restablecer.'
+        mensaje.value = '❌ Error al restablecer los valores.'
+      }
     }
-    }
+
 </script>
 
 

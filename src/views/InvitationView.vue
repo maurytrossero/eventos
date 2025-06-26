@@ -1,4 +1,3 @@
-<!--InvitationView.vue-->
 <template>
   <div>
     <div v-if="seleccionando" class="selector-contenedor">
@@ -42,27 +41,48 @@
       class="modal-overlay"
       @click.self="abrirModalConfiguracion = false"
     >
-      <div class="modal-content">
-        <div class="tabs">
-          <button :class="{ active: tabActual === 'countdown' }" @click="tabActual = 'countdown'">
-            Cuenta Regresiva
-          </button>
-          <button :class="{ active: tabActual === 'carousel' }" @click="tabActual = 'carousel'">
-            Carrusel
-          </button>
-          <button :class="{ active: tabActual === 'info' }" @click="tabActual = 'info'">
-            Información
-          </button>
-          <button :class="{ active: tabActual === 'confirm' }" @click="tabActual = 'confirm'">
-            Fondo Confirmación
-          </button>          
+      <div class="modal-content scrollable">
+        <div class="tabs-responsive" v-if="isMobile">
+          <details>
+            <summary>⚙️ Opciones de Configuración</summary>
+            <div class="tabs">
+              <button :class="{ active: tabActual === 'countdown' }" @click="tabActual = 'countdown'">
+                Cuenta Regresiva
+              </button>
+              <button :class="{ active: tabActual === 'carousel' }" @click="tabActual = 'carousel'">
+                Carrusel
+              </button>
+              <button :class="{ active: tabActual === 'info' }" @click="tabActual = 'info'">
+                Información
+              </button>
+              <button :class="{ active: tabActual === 'confirm' }" @click="tabActual = 'confirm'">
+                Fondo Confirmación
+              </button>
+            </div>
+          </details>
+        </div>
+        <div class="tabs-responsive" v-else>
+          <div class="tabs">
+            <button :class="{ active: tabActual === 'countdown' }" @click="tabActual = 'countdown'">
+              Cuenta Regresiva
+            </button>
+            <button :class="{ active: tabActual === 'carousel' }" @click="tabActual = 'carousel'">
+              Carrusel
+            </button>
+            <button :class="{ active: tabActual === 'info' }" @click="tabActual = 'info'">
+              Información
+            </button>
+            <button :class="{ active: tabActual === 'confirm' }" @click="tabActual = 'confirm'">
+              Fondo Confirmación
+            </button>
+          </div>
         </div>
 
         <div v-if="tabActual === 'countdown'">
           <CountdownSetting :idEvento="eventoId" @actualizarEvento="actualizarEventoLocal" />
         </div>
         <div v-else-if="tabActual === 'carousel'">
-          <CarouselSetting :event-id="eventoId" @actualizarEvento="actualizarEventoLocal" />
+          <CarouselSetting :eventoId="eventoId" @actualizarEvento="actualizarEventoLocal" />
         </div>
         <div v-else-if="tabActual === 'info'">
           <InformationSetting
@@ -77,13 +97,11 @@
           />
         </div>
         <div v-else-if="tabActual === 'confirm'">
-        <ConfirmBackgroundSetting
-          :idEvento="eventoId"
-          @actualizarEvento="actualizarEventoLocal"
-        />
+          <ConfirmBackgroundSetting
+            :idEvento="eventoId"
+            @actualizarEvento="actualizarEventoLocal"
+          />
         </div>
-
-
 
         <button class="cerrar" @click="abrirModalConfiguracion = false">✖</button>
       </div>
@@ -114,7 +132,8 @@ const db = getFirestore()
 
 const plantillasDisponibles = ['FifteenView', 'WeddingView']
 
-// ✅ Registro seguro de componentes
+const isMobile = window.innerWidth <= 600
+
 const componentesInvitacion: Record<string, () => Promise<any>> = {
   FifteenView: () => import('@/views/invitation-type/FifteenView.vue'),
   WeddingView: () => import('@/views/invitation-type/WeddingView.vue')
@@ -355,12 +374,34 @@ function actualizarEventoLocal(nuevosDatos: any) {
   .accion.eliminar {
     color: #e74c3c;
   }
+.modal-content.scrollable {
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.tabs-responsive {
+  margin-bottom: 1rem;
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.tabs-responsive summary {
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.5rem 0;
+}
+
 .tabs {
   display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   justify-content: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  margin-top: 0.5rem;
 }
+
 .tabs button {
   padding: 0.6rem 1rem;
   font-size: 1rem;
@@ -368,7 +409,8 @@ function actualizarEventoLocal(nuevosDatos: any) {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  color: #333; /* ✅ AÑADIDO */
+  color: #333;
+  transition: background-color 0.3s ease;
 }
 
 .tabs button.active {
@@ -377,4 +419,19 @@ function actualizarEventoLocal(nuevosDatos: any) {
   font-weight: 600;
 }
 
+@media (max-width: 600px) {
+  .tabs {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tabs button {
+    width: 100%;
+    font-size: 1rem;
+  }
+
+  .tabs-responsive summary {
+    font-size: 1rem;
+  }
+}
 </style>

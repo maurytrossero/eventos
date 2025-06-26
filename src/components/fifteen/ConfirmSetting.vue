@@ -12,8 +12,9 @@
 
     <div class="buttons">
       <button @click="guardarCambios">💾 Guardar</button>
-      <button @click="restablecerValores" class="danger">🗑️ Restablecer</button>
+      <button class="danger" @click="restablecerValores">🗑️ Restablecer</button>
     </div>
+
 
     <p v-if="mensaje" class="mensaje">{{ mensaje }}</p>
   </div>
@@ -108,25 +109,53 @@ input {
 }
 
 .buttons {
-  margin-top: 1.5rem;
   display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
+  justify-content: center;
+  margin-top: 1.5rem;
 }
+
 button {
-  padding: 0.75rem 1.5rem;
+  padding: 0.5rem 1rem;
   border: none;
-  border-radius: 0.5rem;
-  font-weight: bold;
+  color: white;
+  background-color: #6a5acd;
+  border-radius: 6px;
   cursor: pointer;
+  flex-grow: 1;
+  min-width: 120px;
+  text-align: center;
+  box-sizing: border-box;
+  transition: background-color 0.3s ease;
+  font-weight: 600;
 }
+
+button:hover {
+  background-color: #5747c0;
+}
+
 button.danger {
-  background-color: #ff4f4f;
-  color: white;
+  background-color: #b22222;
 }
-button:not(.danger) {
-  background-color: #4caf50;
-  color: white;
+
+button.danger:hover {
+  background-color: #7f2c2c;
 }
+
+/* Responsive para móviles */
+@media (max-width: 500px) {
+  .buttons {
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+
+  button {
+    min-width: 100%;
+    flex-grow: 0;
+  }
+}
+
 .mensaje {
   margin-top: 1rem;
   font-style: italic;

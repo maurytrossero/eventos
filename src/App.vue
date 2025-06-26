@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <router-view></router-view>
+    <router-view />
   </div>
 </template>
 
@@ -19,8 +19,16 @@ import ContactForm from '@/components/portfolio/ContactForm.vue';
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 0;
+  margin: 0;
   padding: 0;
-  background-color: #000; /* Fondo negro para el tema oscuro */
+}
+</style>
+
+<!-- Estilo global para fondo -->
+<style>
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #f0f2f5; /* Elegí el color que prefieras acá */
 }
 </style>

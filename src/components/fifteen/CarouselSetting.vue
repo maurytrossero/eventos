@@ -16,9 +16,10 @@
     <textarea v-model="imagenesRaw" rows="4" />
 
     <div class="buttons">
-      <button @click="guardarConfiguracion">💾 Guardar Cambios</button>
-      <button class="reset" @click="reestablecerConfiguracion">♻️ Reestablecer</button>
+      <button @click="guardarConfiguracion">💾 Guardar</button>
+      <button class="danger" @click="reestablecerConfiguracion">♻️ Reestablecer</button>
     </div>
+
 
 
     <p v-if="mensaje" class="mensaje">{{ mensaje }}</p>
@@ -192,74 +193,56 @@ onMounted(cargarConfiguracion)
 
   /* Botones ocupan su contenido y están alineados horizontalmente */
   .buttons {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+button {
+  padding: 0.5rem 1rem;
+  border: none;
+  color: white;
+  background-color: #6a5acd;
+  border-radius: 6px;
+  cursor: pointer;
+  flex-grow: 1;
+  min-width: 120px;
+  text-align: center;
+  box-sizing: border-box;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #5747c0;
+}
+
+button.danger {
+  background-color: #b22222;
+}
+
+button.danger:hover {
+  background-color: #7f2c2c;
+}
+
+.mensaje {
+  margin-top: 0.5rem;
+  font-weight: bold;
+  text-align: center;
+  color: #333;
+}
+
+/* Responsivo para móviles */
+@media (max-width: 500px) {
+  .buttons {
+    flex-direction: column;
+    gap: 0.7rem;
   }
 
   button {
-    padding: 0.5rem 1rem;
-    border: none;
-    color: white;
-    background-color: #6a5acd;
-    border-radius: 6px;
-    cursor: pointer;
-    flex-grow: 1; /* para que ocupen ancho proporcional en móviles */
-    min-width: 120px;
-    text-align: center;
-    box-sizing: border-box;
-    transition: background-color 0.3s ease;
+    min-width: 100%;
+    flex-grow: 0;
   }
-  button:hover {
-    background-color: #5747c0;
-  }
-
-  /* Media query para orientación horizontal en móviles/tablets */
-  @media (orientation: landscape) and (max-width: 768px) {
-    .config-box {
-      max-width: 700px;
-      max-height: 80vh;
-      padding: 1.5rem;
-    }
-
-    textarea,
-    input {
-      font-size: 1.1rem;
-    }
-  }
-
-  /* Media query para pantallas muy pequeñas */
-  @media (max-width: 400px) {
-    .config-box {
-      padding: 0.8rem;
-      max-height: 85vh;
-    }
-
-    textarea,
-    input {
-      font-size: 0.9rem;
-    }
-
-    button {
-      min-width: 100%;
-      flex-grow: 0;
-    }
-  }
-
-  .mensaje {
-    margin-top: 0.5rem;
-    font-weight: bold;
-    color: #2a7a2a; /* verde */
-    user-select: none;
-    transition: opacity 0.3s ease;
-  }
-
-  button.reset {
-    background-color: #d9534f;
-  }
-
-  button.reset:hover {
-    background-color: #c9302c;
-  }
+}
 
 </style>
