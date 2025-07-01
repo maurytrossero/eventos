@@ -1,21 +1,5 @@
-<template>
-  <div class="lista-eventos">
-    <h1>Eventos Disponibles</h1>
-    <ul class="eventos-lista">
-      <li v-for="evento in eventos" :key="evento.id" class="evento-item">
-        <h2>{{ evento.nombre }}</h2>
-        <p class="detalle"><strong>Fecha:</strong> {{ evento.fecha }}</p>
-        <p class="detalle"><strong>Lugar:</strong> {{ evento.lugar }}</p>
-        <router-link :to="{ name: 'EventoDetalle', params: { eventoId: evento.id } }" class="link-evento">
-          Ver Detalles
-        </router-link>
-      </li>
-    </ul>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { getEventos } from '../services/firestoreService';
 
 interface Evento {
@@ -26,16 +10,87 @@ interface Evento {
 }
 
 const eventos = ref<Evento[]>([]);
+const mostrarPasados = ref(false);
+
+function sinHora(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
 
 const cargarEventos = async () => {
   const fetchedEventos = await getEventos();
   eventos.value = fetchedEventos as Evento[];
 };
 
+const eventosFiltrados = computed(() => {
+  const hoy = sinHora(new Date());
+  if (mostrarPasados.value) {
+    return eventos.value;
+  } else {
+    return eventos.value.filter(evento => {
+      const fechaEvento = sinHora(new Date(evento.fecha));
+      return fechaEvento >= hoy;
+    });
+  }
+});
+
+function formatoFecha(fechaStr: string): string {
+  const fecha = new Date(fechaStr);
+  return fecha.toLocaleDateString('es-AR', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric'
+  });
+}
+
 onMounted(() => {
   cargarEventos();
 });
 </script>
+
+<template>
+  <div class="lista-eventos">
+    <h1>Eventos Disponibles</h1>
+
+    <button @click="mostrarPasados = !mostrarPasados" class="toggle-btn">
+      {{ mostrarPasados ? 'Ocultar eventos pasados' : 'Mostrar eventos pasados' }}
+    </button>
+
+    <ul class="eventos-lista">
+      <li v-for="evento in eventosFiltrados" :key="evento.id" class="evento-item">
+        <h2>{{ evento.nombre }}</h2>
+        <p class="detalle"><strong>Fecha:</strong> {{ formatoFecha(evento.fecha) }}</p>
+        <p class="detalle"><strong>Lugar:</strong> {{ evento.lugar }}</p>
+        <router-link :to="{ name: 'EventoDetalle', params: { eventoId: evento.id } }" class="link-evento">
+          Ver Detalles
+        </router-link>
+      </li>
+    </ul>
+  </div>
+</template>
+
+<style scoped>
+/* Estilos existentes aquí, sin cambios */
+
+.toggle-btn {
+  display: block;
+  margin: 0 auto 20px auto;
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+}
+
+.toggle-btn:hover {
+  background-color: #0d47a1;
+}
+</style>
+
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');

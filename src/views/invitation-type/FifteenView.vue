@@ -40,7 +40,11 @@
       ref="sectionGaleria"
       class="section galeria-section"
     >
-      <GalleryCarousel :evento-id="eventoId" />
+    <GalleryCarousel 
+      :evento-id="eventoId"
+      :nombre-evento="evento.nombre"
+      :titulo-galeria="evento.tituloGaleria ?? ''"
+    />
       <UploadForm :evento-id="eventoId" />
     </section>
 
@@ -87,11 +91,14 @@ const eventoId = route.params.eventoId as string
 const props = defineProps<{
   evento: {
     fecha: string
+    nombre: string
     nombreQuinceanera: string
+    tituloGaleria?: string
     carouselConfig?: any
     informacionInvitacion?: any
   }
 }>()
+
 
 const triviaActiva = ref(false)
 const galeriaActiva = ref(false)
