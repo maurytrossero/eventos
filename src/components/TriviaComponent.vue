@@ -195,6 +195,12 @@ const finalScore = computed(() => ((score.value / questions.value.length) * 10).
 
 const circumference = 2 * Math.PI * 45
 const timeDashOffset = computed(() => circumference - (circumference * timeLeft.value) / 15)
+
+// CARGA DE SONIDOS
+const soundCorrect = new Audio('/sounds/correct.mp3')
+const soundWrong = new Audio('/sounds/wrong.mp3')
+const soundTimeout = new Audio('/sounds/timeout.mp3')
+
 onMounted(async () => {
   try {
     const snapshot = await getDocs(collection(db, 'eventos', props.eventoId, 'triviaQuestions'))
@@ -239,7 +245,12 @@ function selectAnswer(option) {
   answered.value = true
   selectedAnswer.value = option
   isCorrect.value = option === currentQuestion.value.answer
-  if (isCorrect.value) score.value++
+  if (isCorrect.value) {
+    soundCorrect.play()
+    score.value++
+  } else {
+    soundWrong.play()
+  }
 
   setTimeout(() => nextQuestion(true), 1000)
 }
@@ -248,6 +259,10 @@ function nextQuestion(userAnswered) {
   clearInterval(timer.value)
   answered.value = false
   timeLeft.value = 15
+
+  if (!userAnswered) {
+    soundTimeout.play()
+  }
 
   if (currentIndex.value < questions.value.length - 1) {
     currentIndex.value++
@@ -371,5 +386,4 @@ function getOptionClass(option) {
   font-weight: bold;
   margin-bottom: 1rem;
 }
-
 </style>
