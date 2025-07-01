@@ -58,6 +58,9 @@
               <button :class="{ active: tabActual === 'confirm' }" @click="tabActual = 'confirm'">
                 Fondo Confirmación
               </button>
+              <button :class="{ active: tabActual === 'trivia' }" @click="tabActual = 'trivia'">
+                Preguntas Trivia
+              </button>
             </div>
           </details>
         </div>
@@ -75,6 +78,11 @@
             <button :class="{ active: tabActual === 'confirm' }" @click="tabActual = 'confirm'">
               Fondo Confirmación
             </button>
+            <button :class="{ active: tabActual === 'trivia' }" @click="tabActual = 'trivia'">
+              Preguntas Trivia
+            </button>
+
+
           </div>
         </div>
 
@@ -102,6 +110,9 @@
             @actualizarEvento="actualizarEventoLocal"
           />
         </div>
+        <div v-else-if="tabActual === 'trivia'">
+          <TriviaSetting :eventoId="eventoId" />
+        </div>
 
         <button class="cerrar" @click="abrirModalConfiguracion = false">✖</button>
       </div>
@@ -119,8 +130,10 @@ import CountdownSetting from '@/components/fifteen/CountdownSetting.vue'
 import CarouselSetting from '@/components/fifteen/CarouselSetting.vue'
 import InformationSetting from '@/components/fifteen/InformationSetting.vue'
 import ConfirmBackgroundSetting from '@/components/fifteen/ConfirmSetting.vue'
+import TriviaSetting from '@/components/TriviaQuestionForm.vue'
 
-const tabActual = ref<'countdown' | 'carousel' | 'info' | 'confirm'>('countdown')
+
+const tabActual = ref<'countdown' | 'carousel' | 'info' | 'confirm' | 'trivia'>('countdown')
 const route = useRoute()
 const eventoId = route.params.eventoId as string
 const evento = ref<any>(null)

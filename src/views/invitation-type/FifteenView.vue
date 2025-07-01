@@ -18,6 +18,24 @@
       <ConfirmComponent :evento-id="eventoId" />
     </section>
 
+    <section
+      v-if="triviaActiva"
+      ref="sectionTrivia"
+      class="section"
+    >
+      <TriviaComponent :evento-id="eventoId" :nombre-jugador="evento.nombreQuinceanera" />
+    </section>
+
+    <section
+      v-if="triviaActiva"
+      ref="sectionResultados"
+      class="section"
+    >
+      <ResultadosTriviaComponent :evento-id="eventoId" />
+    </section>
+
+
+
     <!-- Botones navegación -->
     <button 
       class="nav-btn up"
@@ -41,16 +59,21 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { doc, getDoc } from 'firebase/firestore'
+import { db } from '@/firebase'
+
 import CountdownComponent from '@/components/fifteen/CountdownComponent.vue'
 import CarouselComponent from '@/components/fifteen/CarouselComponent.vue'
 import InformationComponent from '@/components/fifteen/InformationComponent.vue'
 import ConfirmComponent from '@/components/fifteen/ConfirmAttendance.vue'
-
-import { useRoute } from 'vue-router'
+import TriviaComponent from '@/components/TriviaComponent.vue'
+import ResultadosTriviaComponent from '@/views/TriviaResultsView.vue'
 
 const route = useRoute()
 const eventoId = route.params.eventoId as string
 
+// Prop recibido desde el padre (información general del evento)
 const props = defineProps<{
   evento: {
     fecha: string
@@ -75,10 +98,15 @@ const props = defineProps<{
   }
 }>()
 
+// 👇 Estado local para saber si mostrar trivia
+const triviaActiva = ref(false)
+
 const container = ref<HTMLElement | null>(null)
 const section1 = ref<HTMLElement | null>(null)
 const section2 = ref<HTMLElement | null>(null)
-const section4 = ref<HTMLElement | null>(null)  // Eliminé section3 porque no existe
+const section4 = ref<HTMLElement | null>(null)
+const sectionTrivia = ref<HTMLElement | null>(null)
+const sectionResultados = ref<HTMLElement | null>(null)
 
 const currentSection = ref(0)
 const sections = ref<HTMLElement[]>([])
@@ -100,8 +128,26 @@ function onScroll() {
   }
 }
 
-onMounted(() => {
-  sections.value = [section1.value, section2.value, section4.value].filter(Boolean) as HTMLElement[]
+onMounted(async () => {
+  // Cargar si la trivia está activa
+  try {
+    const eventoDocRef = doc(db, 'eventos', eventoId)
+    const eventoSnap = await getDoc(eventoDocRef)
+    if (eventoSnap.exists()) {
+      triviaActiva.value = eventoSnap.data().triviaActiva === true
+    }
+  } catch (e) {
+    console.error('Error al obtener triviaActiva:', e)
+  }
+
+  // Armar lista de secciones visibles
+  sections.value = [
+    section1.value,
+    section2.value,
+    ...(triviaActiva.value ? [sectionTrivia.value, sectionResultados.value] : []),
+    section4.value
+  ].filter(Boolean) as HTMLElement[]
+
   if (container.value) {
     container.value.addEventListener('scroll', onScroll, { passive: true })
   }
@@ -112,9 +158,8 @@ onUnmounted(() => {
     container.value.removeEventListener('scroll', onScroll)
   }
 })
+
 </script>
-
-
 
 <style scoped>
     .fifteen-view {
