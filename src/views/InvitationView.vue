@@ -35,89 +35,81 @@
     </div>
   </div>
 
-  <Teleport to="body">
-    <div
-      v-if="abrirModalConfiguracion"
-      class="modal-overlay"
-      @click.self="abrirModalConfiguracion = false"
-    >
-      <div class="modal-content scrollable">
-        <div class="tabs-responsive" v-if="isMobile">
-          <details>
-            <summary>⚙️ Opciones de Configuración</summary>
-            <div class="tabs">
-              <button :class="{ active: tabActual === 'countdown' }" @click="tabActual = 'countdown'">
-                Cuenta Regresiva
-              </button>
-              <button :class="{ active: tabActual === 'carousel' }" @click="tabActual = 'carousel'">
-                Carrusel
-              </button>
-              <button :class="{ active: tabActual === 'info' }" @click="tabActual = 'info'">
-                Información
-              </button>
-              <button :class="{ active: tabActual === 'confirm' }" @click="tabActual = 'confirm'">
-                Fondo Confirmación
-              </button>
-              <button :class="{ active: tabActual === 'trivia' }" @click="tabActual = 'trivia'">
-                Preguntas Trivia
-              </button>
-            </div>
-          </details>
-        </div>
-        <div class="tabs-responsive" v-else>
-          <div class="tabs">
-            <button :class="{ active: tabActual === 'countdown' }" @click="tabActual = 'countdown'">
-              Cuenta Regresiva
-            </button>
-            <button :class="{ active: tabActual === 'carousel' }" @click="tabActual = 'carousel'">
-              Carrusel
-            </button>
-            <button :class="{ active: tabActual === 'info' }" @click="tabActual = 'info'">
-              Información
-            </button>
-            <button :class="{ active: tabActual === 'confirm' }" @click="tabActual = 'confirm'">
-              Fondo Confirmación
-            </button>
-            <button :class="{ active: tabActual === 'trivia' }" @click="tabActual = 'trivia'">
-              Preguntas Trivia
-            </button>
-
-
+  
+    <Teleport to="body">
+      <div
+        v-if="abrirModalConfiguracion"
+        class="modal-overlay"
+        @click.self="abrirModalConfiguracion = false"
+      >
+        <div class="modal-content scrollable">
+          <div class="tabs-responsive" v-if="isMobile">
+            <details>
+              <summary>⚙️ Opciones de Configuración</summary>
+              <div class="tabs">
+                <button :class="{ active: tabActual === 'countdown' }" @click="tabActual = 'countdown'">Cuenta Regresiva</button>
+                <button :class="{ active: tabActual === 'carousel' }" @click="tabActual = 'carousel'">Carrusel</button>
+                <button :class="{ active: tabActual === 'info' }" @click="tabActual = 'info'">Información</button>
+                <button :class="{ active: tabActual === 'confirm' }" @click="tabActual = 'confirm'">Fondo Confirmación</button>
+                <button :class="{ active: tabActual === 'trivia' }" @click="tabActual = 'trivia'">Preguntas Trivia</button>
+                <button :class="{ active: tabActual === 'galeria' }" @click="tabActual = 'galeria'">Galería</button>
+              </div>
+            </details>
           </div>
-        </div>
+          <div class="tabs-responsive" v-else>
+            <div class="tabs">
+              <button :class="{ active: tabActual === 'countdown' }" @click="tabActual = 'countdown'">Cuenta Regresiva</button>
+              <button :class="{ active: tabActual === 'carousel' }" @click="tabActual = 'carousel'">Carrusel</button>
+              <button :class="{ active: tabActual === 'info' }" @click="tabActual = 'info'">Información</button>
+              <button :class="{ active: tabActual === 'confirm' }" @click="tabActual = 'confirm'">Fondo Confirmación</button>
+              <button :class="{ active: tabActual === 'trivia' }" @click="tabActual = 'trivia'">Preguntas Trivia</button>
+              <button :class="{ active: tabActual === 'galeria' }" @click="tabActual = 'galeria'">Galería</button>
+            </div>
+          </div>
 
-        <div v-if="tabActual === 'countdown'">
-          <CountdownSetting :idEvento="eventoId" @actualizarEvento="actualizarEventoLocal" />
-        </div>
-        <div v-else-if="tabActual === 'carousel'">
-          <CarouselSetting :eventoId="eventoId" @actualizarEvento="actualizarEventoLocal" />
-        </div>
-        <div v-else-if="tabActual === 'info'">
-          <InformationSetting
-            :modelValue="evento.informacionInvitacion || {
-              adornoSuperior: '',
-              adornoInferior: '',
-              textoInvitacion: '',
-              tarjetas: []
-            }"
-            @update:modelValue="handleUpdateInfo"
-            :idEvento="eventoId"
-          />
-        </div>
-        <div v-else-if="tabActual === 'confirm'">
-          <ConfirmBackgroundSetting
-            :idEvento="eventoId"
-            @actualizarEvento="actualizarEventoLocal"
-          />
-        </div>
-        <div v-else-if="tabActual === 'trivia'">
-          <TriviaSetting :eventoId="eventoId" />
-        </div>
+          <!-- Tus pestañas existentes -->
+          <div v-if="tabActual === 'countdown'">
+            <CountdownSetting :idEvento="eventoId" @actualizarEvento="actualizarEventoLocal" />
+          </div>
+          <div v-else-if="tabActual === 'carousel'">
+            <CarouselSetting :eventoId="eventoId" @actualizarEvento="actualizarEventoLocal" />
+          </div>
+          <div v-else-if="tabActual === 'info'">
+            <InformationSetting
+              :modelValue="evento.informacionInvitacion || {
+                adornoSuperior: '',
+                adornoInferior: '',
+                textoInvitacion: '',
+                tarjetas: []
+              }"
+              @update:modelValue="handleUpdateInfo"
+              :idEvento="eventoId"
+            />
+          </div>
+          <div v-else-if="tabActual === 'confirm'">
+            <ConfirmBackgroundSetting
+              :idEvento="eventoId"
+              @actualizarEvento="actualizarEventoLocal"
+            />
+          </div>
+          <div v-else-if="tabActual === 'trivia'">
+            <TriviaSetting :eventoId="eventoId" />
+          </div>
 
-        <button class="cerrar" @click="abrirModalConfiguracion = false">✖</button>
+          <!-- Nueva pestaña Galería -->
+          <div v-else-if="tabActual === 'galeria'">
+            <GallerySetting
+              :eventoId="eventoId"
+              :modelValue="evento.galeriaConfig || { activa: false, opciones: {} }"
+              @update:modelValue="handleUpdateGaleria"
+              @actualizarEvento="actualizarEventoLocal"
+            />
+          </div>
+
+          <button class="cerrar" @click="abrirModalConfiguracion = false">✖</button>
+        </div>
       </div>
-    </div>
-  </Teleport>
+    </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -126,14 +118,15 @@ import { useRoute } from 'vue-router'
 import { updateEvento } from '@/services/firestoreService'
 import { doc, onSnapshot, getFirestore } from 'firebase/firestore'
 
+
 import CountdownSetting from '@/components/fifteen/CountdownSetting.vue'
 import CarouselSetting from '@/components/fifteen/CarouselSetting.vue'
 import InformationSetting from '@/components/fifteen/InformationSetting.vue'
 import ConfirmBackgroundSetting from '@/components/fifteen/ConfirmSetting.vue'
 import TriviaSetting from '@/components/TriviaQuestionForm.vue'
+import GallerySetting from '@/components/gallery-live/GallerySetting.vue' // Import nuevo
 
-
-const tabActual = ref<'countdown' | 'carousel' | 'info' | 'confirm' | 'trivia'>('countdown')
+const tabActual = ref<'countdown' | 'carousel' | 'info' | 'confirm' | 'trivia' | 'galeria'>('countdown')
 const route = useRoute()
 const eventoId = route.params.eventoId as string
 const evento = ref<any>(null)
@@ -246,6 +239,12 @@ const eliminarInvitacion = async () => {
 function handleUpdateInfo(nuevaInfo: any) {
   evento.value.informacionInvitacion = nuevaInfo
   actualizarEventoLocal({ informacionInvitacion: nuevaInfo })
+}
+
+// NUEVO: Manejar cambios en configuración galería
+function handleUpdateGaleria(nuevaConfig: any) {
+  evento.value.galeriaConfig = nuevaConfig
+  actualizarEventoLocal({ galeriaConfig: nuevaConfig })
 }
 
 function actualizarEventoLocal(nuevosDatos: any) {

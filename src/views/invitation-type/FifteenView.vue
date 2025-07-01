@@ -35,6 +35,16 @@
       <ResultadosTriviaComponent :evento-id="eventoId" />
     </section>
 
+    <section
+      v-if="galeriaActiva"
+      ref="sectionGaleria"
+      class="section galeria-section"
+    >
+      <GalleryCarousel :evento-id="eventoId" />
+      <UploadForm :evento-id="eventoId" />
+    </section>
+
+
     <!-- Botones navegación -->
     <button 
       class="nav-btn up"
@@ -68,6 +78,8 @@ import InformationComponent from '@/components/fifteen/InformationComponent.vue'
 import ConfirmComponent from '@/components/fifteen/ConfirmAttendance.vue'
 import TriviaComponent from '@/components/TriviaComponent.vue'
 import ResultadosTriviaComponent from '@/views/TriviaResultsView.vue'
+import GalleryCarousel from '@/components/gallery-live/GalleryCarousel.vue'
+import UploadForm from '@/components/gallery-live/UploadForm.vue'
 
 const route = useRoute()
 const eventoId = route.params.eventoId as string
@@ -82,6 +94,7 @@ const props = defineProps<{
 }>()
 
 const triviaActiva = ref(false)
+const galeriaActiva = ref(false)
 
 const container = ref<HTMLElement | null>(null)
 const section1 = ref<HTMLElement | null>(null)
@@ -90,6 +103,7 @@ const section3 = ref<HTMLElement | null>(null)
 const section4 = ref<HTMLElement | null>(null)
 const sectionTrivia = ref<HTMLElement | null>(null)
 const sectionResultados = ref<HTMLElement | null>(null)
+const sectionGaleria = ref<HTMLElement | null>(null)
 
 const currentSection = ref(0)
 const sections = ref<HTMLElement[]>([])
@@ -118,7 +132,8 @@ async function setupSections() {
     section2.value,
     section3.value,
     section4.value,
-    ...(triviaActiva.value ? [sectionTrivia.value, sectionResultados.value] : [])
+    ...(triviaActiva.value ? [sectionTrivia.value, sectionResultados.value] : []),
+    ...(galeriaActiva.value ? [sectionGaleria.value] : [])
   ].filter(Boolean) as HTMLElement[]
 }
 
@@ -127,10 +142,12 @@ onMounted(async () => {
     const eventoDocRef = doc(db, 'eventos', eventoId)
     const eventoSnap = await getDoc(eventoDocRef)
     if (eventoSnap.exists()) {
-      triviaActiva.value = eventoSnap.data().triviaActiva === true
+      const data = eventoSnap.data()
+      triviaActiva.value = data.triviaActiva === true
+      galeriaActiva.value = data.galeriaActiva === true
     }
   } catch (e) {
-    console.error('Error al obtener triviaActiva:', e)
+    console.error('Error al obtener configuración:', e)
   }
 
   await setupSections()
@@ -147,6 +164,7 @@ onUnmounted(() => {
 })
 </script>
 
+
 <style scoped>
 .fifteen-view {
   height: 100vh;
@@ -158,6 +176,11 @@ onUnmounted(() => {
   scroll-behavior: smooth;
   position: relative;
 }
+.galeria-section > * {
+  margin-bottom: 2rem;
+  max-width: 90%;
+}
+
 
 .section {
   min-height: 100vh;
