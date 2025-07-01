@@ -1,19 +1,20 @@
-<!-- invitation-type/FifteenView.vue -->
 <template>
   <div class="fifteen-view" ref="container">
     <section ref="section1" class="section">
-      <CountdownComponent 
-        :key="evento?.fecha" 
-        :evento="evento" 
-      />
+      <CountdownComponent :key="evento?.fecha" :evento="evento" />
     </section>
+
     <section ref="section2" class="section">
       <CarouselComponent :evento-id="eventoId" />
     </section>
-    <InformationComponent
-      :evento-id="eventoId"
-      :informacion="evento.informacionInvitacion"
-    />
+
+    <section ref="section3" class="section">
+      <InformationComponent
+        :evento-id="eventoId"
+        :informacion="evento.informacionInvitacion"
+      />
+    </section>
+
     <section ref="section4" class="section">
       <ConfirmComponent :evento-id="eventoId" />
     </section>
@@ -33,8 +34,6 @@
     >
       <ResultadosTriviaComponent :evento-id="eventoId" />
     </section>
-
-
 
     <!-- Botones navegación -->
     <button 
@@ -58,7 +57,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '@/firebase'
@@ -73,37 +72,21 @@ import ResultadosTriviaComponent from '@/views/TriviaResultsView.vue'
 const route = useRoute()
 const eventoId = route.params.eventoId as string
 
-// Prop recibido desde el padre (información general del evento)
 const props = defineProps<{
   evento: {
     fecha: string
     nombreQuinceanera: string
-    carouselConfig?: {
-      adornoSuperior?: string
-      adornoInferior?: string
-      frase?: string
-      imagenes?: string[]
-    },
-    informacionInvitacion?: {
-      textoInvitacion: string
-      adornoSuperior: string
-      adornoInferior: string
-      tarjetas: Array<{
-        frontImage: string
-        frontText: string
-        frontIcon: string
-        backContent: any
-      }>
-    }
+    carouselConfig?: any
+    informacionInvitacion?: any
   }
 }>()
 
-// 👇 Estado local para saber si mostrar trivia
 const triviaActiva = ref(false)
 
 const container = ref<HTMLElement | null>(null)
 const section1 = ref<HTMLElement | null>(null)
 const section2 = ref<HTMLElement | null>(null)
+const section3 = ref<HTMLElement | null>(null)
 const section4 = ref<HTMLElement | null>(null)
 const sectionTrivia = ref<HTMLElement | null>(null)
 const sectionResultados = ref<HTMLElement | null>(null)
@@ -128,8 +111,18 @@ function onScroll() {
   }
 }
 
+async function setupSections() {
+  await nextTick()
+  sections.value = [
+    section1.value,
+    section2.value,
+    section3.value,
+    section4.value,
+    ...(triviaActiva.value ? [sectionTrivia.value, sectionResultados.value] : [])
+  ].filter(Boolean) as HTMLElement[]
+}
+
 onMounted(async () => {
-  // Cargar si la trivia está activa
   try {
     const eventoDocRef = doc(db, 'eventos', eventoId)
     const eventoSnap = await getDoc(eventoDocRef)
@@ -140,13 +133,7 @@ onMounted(async () => {
     console.error('Error al obtener triviaActiva:', e)
   }
 
-  // Armar lista de secciones visibles
-  sections.value = [
-    section1.value,
-    section2.value,
-    ...(triviaActiva.value ? [sectionTrivia.value, sectionResultados.value] : []),
-    section4.value
-  ].filter(Boolean) as HTMLElement[]
+  await setupSections()
 
   if (container.value) {
     container.value.addEventListener('scroll', onScroll, { passive: true })
@@ -158,86 +145,79 @@ onUnmounted(() => {
     container.value.removeEventListener('scroll', onScroll)
   }
 })
-
 </script>
 
 <style scoped>
-    .fifteen-view {
-    height: 100vh;
-    width: 100vw;          /* ancho total sin margen */
-    margin: 0;
-    padding: 0;
-    overflow-y: auto;
-    overflow-x: hidden;    /* prevenir scroll horizontal */
-    scroll-behavior: smooth;
-    position: relative;
-    }
+.fifteen-view {
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  position: relative;
+}
 
-    .section {
-    min-height: 100vh; /* permite crecer si el contenido lo necesita */
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    flex-direction: column; /* asegura orden vertical */
-    }
+.section {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  flex-direction: column;
+}
 
+.nav-btn {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(182, 175, 160, 0.6);
+  border: none;
+  color: white;
+  font-size: 1.8rem;
+  cursor: pointer;
+  padding: 0.3rem 0.6rem;
+  border-radius: 50%;
+  z-index: 1000;
+  user-select: none;
+  transition: background-color 0.3s ease;
+}
 
+.nav-btn.up {
+  top: 1rem;
+  bottom: auto;
+}
 
-    /* Botones navegación */
-    .nav-btn {
-    position: fixed;
-    left: 50%;               /* centro horizontal */
-    transform: translateX(-50%);  /* centrar exactamente */
-    background-color: rgba(182, 175, 160, 0.6);
-    border: none;
-    color: white;
-    font-size: 1.8rem;
-    cursor: pointer;
-    padding: 0.3rem 0.6rem;
-    border-radius: 50%;
-    z-index: 1000;
-    user-select: none;
-    transition: background-color 0.3s ease;
-    }
+.nav-btn.down {
+  bottom: 1rem;
+  top: auto;
+}
 
-    /* Botones arriba y abajo */
-    .nav-btn.up {
-    top: 1rem;
-    bottom: auto;
-    }
+.nav-btn:hover:not(:disabled) {
+  background-color: rgba(182, 175, 160, 0.9);
+}
 
-    .nav-btn.down {
-    bottom: 1rem;
-    top: auto;
-    }
+.nav-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
 
-    /* Hover y disabled igual */
-    .nav-btn:hover:not(:disabled) {
-    background-color: rgba(182, 175, 160, 0.9);
-    }
+@media (max-width: 600px) {
+  .nav-btn {
+    font-size: 1.4rem;
+    padding: 0.25rem 0.5rem;
+  }
 
-    .nav-btn:disabled {
-    opacity: 0.3;
-    cursor: default;
-    }
+  .nav-btn.up {
+    top: 0.5rem;
+  }
 
-    /* Responsive */
-    @media (max-width: 600px) {
-    .nav-btn {
-        font-size: 1.4rem;
-        padding: 0.25rem 0.5rem;
-    }
-
-    .nav-btn.up {
-        top: 0.5rem;
-    }
-
-    .nav-btn.down {
-        bottom: 0.5rem;
-    }
-    }
+  .nav-btn.down {
+    bottom: 0.5rem;
+  }
+}
 </style>
