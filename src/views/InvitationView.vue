@@ -23,12 +23,13 @@
     />
 
     <div 
-      v-if="!seleccionando && evento?.invitacion && !abrirModalConfiguracion" 
+      v-if="usuarioAutorizado && !seleccionando && evento?.invitacion && !abrirModalConfiguracion" 
       class="acciones-superiores"
     >
       <button class="accion editar" @click="abrirModalConfiguracion = true">✏️</button>
       <button class="accion eliminar" @click="eliminarInvitacion">🗑️</button>
     </div>
+
 
     <div v-else class="cargando">
       <p>Cargando...</p>
@@ -125,6 +126,22 @@ import InformationSetting from '@/components/fifteen/InformationSetting.vue'
 import ConfirmBackgroundSetting from '@/components/fifteen/ConfirmSetting.vue'
 import TriviaSetting from '@/components/TriviaQuestionForm.vue'
 import GallerySetting from '@/components/gallery-live/GallerySetting.vue' // Import nuevo
+
+import { getAuth, onAuthStateChanged } from 'firebase/auth'
+
+const usuarioAutorizado = ref(true)
+
+onMounted(() => {
+  const auth = getAuth()
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      // Cambiá este correo al del admin real
+      usuarioAutorizado.value = user.email === 'admin@tuevento.com'
+    } else {
+      usuarioAutorizado.value = true
+    }
+  })
+})
 
 const tabActual = ref<'countdown' | 'carousel' | 'info' | 'confirm' | 'trivia' | 'galeria'>('countdown')
 const route = useRoute()

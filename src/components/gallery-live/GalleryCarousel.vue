@@ -1,12 +1,10 @@
-<!-- components/gallery-live/GalleryCarousel.vue -->
 <template>
   <div class="carousel-background">
-    <h2 class="gallery-title">{{ tituloAMostrar }}</h2>
-
+    <!-- Carrusel principal -->
     <swiper
+      ref="swiperRef"
       v-if="gallery.length"
       :key="swiperKey"
-      @swiper="onSwiper"
       :modules="[Autoplay, Navigation, Pagination, EffectFade, EffectCube, EffectCoverflow]"
       :loop="gallery.length > 1"
       :autoplay="autoplayEnabled ? { delay: duration * 1000, disableOnInteraction: false } : false"
@@ -17,6 +15,7 @@
       pagination
       navigation
       class="gallery-swiper"
+      @swiper="onSwiperInstance"
     >
       <swiper-slide v-for="item in gallery" :key="item.id" class="slide">
         <img :src="item.imageUrl" alt="Imagen" @dblclick="openFullscreen" />
@@ -24,85 +23,111 @@
       </swiper-slide>
     </swiper>
 
-    <!-- resto del código sin cambios -->
+    <!-- Controles -->
+    <div class="config-panel">
+      <div class="config-group">
+        <label for="duration">Duración por imagen (s)</label>
+        <input id="duration" type="number" v-model.number="duration" min="1" />
+      </div>
+      <div class="config-group">
+        <label for="transition">Transición (s)</label>
+        <input id="transition" type="number" v-model.number="transition" min="0" />
+      </div>
+      <div class="config-group">
+        <label for="transitionType">Tipo de transición</label>
+        <select v-model="transitionType" id="transitionType">
+          <option value="slide">Deslizar</option>
+          <option value="fade">Desvanecer</option>
+          <option value="cube">Cubo</option>
+          <option value="coverflow">Coverflow</option>
+        </select>
+      </div>
+      <div class="config-group">
+        <button @click="toggleAutoplay">
+          {{ autoplayEnabled ? '⏸️ Pausar' : '▶️ Reanudar' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Pantalla completa -->
+    <div v-if="fullscreen" class="fullscreen-overlay" ref="fullscreenOverlay" @dblclick="closeFullscreen">
+      <swiper
+        :key="swiperKey + '-fullscreen'"
+        :modules="[Autoplay, Pagination, Navigation, EffectFade, EffectCube, EffectCoverflow]"
+        :loop="gallery.length > 1"
+        :autoplay="autoplayEnabled ? { delay: duration * 1000, disableOnInteraction: false } : false"
+        :speed="transition * 1000"
+        :effect="transitionType"
+        :cube-effect="{ shadow: true, slideShadows: true, shadowOffset: 20, shadowScale: 0.94 }"
+        :coverflow-effect="{ rotate: 50, stretch: 0, depth: 100, modifier: 1, slideShadows: true }"
+        pagination
+        navigation
+        class="fullscreen-swiper"
+      >
+        <swiper-slide v-for="item in gallery" :key="item.id" class="fullscreen-slide">
+          <img :src="item.imageUrl" alt="Imagen en pantalla completa" />
+          <div class="fullscreen-message-container">
+            <p class="fullscreen-message">{{ item.message }}</p>
+          </div>
+        </swiper-slide>
+      </swiper>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick, watch, computed } from 'vue'
+import { ref, onMounted, nextTick, watch, onUnmounted } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
-import {
-  Autoplay,
-  Navigation,
-  Pagination,
-  EffectFade,
-  EffectCube,
-  EffectCoverflow
-} from 'swiper/modules'
+import { Autoplay, Navigation, Pagination, EffectFade, EffectCube, EffectCoverflow } from 'swiper/modules'
 import 'swiper/swiper-bundle.css'
-
 import { listenToApprovedGallery } from '@/services/galleryService'
-import type { GalleryImage } from '@/services/galleryService'
+import type SwiperCore from 'swiper'
 
-const gallery = ref<GalleryImage[]>([])
+interface GalleryItem {
+  id: string
+  imageUrl: string
+  message: string
+}
+
+const props = defineProps({
+  eventoId: {
+    type: String,
+    required: true
+  }
+})
+
+const gallery = ref<GalleryItem[]>([])
 const duration = ref(10)
 const transition = ref(1)
 const transitionType = ref('slide')
 const autoplayEnabled = ref(true)
 const fullscreen = ref(false)
+
 const swiperKey = ref(0)
-const swiperInstance = ref<any>(null)
-const fullscreenOverlay = ref<HTMLElement | null>(null)
-
-const props = defineProps<{ 
-  eventoId: string,
-  nombreEvento: string,
-  tituloGaleria: string | null
-}>()
-
-const tituloAMostrar = computed(() => {
-  if (props.tituloGaleria && props.tituloGaleria.trim() !== '') {
-    return props.tituloGaleria
-  }
-  return props.nombreEvento
-})
-
-let unsubscribe: (() => void) | null = null
-
-function onSwiper(swiper: any) {
-  swiperInstance.value = swiper
-}
-
-const handleKeydown = (e: KeyboardEvent) => {
-  if (e.key === 'Escape') closeFullscreen()
-}
+const swiperRef = ref<InstanceType<typeof Swiper> | null>(null)
+const fullscreenOverlay = ref<HTMLDivElement | null>(null)
+const swiperInstance = ref<SwiperCore | null>(null)
 
 onMounted(() => {
-  unsubscribe = listenToApprovedGallery(props.eventoId, (images: GalleryImage[]) => {
+  const unsubscribe = listenToApprovedGallery(props.eventoId, (images: GalleryItem[]) => {
     gallery.value = images
   })
 
-  window.addEventListener('keydown', handleKeydown)
-})
-
-onUnmounted(() => {
-  if (unsubscribe) unsubscribe()
-  window.removeEventListener('keydown', handleKeydown)
-})
-
-watch([duration, transition, transitionType], async () => {
-  swiperKey.value++
-  await nextTick()
-  const swiper = swiperInstance.value
-  if (swiper) {
-    swiper.params.speed = transition.value * 1000
-    swiper.params.effect = transitionType.value
-    if (swiper.params.autoplay && typeof swiper.params.autoplay !== 'boolean') {
-      swiper.params.autoplay.delay = duration.value * 1000
-    }
-    swiper.slideTo(swiper.activeIndex)
-    swiper.update()
+  const handleKeydown = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') closeFullscreen()
   }
+
+  window.addEventListener('keydown', handleKeydown)
+
+  onUnmounted(() => {
+    unsubscribe()
+    window.removeEventListener('keydown', handleKeydown)
+  })
+})
+
+// Al cambiar duration, transition o transitionType, reconstruimos Swiper
+watch([duration, transition, transitionType], () => {
+  swiperKey.value++
 })
 
 async function openFullscreen() {
@@ -118,6 +143,10 @@ async function openFullscreen() {
   }
 }
 
+function onSwiperInstance(swiper: SwiperCore) {
+  swiperInstance.value = swiper
+}
+
 function closeFullscreen() {
   fullscreen.value = false
   if (document.fullscreenElement) {
@@ -126,25 +155,23 @@ function closeFullscreen() {
 }
 
 function toggleAutoplay() {
-  const swiper = swiperInstance.value
-  if (!swiper) return
+  if (!swiperInstance.value) return
 
   autoplayEnabled.value = !autoplayEnabled.value
 
   if (autoplayEnabled.value) {
-    if (swiper.params.autoplay && typeof swiper.params.autoplay !== 'boolean') {
-      swiper.params.autoplay.delay = duration.value * 1000
+    if (swiperInstance.value.params.autoplay && typeof swiperInstance.value.params.autoplay !== 'boolean') {
+      swiperInstance.value.params.autoplay.delay = duration.value * 1000
     }
-    swiper.autoplay.start()
+    swiperInstance.value.autoplay.start()
   } else {
-    swiper.autoplay.stop()
+    swiperInstance.value.autoplay.stop()
   }
-
-  swiper.update()
 }
 </script>
 
 <style scoped>
+/* Mantén aquí tus estilos tal como los tenías */
 .carousel-background {
   min-height: 100vh;
   background-color: #fffafc;
@@ -344,13 +371,5 @@ function toggleAutoplay() {
   .config-group button {
     width: 100%;
   }
-}
-.gallery-title {
-  font-family: 'Poppins', sans-serif;
-  font-weight: 600;
-  font-size: 2rem;
-  color: #b98b4e;
-  text-align: center;
-  margin-bottom: 1rem;
 }
 </style>
