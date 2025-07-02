@@ -35,19 +35,27 @@
       <ResultadosTriviaComponent :evento-id="eventoId" />
     </section>
 
+    <!-- Sección para GalleryCarousel -->
     <section
       v-if="galeriaActiva"
-      ref="sectionGaleria"
+      ref="sectionGaleriaCarousel"
       class="section galeria-section"
     >
-    <GalleryCarousel 
-      :evento-id="eventoId"
-      :nombre-evento="evento.nombre"
-      :titulo-galeria="evento.tituloGaleria ?? ''"
-    />
-      <UploadForm :evento-id="eventoId" />
+      <GalleryCarousel 
+        :evento-id="eventoId"
+        :nombre-evento="evento.nombre"
+        :titulo-galeria="evento.tituloGaleria ?? ''"
+      />
     </section>
 
+    <!-- Sección para UploadForm -->
+    <section
+      v-if="galeriaActiva"
+      ref="sectionGaleriaUpload"
+      class="section galeria-section"
+    >
+      <UploadForm :evento-id="eventoId" />
+    </section>
 
     <!-- Botones navegación -->
     <button 
@@ -99,7 +107,6 @@ const props = defineProps<{
   }
 }>()
 
-
 const triviaActiva = ref(false)
 const galeriaActiva = ref(false)
 
@@ -110,7 +117,8 @@ const section3 = ref<HTMLElement | null>(null)
 const section4 = ref<HTMLElement | null>(null)
 const sectionTrivia = ref<HTMLElement | null>(null)
 const sectionResultados = ref<HTMLElement | null>(null)
-const sectionGaleria = ref<HTMLElement | null>(null)
+const sectionGaleriaCarousel = ref<HTMLElement | null>(null)
+const sectionGaleriaUpload = ref<HTMLElement | null>(null)
 
 const currentSection = ref(0)
 const sections = ref<HTMLElement[]>([])
@@ -140,7 +148,7 @@ async function setupSections() {
     section3.value,
     section4.value,
     ...(triviaActiva.value ? [sectionTrivia.value, sectionResultados.value] : []),
-    ...(galeriaActiva.value ? [sectionGaleria.value] : [])
+    ...(galeriaActiva.value ? [sectionGaleriaCarousel.value, sectionGaleriaUpload.value] : [])
   ].filter(Boolean) as HTMLElement[]
 }
 
@@ -171,7 +179,6 @@ onUnmounted(() => {
 })
 </script>
 
-
 <style scoped>
 .fifteen-view {
   height: 100vh;
@@ -183,11 +190,11 @@ onUnmounted(() => {
   scroll-behavior: smooth;
   position: relative;
 }
+
 .galeria-section > * {
   margin-bottom: 2rem;
   max-width: 90%;
 }
-
 
 .section {
   min-height: 100vh;

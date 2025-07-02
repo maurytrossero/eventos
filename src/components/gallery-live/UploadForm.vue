@@ -1,158 +1,236 @@
 <template>
-  <form @submit.prevent="submitForm" class="upload-form">
-    <label class="form-label">
-      Selecciona una imagen:
-      <input type="file" @change="onFileChange" accept="image/*" class="form-input" />
-    </label>
+  <div class="page-background">
+    <div class="upload-gallery">
+      <h2 class="title">Subí tu foto 💌</h2>
 
-    <label class="form-label">
-      Mensaje (opcional):
-      <textarea
-        v-model="message"
-        placeholder="Escribe un mensaje..."
-        class="form-textarea"
-        rows="3"
-      ></textarea>
-    </label>
+      <form @submit.prevent="handleUpload" class="form">
 
-    <button type="submit" :disabled="loading" class="form-button">
-      {{ loading ? 'Subiendo...' : 'Subir imagen' }}
-    </button>
+        <!-- BOTÓN PARA TOMAR FOTO - SOLO MÓVIL -->
+        <label v-if="isMobile" class="custom-btn">
+          📷 Tomar foto
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            class="input-camera hidden-input"
+            @change="handleFileChange"
+          />
+        </label>
 
-    <p v-if="error" class="form-error">{{ error }}</p>
-    <p v-if="success" class="form-success">{{ success }}</p>
-  </form>
+        <!-- BOTÓN PARA ELEGIR DE GALERÍA - TODOS LOS DISPOSITIVOS -->
+        <label class="custom-btn">
+          🖼️ Elegir de galería
+          <input
+            type="file"
+            accept="image/*"
+            class="input-file hidden-input"
+            @change="handleFileChange"
+          />
+        </label>
+
+        <p v-if="file" class="filename">📸 Archivo: {{ file.name }}</p>
+
+        <textarea
+          v-model="message"
+          placeholder="Mensaje opcional"
+          class="textarea"
+          rows="3"
+        ></textarea>
+
+        <button
+          type="submit"
+          :disabled="uploading || !file"
+          class="btn-submit"
+        >
+          {{ uploading ? 'Subiendo...' : 'Enviar' }}
+        </button>
+
+        <p v-if="success" class="msg-success">¡Imagen enviada con éxito!</p>
+        <p v-if="error" class="msg-error">{{ error }}</p>
+      </form>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { uploadImageWithMessage } from '@/services/galleryService'
 
-// ✅ Props
-const props = defineProps<{ eventoId: string }>()
+const props = defineProps({
+  eventoId: {
+    type: String,
+    required: true
+  }
+})
 
-// ✅ Estado
 const file = ref<File | null>(null)
 const message = ref('')
-const loading = ref(false)
-const error = ref<string | null>(null)
-const success = ref<string | false>(false)
+const uploading = ref(false)
+const success = ref(false)
+const error = ref('')
 
-// ✅ Manejadores
-function onFileChange(event: Event) {
+// Detectar si estamos en móvil (puede ajustarse según necesidades)
+const isMobile = ref(false)
+onMounted(() => {
+  isMobile.value = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+})
+
+function handleFileChange(event: Event) {
   const target = event.target as HTMLInputElement
-  if (target.files && target.files.length > 0) {
+  if (target.files?.length) {
     file.value = target.files[0]
-    error.value = null
     success.value = false
+    error.value = ''
+  } else {
+    error.value = 'No se seleccionó ningún archivo'
   }
 }
 
-async function submitForm() {
-  if (!file.value) {
-    error.value = 'Selecciona una imagen'
-    return
-  }
+async function handleUpload() {
+  if (!file.value) return
 
-  loading.value = true
-  error.value = null
+  uploading.value = true
   success.value = false
+  error.value = ''
 
   try {
+    // Pasar eventoId como primer argumento a la función de subida
     await uploadImageWithMessage(props.eventoId, file.value, message.value)
+
+    success.value = true
     file.value = null
     message.value = ''
-    success.value = 'Imagen subida correctamente, pendiente aprobación'
 
-    // Limpiar input file visualmente
-    const inputFile = document.querySelector('input[type="file"]') as HTMLInputElement
-    if (inputFile) inputFile.value = ''
-  } catch (err: any) {
-    error.value = err.message || 'Error al subir la imagen'
+    // Limpiar inputs file manualmente para poder subir la misma imagen luego
+    const inputs = document.querySelectorAll('input[type="file"]')
+    inputs.forEach((input) => {
+      (input as HTMLInputElement).value = ''
+    })
+  } catch (e) {
+    error.value =
+      e instanceof Error ? e.message : 'Error al subir la imagen. Intenta nuevamente.'
   } finally {
-    loading.value = false
+    uploading.value = false
   }
 }
 </script>
 
 <style scoped>
-.upload-form {
-  background-color: white;
-  padding: 20px;
-  max-width: 400px;
-  margin: 2rem auto;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+.page-background {
+  min-height: 100vh;
+  background-color: #fffafc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
 }
 
-.form-label {
+.upload-gallery {
+  background-color: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(185, 139, 78, 0.3);
+  max-width: 400px;
+  padding: 2rem 1.5rem;
+  width: 100%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  text-align: center;
+}
+
+.title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #b98b4e;
+  margin-bottom: 1.5rem;
+}
+
+.form {
   display: flex;
   flex-direction: column;
-  font-weight: 600;
-  color: #4a3c31;
-  margin-bottom: 1rem;
+  gap: 1.25rem;
 }
 
-.form-input,
-.form-textarea {
-  margin-top: 8px;
-  padding: 10px;
+/* Ocultar inputs file reales */
+.hidden-input {
+  display: none;
+}
+
+/* Botones para seleccionar archivos */
+.custom-btn {
+  background-color: #f7e9dd;
+  border: 1.5px solid #b98b4e;
+  color: #b98b4e;
+  font-weight: 600;
+  padding: 0.6rem;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+  display: block;
+}
+
+.custom-btn:hover {
+  background-color: #f1ddc8;
+}
+
+.textarea {
   border: 1.5px solid #b98b4e;
   border-radius: 6px;
+  padding: 0.75rem;
   font-size: 1rem;
-  font-family: inherit;
   resize: vertical;
+  font-family: inherit;
   transition: border-color 0.3s ease;
 }
 
-.form-input:focus,
-.form-textarea:focus {
+.textarea:focus {
   outline: none;
   border-color: #9a733b;
   box-shadow: 0 0 5px #9a733baa;
 }
 
-.form-button {
-  width: 100%;
+.btn-submit {
   background-color: #b98b4e;
   color: white;
-  border: none;
-  padding: 12px 0;
   font-weight: 700;
-  font-size: 1.1rem;
-  border-radius: 6px;
+  padding: 0.75rem 0;
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
+  font-size: 1.1rem;
   transition: background-color 0.3s ease;
 }
 
-.form-button:hover:not(:disabled) {
+.btn-submit:hover:not(:disabled) {
   background-color: #9a733b;
 }
 
-.form-button:disabled {
+.btn-submit:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.form-error {
-  margin-top: 1rem;
-  color: #d43f3a;
-  font-weight: 600;
-  text-align: center;
-}
-
-.form-success {
-  margin-top: 1rem;
+.msg-success {
   color: #2c7a2c;
   font-weight: 600;
-  text-align: center;
+  margin-top: 0.5rem;
 }
 
-@media (max-width: 480px) {
-  .upload-form {
-    margin: 1rem;
-    padding: 15px;
+.msg-error {
+  color: #d43f3a;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.filename {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+/* Ocultar input-camera en escritorio */
+@media (min-width: 768px) {
+  .input-camera {
+    display: none !important;
   }
 }
 </style>
