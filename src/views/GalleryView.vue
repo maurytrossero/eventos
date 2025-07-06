@@ -1,3 +1,48 @@
+<template>
+  <div :class="containerClass" ref="container">
+    <!-- Galería activa -->
+    <section
+      v-if="galeriaActiva"
+      ref="sectionGaleriaUpload"
+      class="section galeria-section"
+    >
+      <UploadForm :evento-id="eventoId" />
+    </section>
+
+    <section
+      v-if="galeriaActiva"
+      ref="sectionGaleriaCarousel"
+      class="section galeria-section"
+    >
+      <GalleryCarousel
+        :evento-id="eventoId"
+        :nombre-evento="evento?.nombre ?? ''"
+        :titulo-galeria="evento?.tituloGaleria ?? ''"
+      />
+    </section>
+
+    <!-- Botones de navegación -->
+    <button
+      class="nav-btn up"
+      @click="scrollToSection(currentSection - 1)"
+      :disabled="currentSection === 0"
+      aria-label="Subir"
+    >
+      ▲
+    </button>
+
+    <button
+      class="nav-btn down"
+      @click="scrollToSection(currentSection + 1)"
+      :disabled="currentSection === sections.length - 1"
+      aria-label="Bajar"
+    >
+      ▼
+    </button>
+  </div>
+</template>
+
+
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick, computed } from 'vue'
 import { useRoute } from 'vue-router'
@@ -85,50 +130,6 @@ onUnmounted(() => {
   }
 })
 </script>
-
-<template>
-  <div :class="containerClass" ref="container">
-    <!-- Galería activa -->
-    <section
-      v-if="galeriaActiva"
-      ref="sectionGaleriaCarousel"
-      class="section galeria-section"
-    >
-      <GalleryCarousel
-        :evento-id="eventoId"
-        :nombre-evento="evento?.nombre ?? ''"
-        :titulo-galeria="evento?.tituloGaleria ?? ''"
-      />
-    </section>
-
-    <section
-      v-if="galeriaActiva"
-      ref="sectionGaleriaUpload"
-      class="section galeria-section"
-    >
-      <UploadForm :evento-id="eventoId" />
-    </section>
-
-    <!-- Botones de navegación -->
-    <button
-      class="nav-btn up"
-      @click="scrollToSection(currentSection - 1)"
-      :disabled="currentSection === 0"
-      aria-label="Subir"
-    >
-      ▲
-    </button>
-
-    <button
-      class="nav-btn down"
-      @click="scrollToSection(currentSection + 1)"
-      :disabled="currentSection === sections.length - 1"
-      aria-label="Bajar"
-    >
-      ▼
-    </button>
-  </div>
-</template>
 
 <style scoped>
 .gallery-view {
