@@ -12,19 +12,17 @@
 </template><script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { listenToApprovedGallery, deleteGalleryImage } from '@/services/galleryService'
-import type { GalleryImage } from '@/services/galleryService' // ✅ Importar tipo
-import type { Timestamp } from 'firebase/firestore' // ✅ Importar Timestamp
+import type { GalleryImage } from '@/services/galleryService'
+import type { Timestamp } from 'firebase/firestore'
 
-// ✅ Props con eventoId
-const { eventoId } = defineProps<{ eventoId: string }>()
+const props = defineProps<{ eventoId: string }>()
 
-// ✅ Ref tipado correctamente
 const gallery = ref<GalleryImage[]>([])
 
 let unsubscribe: (() => void) | null = null
 
 onMounted(() => {
-  unsubscribe = listenToApprovedGallery(eventoId, (images) => {
+  unsubscribe = listenToApprovedGallery(props.eventoId, (images) => {
     gallery.value = images
   })
 })
@@ -35,9 +33,10 @@ onUnmounted(() => {
 
 function eliminar(id: string) {
   if (confirm('¿Estás seguro de eliminar esta imagen?')) {
-    deleteGalleryImage(eventoId, id)
+    deleteGalleryImage(props.eventoId, id)
   }
 }
+
 </script>
 
 

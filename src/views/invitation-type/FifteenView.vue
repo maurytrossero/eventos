@@ -193,7 +193,7 @@ onUnmounted(() => {
 
 .galeria-section > * {
   margin-bottom: 2rem;
-  max-width: 90%;
+  max-width: 100%;
 }
 
 .section {

@@ -62,11 +62,22 @@ const routes: Array<RouteRecordRaw> = [
     props: true
   },
   {
+    path: '/eventos/:eventoId/invitacion/galeria-interactiva',// RUTA PARA VISUALIZAR LA GALERIA INTERACTIVA DE CADA EVENTO EN GENERAL
+    name: 'evento-galeria-interactiva',
+    component: () => import('@/views/GalleryView.vue'),
+    props: true
+  },
+    {
+    path: '/eventos/:eventoId/invitacion/moderar-galeria-interactiva',// RUTA PARA VISUALIZAR LA GALERIA INTERACTIVA DE CADA EVENTO EN GENERAL
+    name: 'evento-moderar-galeria-interactiva',
+    component: () => import('@/views/ModerateView.vue'),
+    props: true
+  },
+  {
     path: '/eventos/:eventoId',
     name: 'EventoDetalle',
     component: () => import('@/components/EventoDetalle.vue')
   },
-
 
 ];
 

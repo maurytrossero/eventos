@@ -4,8 +4,7 @@
       <h2 class="title">Subí tu foto 💌</h2>
 
       <form @submit.prevent="handleUpload" class="form">
-
-        <!-- BOTÓN PARA TOMAR FOTO - SOLO MÓVIL -->
+        <!-- BOTÓN PARA TOMAR FOTO - SOLO SI ES MÓVIL -->
         <label v-if="isMobile" class="custom-btn">
           📷 Tomar foto
           <input
@@ -17,7 +16,7 @@
           />
         </label>
 
-        <!-- BOTÓN PARA ELEGIR DE GALERÍA - TODOS LOS DISPOSITIVOS -->
+        <!-- BOTÓN PARA ELEGIR DE GALERÍA - SIEMPRE -->
         <label class="custom-btn">
           🖼️ Elegir de galería
           <input
@@ -53,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { uploadImageWithMessage } from '@/services/galleryService'
 
 const props = defineProps({
@@ -69,10 +68,19 @@ const uploading = ref(false)
 const success = ref(false)
 const error = ref('')
 
-// Detectar si estamos en móvil (puede ajustarse según necesidades)
 const isMobile = ref(false)
+
+function updateIsMobile() {
+  isMobile.value = window.matchMedia('(max-width: 768px)').matches
+}
+
 onMounted(() => {
-  isMobile.value = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+  updateIsMobile()
+  window.addEventListener('resize', updateIsMobile)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updateIsMobile)
 })
 
 function handleFileChange(event: Event) {
@@ -94,14 +102,13 @@ async function handleUpload() {
   error.value = ''
 
   try {
-    // Pasar eventoId como primer argumento a la función de subida
     await uploadImageWithMessage(props.eventoId, file.value, message.value)
 
     success.value = true
     file.value = null
     message.value = ''
 
-    // Limpiar inputs file manualmente para poder subir la misma imagen luego
+    // Limpiar los inputs de tipo file
     const inputs = document.querySelectorAll('input[type="file"]')
     inputs.forEach((input) => {
       (input as HTMLInputElement).value = ''
@@ -118,87 +125,103 @@ async function handleUpload() {
 <style scoped>
 .page-background {
   min-height: 100vh;
-  background-color: #fffafc;
+  background-color: #fffafc; /* color fijo */
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 1rem;
+  padding: 2rem 1rem;
+  box-sizing: border-box;
 }
 
+/* Contenedor central del formulario */
 .upload-gallery {
   background-color: white;
   border-radius: 1rem;
   box-shadow: 0 4px 12px rgba(185, 139, 78, 0.3);
-  max-width: 400px;
-  padding: 2rem 1.5rem;
   width: 100%;
+  max-width: 500px; /* máximo ancho razonable en desktop */
+  padding: 2rem 2.5rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   text-align: center;
+  margin: 0 1rem; /* margen horizontal para mobile */
+  box-sizing: border-box;
 }
 
+/* Título */
 .title {
-  font-size: 1.8rem;
+  font-size: clamp(1.5rem, 5vw, 2rem);
   font-weight: 700;
   color: #b98b4e;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
 }
 
+/* Formulario - columna vertical con separación */
 .form {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.5rem;
+  align-items: stretch;
 }
 
-/* Ocultar inputs file reales */
-.hidden-input {
-  display: none;
-}
-
-/* Botones para seleccionar archivos */
+/* Botones para subir imagen */
 .custom-btn {
   background-color: #f7e9dd;
   border: 1.5px solid #b98b4e;
   color: #b98b4e;
   font-weight: 600;
-  padding: 0.6rem;
-  border-radius: 8px;
+  padding: 0.85rem;
+  border-radius: 10px;
   cursor: pointer;
-  text-align: center;
   font-size: 1rem;
-  transition: background-color 0.3s ease;
-  display: block;
+  transition: background-color 0.3s ease, transform 0.15s ease;
+  display: inline-block;
+  text-align: center;
+  user-select: none;
 }
 
 .custom-btn:hover {
   background-color: #f1ddc8;
+  transform: scale(1.04);
 }
 
+/* Inputs tipo file ocultos */
+.hidden-input {
+  display: none;
+}
+
+/* Textarea con ancho completo */
 .textarea {
+  box-sizing: border-box; /* agrega esta línea */
   border: 1.5px solid #b98b4e;
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 0.75rem;
   font-size: 1rem;
   resize: vertical;
   font-family: inherit;
-  transition: border-color 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
+  min-height: 80px;
 }
+
 
 .textarea:focus {
   outline: none;
   border-color: #9a733b;
-  box-shadow: 0 0 5px #9a733baa;
+  box-shadow: 0 0 6px #9a733baa;
 }
 
+/* Botón submit: ancho completo, buen tamaño y accesible */
 .btn-submit {
   background-color: #b98b4e;
   color: white;
   font-weight: 700;
-  padding: 0.75rem 0;
+  padding: 0.85rem 0;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   transition: background-color 0.3s ease;
+  width: 100%;
 }
 
 .btn-submit:hover:not(:disabled) {
@@ -210,27 +233,49 @@ async function handleUpload() {
   cursor: not-allowed;
 }
 
+/* Mensajes */
 .msg-success {
   color: #2c7a2c;
   font-weight: 600;
-  margin-top: 0.5rem;
+  margin-top: -0.5rem;
 }
 
 .msg-error {
   color: #d43f3a;
   font-weight: 600;
-  margin-top: 0.5rem;
+  margin-top: -0.5rem;
 }
 
+/* Nombre archivo */
 .filename {
   font-size: 0.9rem;
   color: #555;
+  word-break: break-word;
+  margin-top: -1rem;
+  margin-bottom: 0.5rem;
 }
 
-/* Ocultar input-camera en escritorio */
+/* Ocultar input-camera en desktop */
 @media (min-width: 768px) {
   .input-camera {
     display: none !important;
   }
 }
+
+/* Ajustes para pantallas pequeñas (mobile horizontal, tablets) */
+@media (max-width: 480px) {
+  .upload-gallery {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .custom-btn {
+    font-size: 0.9rem;
+    padding: 0.7rem;
+  }
+
+  .btn-submit {
+    font-size: 1rem;
+  }
+}
+
 </style>

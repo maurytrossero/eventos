@@ -41,9 +41,22 @@
         </button>
       </template>
 
-      <button @click="crearGaleria" class="accion-button">
+      <button
+        v-if="evento?.galeriaActiva === true"
+        @click="irAGaleriaInteractiva"
+        class="accion-button"
+      >
+        Ver Galería Interactiva
+      </button>
+
+      <button
+        v-else
+        @click="crearGaleria"
+        class="accion-button"
+      >
         Crear Galería Interactiva
       </button>
+
       <button @click="eliminarEvento" class="accion-button eliminar">
         Eliminar Evento
       </button>
@@ -79,6 +92,7 @@ interface Evento {
   fecha: string;
   lugar?: string;
   invitacion?: string;
+  galeriaActiva?: boolean;  // <-- Agregá esta línea
 }
 
 
@@ -112,6 +126,13 @@ const eliminarEvento = async () => {
     alert('Ocurrió un error al eliminar el evento.');
   }
 };
+  // Función para ir a la galería interactiva
+  const irAGaleriaInteractiva = () => {
+    router.push({ 
+      name: 'evento-galeria-interactiva', 
+      params: { eventoId } 
+    })
+  }
 
 onMounted(() => {
   cargarEvento();
