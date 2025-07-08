@@ -1,3 +1,4 @@
+<!-- components/gallery-live/UploadForm.vue -->
 <template>
   <div class="page-background">
     <div class="upload-gallery">

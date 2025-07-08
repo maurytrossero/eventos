@@ -1,3 +1,4 @@
+<!-- components/gallery-live/ModerationGallery.vue -->
 <template>
   <div class="moderation-gallery">
     <h1>Moderación de Imágenes</h1>

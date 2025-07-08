@@ -1,3 +1,4 @@
+<!-- views/GalleryView.vue.vue -->
 <template>
   <div :class="containerClass" ref="container">
     <!-- Galería activa -->

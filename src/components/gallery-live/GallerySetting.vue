@@ -1,3 +1,4 @@
+<!-- components/gallery-live/GallerySetting.vue -->
 <template>
   <div class="gallery-setting">
     <h2>Configuración de la Galería</h2>

@@ -35,11 +35,10 @@
       <ResultadosTriviaComponent :evento-id="eventoId" />
     </section>
 
-    <!-- Sección para GalleryCarousel -->
     <section
       v-if="galeriaActiva"
       ref="sectionGaleriaCarousel"
-      class="section galeria-section"
+      class="galeria-section"
     >
       <GalleryCarousel 
         :evento-id="eventoId"
@@ -48,14 +47,14 @@
       />
     </section>
 
-    <!-- Sección para UploadForm -->
     <section
       v-if="galeriaActiva"
       ref="sectionGaleriaUpload"
-      class="section galeria-section"
+      class="galeria-section"
     >
       <UploadForm :evento-id="eventoId" />
     </section>
+
 
     <!-- Botones navegación -->
     <button 
@@ -189,23 +188,28 @@ onUnmounted(() => {
   overflow-x: hidden;
   scroll-behavior: smooth;
   position: relative;
+  background-color: #fffafc; /* color igual que GalleryCarousel y UploadForm */
+
 }
 
 .galeria-section > * {
   margin-bottom: 2rem;
   max-width: 100%;
+  background-color: #fffafc; /* igual que .fifteen-view */
+
 }
 
+/* Estilo para las secciones normales centradas (las primeras 4) */
 .section {
   min-height: 100vh;
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  flex-direction: column;
 }
 
 .nav-btn {
@@ -257,4 +261,55 @@ onUnmounted(() => {
     bottom: 0.5rem;
   }
 }
+
+/* Estilo para las secciones galería que NO deben centrarse ni restringir el ancho */
+.galeria-section {
+  min-height: 100vh;
+  width: 100%;
+  margin: 0;
+  padding: 1rem 0;
+  box-sizing: border-box;
+  display: block; /* para evitar flex */
+}
+
+/* Para que los hijos de galeria tengan un ancho máximo razonable y centren horizontalmente */
+.galeria-section > * {
+  max-width: 900px; /* ajustá a lo que necesites */
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 2rem;
+}
+@media (max-width: 600px) {
+  /* Ajustar ancho máximo de los hijos de galería en móvil para mejor responsividad */
+  .galeria-section > * {
+    max-width: 100%; /* ocupar todo el ancho disponible */
+    padding-left: 1rem;
+    padding-right: 1rem;
+    box-sizing: border-box;
+  }
+
+  /* Opcional: más altura mínima para evitar que queden muy comprimidos */
+  .galeria-section {
+    min-height: auto; /* que no fuerce 100vh si se ve muy alto */
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+}
+
+/* Opcional: para pantallas pequeñas en modo horizontal (landscape) */
+@media (max-width: 600px) and (orientation: landscape) {
+  .galeria-section > * {
+    max-width: 90vw;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  
+  .galeria-section {
+    min-height: auto;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+}
+
 </style>

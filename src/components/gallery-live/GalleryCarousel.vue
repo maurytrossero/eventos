@@ -1,3 +1,4 @@
+<!-- components/gallery-live/GalleryCarousel.vue -->
 <template>
   <div class="carousel-background">
     <swiper
@@ -193,7 +194,6 @@ function toggleAutoplay() {
 </script>
 
 <style scoped>
-/* Mantén aquí tus estilos tal como los tenías */
 .carousel-background {
   min-height: 100vh;
   background-color: #fffafc;
@@ -201,7 +201,7 @@ function toggleAutoplay() {
   flex-direction: column;
   align-items: center;
   padding: 1.5rem;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .gallery-swiper {
@@ -255,23 +255,29 @@ function toggleAutoplay() {
 .config-group {
   display: flex;
   flex-direction: column;
-  font-size: 0.95rem;
+  font-size: 1rem;
   color: #6a4e31;
   gap: 0.4rem;
+  min-width: 180px;
+  max-width: 250px;
 }
 
 .config-group label {
   font-weight: bold;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  text-align: left;
 }
 
 .config-group input,
 .config-group select,
 .config-group button {
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1rem;
   background-color: #fdf8f3;
   border: 1px solid #ccc;
-  border-radius: 8px;
+  border-radius: 12px;
   font-size: 1rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-sizing: border-box;
 }
 
 .config-group button {
@@ -386,6 +392,27 @@ function toggleAutoplay() {
     flex-direction: column;
     gap: 1rem;
     width: 90%;
+    max-width: 350px;
+    margin: 1.5rem auto 0;
+    align-items: center;
+    padding: 1rem;
+    background-color: #fff4e6;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+
+  .config-group {
+    width: 100%;
+    max-width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .config-group label {
+    width: 100%;
+    text-align: center;
   }
 
   .config-group input,
