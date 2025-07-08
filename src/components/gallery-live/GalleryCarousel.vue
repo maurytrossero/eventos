@@ -1,6 +1,5 @@
 <template>
   <div class="carousel-background">
-    <!-- Carrusel principal -->
     <swiper
       ref="swiperRef"
       v-if="gallery.length"
@@ -50,7 +49,12 @@
     </div>
 
     <!-- Pantalla completa -->
-    <div v-if="fullscreen" class="fullscreen-overlay" ref="fullscreenOverlay" @dblclick="closeFullscreen">
+    <div
+      v-if="fullscreen"
+      class="fullscreen-overlay"
+      ref="fullscreenOverlay"
+      @dblclick="closeFullscreen"
+    >
       <swiper
         :key="swiperKey + '-fullscreen'"
         :modules="[Autoplay, Pagination, Navigation, EffectFade, EffectCube, EffectCoverflow]"
@@ -110,7 +114,25 @@ const swiperInstance = ref<SwiperCore | null>(null)
 
 onMounted(() => {
   const unsubscribe = listenToApprovedGallery(props.eventoId, (images: GalleryItem[]) => {
-    gallery.value = images
+    if (!swiperInstance.value) {
+      gallery.value = images
+      return
+    }
+
+    const currentSlideIndex = swiperInstance.value.realIndex
+
+    // Obtener los ids existentes
+    const existingIds = new Set(gallery.value.map(img => img.id))
+    // Filtrar imágenes nuevas
+    const newImages = images.filter(img => !existingIds.has(img.id))
+
+    if (newImages.length > 0) {
+      // Agregar solo nuevas imágenes al array reactivo
+      newImages.forEach(img => gallery.value.push(img))
+
+      // Mantener el slide activo sin animación para evitar salto visual
+      swiperInstance.value.slideTo(currentSlideIndex, 0, false)
+    }
   })
 
   const handleKeydown = (e: KeyboardEvent) => {
@@ -125,7 +147,8 @@ onMounted(() => {
   })
 })
 
-// Al cambiar duration, transition o transitionType, reconstruimos Swiper
+
+
 watch([duration, transition, transitionType], () => {
   swiperKey.value++
 })
@@ -143,10 +166,6 @@ async function openFullscreen() {
   }
 }
 
-function onSwiperInstance(swiper: SwiperCore) {
-  swiperInstance.value = swiper
-}
-
 function closeFullscreen() {
   fullscreen.value = false
   if (document.fullscreenElement) {
@@ -154,9 +173,12 @@ function closeFullscreen() {
   }
 }
 
+function onSwiperInstance(swiper: SwiperCore) {
+  swiperInstance.value = swiper
+}
+
 function toggleAutoplay() {
   if (!swiperInstance.value) return
-
   autoplayEnabled.value = !autoplayEnabled.value
 
   if (autoplayEnabled.value) {
