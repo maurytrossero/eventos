@@ -1,5 +1,6 @@
 import { db } from "../firebase";
 import { collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+
 const eventosCollection = "eventos"; // Colección para eventos
 const cancionesCollection = "canciones"; // Colección para canciones asociadas a cada evento
 // Función para crear un nuevo evento

@@ -26,6 +26,15 @@
           <li><router-link to="/about">Sobre Nosotros</router-link></li>
         </ul>
       </div>
+
+      <div class="category">
+        <h3>Cuenta</h3>
+        <ul>
+          <li><router-link to="/login">Iniciar sesión</router-link></li>
+          <li><router-link to="/register">Registrarse</router-link></li>
+        </ul>
+      </div>
+
     </div>
   </div>
 </template>
