@@ -6,8 +6,8 @@
     <form @submit.prevent="handleRegister">
       <input type="email" v-model="email" placeholder="Correo electrónico" required />
       <input type="password" v-model="password" placeholder="Contraseña" required />
-      <button type="submit" :disabled="loading">Registrarse</button>
-      <p class="error" v-if="error">{{ error }}</p>
+      <button type="submit" :disabled="auth.loading">Registrarse</button>
+      <p class="error" v-if="auth.error">{{ auth.error }}</p>
     </form>
 
     <p class="alt-link">
@@ -19,16 +19,23 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useAuth } from '@/composables/useAuth'
+import { useAuthStore } from '@/stores/authStore'
+import { useRouter } from 'vue-router'
 
 const email = ref('')
 const password = ref('')
-const { register, loading, error } = useAuth()
 
-const handleRegister = () => {
-  register(email.value, password.value)
+const auth = useAuthStore()
+const router = useRouter()
+
+const handleRegister = async () => {
+  await auth.register(email.value, password.value)
+  if (!auth.error) {
+    router.push('/panel')
+  }
 }
 </script>
+
 
 <style scoped>
 .auth-container {
