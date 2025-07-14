@@ -1,30 +1,33 @@
-<!-- HomeView.vue -->
+// views/HomeView.vue (actualizado)
 <template>
   <div class="home">
-    <h1>Eventizate App</h1>
-    <h2>Elige una categoría</h2>
+    <h1>Bienvenido a Eventizate</h1>
+    <h2>¿Qué querés hacer hoy?</h2>
 
     <div class="categories">
-      <!-- Mostrar solo si es admin -->
-      <div v-if="isAdmin" class="category">
-        <h3><PhCalendarPlus size="24" /> Eventos</h3>
-        <ul>
-          <li><router-link to="/eventos">Agregar Evento</router-link></li>
-          <li><router-link to="/eventos/lista">Ver Lista</router-link></li>
-        </ul>
-      </div>
-
       <div class="category">
         <h3><PhHouse size="24" /> Inicio</h3>
         <ul>
           <li><router-link to="/">Ir a Inicio</router-link></li>
+          <li><router-link to="/about">¿Qué es Eventizate?</router-link></li>
         </ul>
       </div>
 
       <div class="category">
-        <h3><PhInfo size="24" /> Acerca de</h3>
+        <h3><PhCalendarPlus size="24" /> Mi Panel</h3>
         <ul>
-          <li><router-link to="/about">Sobre Nosotros</router-link></li>
+          <li><router-link to="/panel">Ver Panel</router-link></li>
+          <li><router-link to="/eventos">Crear Evento</router-link></li>
+          <li><router-link to="/eventos/lista">Mis Eventos</router-link></li>
+        </ul>
+      </div>
+
+      <div class="category">
+        <h3><PhTag size="24" /> Planes</h3>
+        <ul>
+          <li><router-link to="/precios">Ver Planes</router-link></li>
+          <li><router-link to="/checkout">Ir a Checkout</router-link></li>
+          <li><router-link to="/cuenta">Mi Cuenta</router-link></li>
         </ul>
       </div>
 
@@ -45,27 +48,26 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue'
-import { PhHouse, PhCalendarPlus, PhInfo } from '@phosphor-icons/vue'
+import { defineComponent } from 'vue'
+import { PhHouse, PhCalendarPlus, PhTag } from '@phosphor-icons/vue'
 import { useAuthStore } from '@/stores/authStore'
+import { computed } from 'vue'
 
 export default defineComponent({
   name: 'HomeView',
   components: {
     PhHouse,
     PhCalendarPlus,
-    PhInfo
+    PhTag
   },
   setup() {
     const auth = useAuthStore()
     const isLoggedIn = computed(() => !!auth.user)
-    const isAdmin = computed(() => auth.isAdmin)
 
-    return { isLoggedIn, isAdmin }
+    return { isLoggedIn }
   }
 })
 </script>
-
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');

@@ -1,3 +1,4 @@
+<!-- src/components/EventoDetalle.vue -->
 <template>
   <div class="evento-detalle">
     <h1>Detalles del Evento</h1>
@@ -15,6 +16,31 @@
         Lugar:
         <input v-model="eventoEditable.lugar" type="text" />
       </label>
+
+      <!-- Slug personalizado, solo si hay invitación activa -->
+      <label v-if="evento?.invitacion">
+        URL personalizada:
+        <input
+          v-model="eventoEditable.slug"
+          type="text"
+          placeholder="ej: fiesta-sofia-2025"
+        />
+        <small style="color: #666; font-weight: 400;">
+          Usá letras, números y guiones. La invitación se podrá acceder en:<br />
+          <strong>
+            <a
+              :href="`${baseURL}/invitacion/${eventoEditable.slug}`"
+              target="_blank"
+              rel="noopener"
+              style="color: #007bff;"
+            >
+              {{ `${baseURL}/invitacion/${eventoEditable.slug}` }}
+            </a>
+          </strong>
+        </small>
+      </label>
+
+
       <button @click="guardarCambios" class="accion-button guardar">Guardar Cambios</button>
     </div>
 
@@ -75,7 +101,7 @@
             Sugerir canción
           </button>
           <router-link
-            :to="{ name: 'eventos-canciones', params: { eventoId } }"
+            :to="{ name: 'evento-canciones', params: { eventoId } }"
             class="accion-button router"
           >
             Ver lista
@@ -107,7 +133,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getEventoById, addCancion, updateEvento, deleteEvento } from '@/services/firestoreService';
 import ModalDialog from './ModalDialog.vue';
@@ -120,14 +146,16 @@ interface Evento {
   lugar?: string;
   invitacion?: string;
   galeriaActiva?: boolean;
+  slug?: string;
 }
 
 const route = useRoute();
 const router = useRouter();
 const eventoId = route.params.eventoId as string;
 const evento = ref<Evento | null>(null);
-const eventoEditable = ref<Evento>({ nombre: '', fecha: '', lugar: '' });
+const eventoEditable = ref<Evento>({ nombre: '', fecha: '', lugar: '', slug: '' });
 const mostrarModal = ref(false);
+const baseURL = window.location.origin
 
 const cargarEvento = async () => {
   const data = await getEventoById(eventoId) as Evento;
@@ -138,6 +166,21 @@ const cargarEvento = async () => {
 onMounted(() => {
   cargarEvento();
 });
+
+// Autogenerar slug si no está presente y cambia el nombre
+watch(() => eventoEditable.value.nombre, (nuevoNombre) => {
+  if (!eventoEditable.value.slug && nuevoNombre) {
+    eventoEditable.value.slug = generateSlug(nuevoNombre);
+  }
+});
+
+function generateSlug(nombre: string): string {
+  return nombre
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // saca acentos
+    .replace(/[^a-z0-9]+/g, '-') // reemplaza todo lo que no sea letra o número por guiones
+    .replace(/(^-|-$)+/g, ''); // elimina guiones al inicio o fin
+}
 
 const guardarCambios = async () => {
   if (!eventoEditable.value) return;
@@ -202,6 +245,7 @@ const irAGaleriaInteractiva = () => {
   router.push({ name: 'evento-galeria-interactiva', params: { eventoId } });
 };
 </script>
+
 
 <style scoped>
 .evento-detalle {

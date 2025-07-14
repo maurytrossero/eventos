@@ -60,9 +60,10 @@ onMounted(() => {
         <h2>{{ evento.nombre }}</h2>
         <p class="detalle"><strong>Fecha:</strong> {{ formatoFecha(evento.fecha) }}</p>
         <p class="detalle"><strong>Lugar:</strong> {{ evento.lugar }}</p>
-        <router-link :to="{ name: 'EventoDetalle', params: { eventoId: evento.id } }" class="link-evento">
+        <router-link :to="{ name: 'evento-detalle', params: { eventoId: evento.id } }" class="link-evento">
           Ver Detalles
         </router-link>
+
       </li>
     </ul>
   </div>

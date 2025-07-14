@@ -7,9 +7,9 @@
 
 <script setup>
 import MainHeader from '@/components/MainHeader.vue'
+import { useAuthStore } from '@/stores/authStore'
 
-// Los otros imports que tenías para portfolio parecen no usarse acá
-// Si los usás dentro de páginas o vistas, dejalos ahí
+const auth = useAuthStore()
 </script>
 
 <style scoped>

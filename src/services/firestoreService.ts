@@ -1,5 +1,6 @@
+//firestoreService.ts
 import { db } from "../firebase";
-import { collection, addDoc, getDocs, doc, getDoc, updateDoc , FieldValue, deleteDoc  } from "firebase/firestore";
+import { collection, addDoc, getDocs, doc, getDoc, updateDoc , FieldValue, deleteDoc,  serverTimestamp  } from "firebase/firestore";
 
 interface Cancion {
     id?: string;
@@ -83,3 +84,16 @@ export const deleteEvento = async (eventoId: string) => {
   const docRef = doc(db, 'eventos', eventoId);
   await deleteDoc(docRef);
 };
+
+// Función para actualizar el plan de usuario (campo embebido)
+// ==============================
+export async function updateUserPlan(
+  uid: string,
+  planId: "premium" | "gratuito"
+): Promise<void> {
+  const userRef = doc(db, "usuarios", uid)
+  await updateDoc(userRef, {
+    plan: planId,
+    planContratadoEn: serverTimestamp()
+  })
+}

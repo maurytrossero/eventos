@@ -1,3 +1,4 @@
+<!-- AboutView.vue -->
 <template>
   <section class="about-container">
    <!-- Banner con logo y slogan -->

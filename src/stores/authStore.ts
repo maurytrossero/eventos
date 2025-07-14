@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
-import { auth, db } from '@/firebase' // ajustá ruta según tu proyecto
+import { ref, computed } from 'vue'
+import { auth, db } from '@/firebase'
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -12,12 +12,23 @@ import { doc, setDoc } from 'firebase/firestore'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
+  const loadingUser = ref(true)      // Indicador de carga de sesión
   const loading = ref(false)
   const error = ref<string | null>(null)
+
+  const adminEmails = [
+    'maurytrossero@gmail.com',
+    'mtproduccioneshd@gmail.com',
+    'admin@admin.com'
+  ]
+
+  const isLoggedIn = computed(() => !!user.value)
+  const isAdmin = computed(() => user.value?.email && adminEmails.includes(user.value.email))
 
   // Mantener el usuario sincronizado con Firebase Auth
   onAuthStateChanged(auth, (firebaseUser) => {
     user.value = firebaseUser
+    loadingUser.value = false        // Ya cargó el estado de usuario
   })
 
   // Login
@@ -39,7 +50,6 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
     try {
       const cred = await createUserWithEmailAndPassword(auth, email, password)
-      // Guardar info extra en Firestore
       await setDoc(doc(db, 'usuarios', cred.user.uid), {
         email,
         creadoEn: new Date(),
@@ -60,10 +70,13 @@ export const useAuthStore = defineStore('auth', () => {
 
   return {
     user,
+    loadingUser,
     loading,
     error,
     login,
     register,
-    logout
+    logout,
+    isLoggedIn,
+    isAdmin
   }
 })

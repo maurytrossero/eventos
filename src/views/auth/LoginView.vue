@@ -47,6 +47,15 @@ const handleLogin = async () => {
   box-shadow: 0 0 20px rgba(185, 139, 78, 0.15);
   text-align: center;
   font-family: 'Segoe UI', sans-serif;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.8s ease forwards;
+}
+
+h1 {
+  margin-bottom: 1.5rem;
+  color: #2c4a77;
+  animation: fadeInDown 0.8s ease forwards;
 }
 
 input {
@@ -57,6 +66,15 @@ input {
   border-radius: 10px;
   font-size: 1rem;
   background-color: #fdf8f3;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.8s ease forwards;
+  animation-delay: 0.3s;
+  animation-fill-mode: forwards;
+}
+
+input:nth-of-type(2) {
+  animation-delay: 0.45s;
 }
 
 button {
@@ -70,6 +88,11 @@ button {
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.3s;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.8s ease forwards;
+  animation-delay: 0.6s;
+  animation-fill-mode: forwards;
 }
 
 button:hover {
@@ -85,11 +108,19 @@ button:disabled {
   color: red;
   margin-top: 0.5rem;
   font-size: 0.9rem;
+  opacity: 0;
+  animation: fadeIn 1s ease forwards;
+  animation-delay: 0.8s;
+  animation-fill-mode: forwards;
 }
 
 .alt-link {
   margin-top: 1rem;
   font-size: 0.9rem;
+  opacity: 0;
+  animation: fadeIn 1s ease forwards;
+  animation-delay: 0.9s;
+  animation-fill-mode: forwards;
 }
 
 .alt-link a {
@@ -97,4 +128,22 @@ button:disabled {
   font-weight: bold;
   text-decoration: none;
 }
+
+/* Animaciones clave */
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 </style>

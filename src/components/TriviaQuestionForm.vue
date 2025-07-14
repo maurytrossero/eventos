@@ -1,3 +1,4 @@
+<!-- src/components/TriviaQuestionForm.vue -->
 <template>
   <div class="question-form">
     <h2>Configuración de Preguntas de la Trivia</h2>

@@ -3,23 +3,18 @@ import { collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc } from "
 
 const eventosCollection = "eventos"; // Colección para eventos
 const cancionesCollection = "canciones"; // Colección para canciones asociadas a cada evento
-// Función para crear un nuevo evento
+
 // ✅ Crear un nuevo evento con `creadoPor`, por defecto 'admin' si no hay user
 export const addEvento = async (evento) => {
-    try {
-      const user = auth.currentUser
-  
-      const docRef = await addDoc(collection(db, eventosCollection), {
-        ...evento,
-        creadoPor: user?.email || "admin" // si hay user, usa su email; si no, usa "admin"
-      })
-  
-      console.log("Evento añadido con éxito:", evento)
-      return docRef.id
-    } catch (e) {
-      console.error("Error añadiendo evento: ", e)
-    }
+  try {
+    const docRef = await addDoc(collection(db, eventosCollection), evento)
+    console.log("Evento añadido con éxito:", evento)
+    return docRef.id
+  } catch (e) {
+    console.error("Error añadiendo evento: ", e)
   }
+}
+
 // Función para añadir una canción a un evento
 export const addCancion = async (eventoId, cancion) => {
     try {

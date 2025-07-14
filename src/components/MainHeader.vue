@@ -1,3 +1,4 @@
+<!-- components/MainHeader.vue -->
 <template>
   <header class="header">
     <div class="container">
@@ -6,13 +7,23 @@
       </router-link>
 
       <nav class="nav">
+        <!-- Links comunes -->
+        <router-link to="/about">¿Qué es?</router-link>
+        <router-link to="/precios">Precios</router-link>
+
+        <!-- No autenticado -->
         <router-link v-if="!auth.user" to="/login">Iniciar sesión</router-link>
         <router-link v-if="!auth.user" to="/register">Registrarse</router-link>
 
-        <div v-if="auth.user" class="user-info">
-          <span class="user-email">{{ auth.user.email }}</span>
-          <button @click="handleLogout">Cerrar sesión</button>
-        </div>
+        <!-- Autenticado -->
+        <template v-if="auth.user">
+          <router-link to="/panel">Panel</router-link>
+          <router-link to="/cuenta">Cuenta</router-link>
+          <div class="user-info">
+            <span class="user-email">{{ auth.user.email }}</span>
+            <button @click="handleLogout">Cerrar sesión</button>
+          </div>
+        </template>
       </nav>
     </div>
   </header>
@@ -32,11 +43,13 @@ const handleLogout = async () => {
 }
 </script>
 
+
+
 <style scoped>
 .header {
-  background-color: #f0eae5; /* Fondo beige claro */
-  padding: 0.8rem 0;
-  color: #2c4a77; /* Azul profundo para textos */
+  background-color: #f0eae5;
+  padding: 0.4rem 0; /* más compacto */
+  color: #2c4a77;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
@@ -48,13 +61,11 @@ const handleLogout = async () => {
   justify-content: space-between;
   align-items: center;
 }
-
-.logo-link {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
+.logo-link svg {
+  height: 36px; /* antes era 50px */
+  width: auto;
+  transition: height 0.3s ease;
 }
-
 .logo-link svg {
   height: 50px;
   width: auto;
@@ -63,10 +74,9 @@ const handleLogout = async () => {
 
 @media (min-width: 600px) {
   .logo-link svg {
-    height: 60px;
+    height: 42px; /* antes era 60px */
   }
 }
-
 .nav {
   display: flex;
   align-items: center;

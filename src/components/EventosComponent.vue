@@ -35,6 +35,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { addEvento, addCancion, getCancionesByEvento } from '../services/firestoreService';
+import { useAuthStore } from '@/stores/authStore'
 
 interface Cancion {
     id: string; // Asegúrate de que `id` es de tipo string
@@ -50,22 +51,34 @@ const nuevaCancionArtista = ref('');
 const canciones = ref<Cancion[]>([]); // Inicializa como un arreglo de Cancion
 const route = useRoute();
 const eventoId = route.params.eventoId as string;
+const auth = useAuthStore()
+
 
 // Función para crear un evento
 const crearEvento = async () => {
   try {
-    const evento = { nombre: nuevoEventoNombre.value, fecha: nuevoEventoFecha.value, lugar: nuevoEventoLugar.value };
-    const id = await addEvento(evento);
+    const user = auth.user
+
+    const evento = {
+      nombre: nuevoEventoNombre.value,
+      fecha: nuevoEventoFecha.value,
+      lugar: nuevoEventoLugar.value,
+      creadoPor: user?.uid || 'admin' // guarda UID o "admin" por defecto
+    }
+
+    const id = await addEvento(evento)
+
     if (id) {
-      alert(`Evento creado con ID: ${id}`);
-      nuevoEventoNombre.value = '';
-      nuevoEventoFecha.value = '';
-      nuevoEventoLugar.value = '';
+      alert(`Evento creado con ID: ${id}`)
+      nuevoEventoNombre.value = ''
+      nuevoEventoFecha.value = ''
+      nuevoEventoLugar.value = ''
     }
   } catch (error) {
-    console.error("Error al crear el evento:", error);
+    console.error("Error al crear el evento:", error)
   }
-};
+}
+
 
 // Función para agregar una canción al evento actual
 const agregarCancion = async () => {

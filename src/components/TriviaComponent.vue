@@ -1,3 +1,4 @@
+<!-- src/components/TriviaComponent.vue -->
 <template>
   <div class="trivia-container" :class="{ 'mobile': isMobile }">
     <div v-if="!gameStarted" class="start-screen">

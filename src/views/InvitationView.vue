@@ -1,3 +1,4 @@
+<!-- views/InvitationView.vue -->
 <template>
   <div>
     <div v-if="seleccionando" class="selector-contenedor">
@@ -114,40 +115,37 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, ref, onMounted, onUnmounted } from 'vue'
+import { defineAsyncComponent, shallowRef, ref, onMounted, onUnmounted, defineProps } from 'vue'
 import { useRoute } from 'vue-router'
 import { updateEvento } from '@/services/firestoreService'
-import { doc, onSnapshot, getFirestore } from 'firebase/firestore'
-
+import { doc, onSnapshot, getFirestore, collection, query, where, getDocs } from 'firebase/firestore'
 
 import CountdownSetting from '@/components/fifteen/CountdownSetting.vue'
 import CarouselSetting from '@/components/fifteen/CarouselSetting.vue'
 import InformationSetting from '@/components/fifteen/InformationSetting.vue'
 import ConfirmBackgroundSetting from '@/components/fifteen/ConfirmSetting.vue'
 import TriviaSetting from '@/components/TriviaQuestionForm.vue'
-import GallerySetting from '@/components/gallery-live/GallerySetting.vue' // Import nuevo
+import GallerySetting from '@/components/gallery-live/GallerySetting.vue'
 
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
 
-const usuarioAutorizado = ref(true)
+// ✅ Para evitar el warning de slug como atributo extraño
+defineProps<{ slug?: string }>()
+
+const usuarioAutorizado = ref(false)
 
 onMounted(() => {
   const auth = getAuth()
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      // Cambiá este correo al del admin real
-      usuarioAutorizado.value = user.email === 'admin@tuevento.com'
-    } else {
-      usuarioAutorizado.value = true
-    }
+  onAuthStateChanged(auth, (user) => {
+    usuarioAutorizado.value = user?.email === 'maurytrossero@gmail.com'
   })
 })
 
 const tabActual = ref<'countdown' | 'carousel' | 'info' | 'confirm' | 'trivia' | 'galeria'>('countdown')
 const route = useRoute()
-const eventoId = route.params.eventoId as string
+const eventoId = ref<string>('')
 const evento = ref<any>(null)
-const componenteInvitacion = ref<any>(null)
+const componenteInvitacion = shallowRef<any>(null)
 const seleccionando = ref(false)
 const abrirModalConfiguracion = ref(false)
 
@@ -184,50 +182,70 @@ const cargarComponente = (nombre: string) => {
   })
 }
 
-onMounted(() => {
-  const eventoCache = localStorage.getItem(`eventoCache_${eventoId}`)
-  if (eventoCache) {
-    evento.value = JSON.parse(eventoCache)
-    if (evento.value?.invitacion) {
-      componenteInvitacion.value = cargarComponente(evento.value.invitacion)
-      seleccionando.value = false
-    } else {
-      seleccionando.value = true
+const unsubscribe = ref<() => void>()
+
+const cargarEvento = async () => {
+  const eventoIdParam = route.params.eventoId as string | undefined
+  const slugParam = route.params.slug as string | undefined
+
+  if (eventoIdParam) {
+    eventoId.value = eventoIdParam
+  } else if (slugParam) {
+    const eventosQuery = query(
+      collection(db, 'eventos'),
+      where('slug', '==', slugParam)
+    )
+    const snapshot = await getDocs(eventosQuery)
+
+    if (!snapshot.empty) {
+      const docSnap = snapshot.docs[0]
+      eventoId.value = docSnap.id
     }
   }
 
-  const refEvento = doc(db, 'eventos', eventoId)
-  const unsubscribe = onSnapshot(refEvento, (snapshot) => {
+  if (!eventoId.value) {
+    console.warn('[InvitationView] No se recibió un eventoId válido en la URL')
+    return
+  }
+
+  const refEvento = doc(db, 'eventos', eventoId.value)
+  unsubscribe.value = onSnapshot(refEvento, (snapshot) => {
     if (snapshot.exists()) {
       const data = snapshot.data()
-      if (JSON.stringify(data) !== JSON.stringify(evento.value)) {
-        evento.value = data
-        localStorage.setItem(`eventoCache_${eventoId}`, JSON.stringify(data))
-
-        if (data.invitacion) {
-          componenteInvitacion.value = cargarComponente(data.invitacion)
-          seleccionando.value = false
-        } else {
-          seleccionando.value = true
-          componenteInvitacion.value = null
-        }
+      evento.value = data
+      localStorage.setItem(`eventoCache_${eventoId.value}`, JSON.stringify(data))
+      if (data.invitacion) {
+        componenteInvitacion.value = cargarComponente(data.invitacion)
+        seleccionando.value = false
+      } else {
+        seleccionando.value = true
+        componenteInvitacion.value = null
       }
+    } else {
+      console.log('[InvitationView] No existe el documento del evento en Firestore')
     }
   })
+}
 
-  onUnmounted(() => {
-    unsubscribe()
-  })
+onMounted(cargarEvento)
+
+onUnmounted(() => {
+  if (unsubscribe.value) {
+    unsubscribe.value()
+    unsubscribe.value = undefined
+  }
 })
 
 const seleccionarPlantilla = async (nombre: string) => {
+  if (!eventoId.value) return
+
   try {
-    localStorage.removeItem(`eventoCache_${eventoId}`)
-    await updateEvento(eventoId, { invitacion: nombre })
+    localStorage.removeItem(`eventoCache_${eventoId.value}`)
+    await updateEvento(eventoId.value, { invitacion: nombre })
 
     if (evento.value) {
       evento.value.invitacion = nombre
-      localStorage.setItem(`eventoCache_${eventoId}`, JSON.stringify(evento.value))
+      localStorage.setItem(`eventoCache_${eventoId.value}`, JSON.stringify(evento.value))
     }
 
     componenteInvitacion.value = cargarComponente(nombre)
@@ -238,12 +256,14 @@ const seleccionarPlantilla = async (nombre: string) => {
 }
 
 const eliminarInvitacion = async () => {
+  if (!eventoId.value) return
+
   try {
-    await updateEvento(eventoId, { invitacion: '' })
+    await updateEvento(eventoId.value, { invitacion: '' })
 
     if (evento.value) {
       evento.value.invitacion = ''
-      localStorage.removeItem(`eventoCache_${eventoId}`)
+      localStorage.removeItem(`eventoCache_${eventoId.value}`)
     }
 
     componenteInvitacion.value = null
@@ -254,26 +274,26 @@ const eliminarInvitacion = async () => {
 }
 
 function handleUpdateInfo(nuevaInfo: any) {
+  if (!evento.value) return
   evento.value.informacionInvitacion = nuevaInfo
   actualizarEventoLocal({ informacionInvitacion: nuevaInfo })
 }
 
-// NUEVO: Manejar cambios en configuración galería
 function handleUpdateGaleria(nuevaConfig: any) {
+  if (!evento.value) return
   evento.value.galeriaConfig = nuevaConfig
   actualizarEventoLocal({ galeriaConfig: nuevaConfig })
 }
 
 function actualizarEventoLocal(nuevosDatos: any) {
-  if (!evento.value) return
+  if (!evento.value || !eventoId.value) return
   evento.value = { ...evento.value, ...nuevosDatos }
-  localStorage.setItem(`eventoCache_${eventoId}`, JSON.stringify(evento.value))
-  updateEvento(eventoId, nuevosDatos).catch((e) => {
+  localStorage.setItem(`eventoCache_${eventoId.value}`, JSON.stringify(evento.value))
+  updateEvento(eventoId.value, nuevosDatos).catch((e) => {
     console.error('Error actualizando Firestore:', e)
   })
 }
 </script>
-
 
 <style scoped>
   .selector-contenedor {
