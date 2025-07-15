@@ -37,6 +37,9 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
+import { doc, getDoc } from 'firebase/firestore'
+import { db } from '@/firebase'
+
 
 const auth = useAuthStore()
 
@@ -44,13 +47,30 @@ const userEmail = computed(() => auth.user?.email || 'Usuario')
 const fechaRegistro = ref('Desconocida')
 const plan = ref<{ nombre: string; descripcion: string; precio: string } | null>(null)
 
-// Simulación de carga datos usuario (en producción traer de Firestore)
-onMounted(() => {
-  fechaRegistro.value = '01/01/2023'
-  plan.value = {
-    nombre: 'Plan Básico',
-    descripcion: 'Funciones limitadas y gratuitas.',
-    precio: 'Gratis'
+onMounted(async () => {
+  const uid = auth.user?.uid
+  if (!uid) return
+
+  const userRef = doc(db, 'usuarios', uid)
+  const snap = await getDoc(userRef)
+
+  if (snap.exists()) {
+    const data = snap.data()
+    fechaRegistro.value = new Date(data.creadoEn?.seconds * 1000).toLocaleDateString()
+
+    if (data.plan === 'premium') {
+      plan.value = {
+        nombre: 'Plan Premium',
+        descripcion: 'Incluye invitaciones ilimitadas, galerías, trivias y más.',
+        precio: '$2500 / mes'
+      }
+    } else {
+      plan.value = {
+        nombre: 'Plan Básico',
+        descripcion: 'Funciones limitadas y gratuitas.',
+        precio: 'Gratis'
+      }
+    }
   }
 })
 

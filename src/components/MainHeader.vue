@@ -8,6 +8,7 @@
 
       <nav class="nav">
         <!-- Links comunes -->
+        <router-link to="/">Inicio</router-link>
         <router-link to="/about">¿Qué es?</router-link>
         <router-link to="/precios">Precios</router-link>
 
