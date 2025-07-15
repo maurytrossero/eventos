@@ -16,25 +16,14 @@
     </div>
 
     <div class="categories">
-      <!-- Mostrar solo si es admin -->
-      <div v-if="isAdmin" class="category animate-up">
-        <h3><PhCalendarPlus size="24" /> Eventos</h3>
-        <ul>
-          <li><router-link to="/eventos">Agregar Evento</router-link></li>
-          <li><router-link to="/eventos/lista">Ver Lista</router-link></li>
-        </ul>
-      </div>
-
-      <!-- Accesos por tipo de evento -->
-      <div class="category animate-up">
-        <h3><PhConfetti size="24" /> Crear por tipo</h3>
-        <ul>
-          <li><router-link :to="{ path: '/eventos', query: { tipo: 'cumple' } }">Cumpleaños</router-link></li>
-          <li><router-link :to="{ path: '/eventos', query: { tipo: 'boda' } }">Boda</router-link></li>
-          <li><router-link :to="{ path: '/eventos', query: { tipo: 'otros' } }">Otros eventos</router-link></li>
-        </ul>
-      </div>
-
+<!-- Mostrar solo si es admin -->
+<div v-if="isAdmin" class="category animate-up">
+  <h3><PhCalendarPlus size="24" /> Eventos</h3>
+  <ul>
+    <li><router-link to="/eventos">Agregar Evento</router-link></li>
+    <li><router-link to="/eventos/lista">Ver Lista</router-link></li>
+  </ul>
+</div>
       <div class="category animate-up">
         <h3><PhHouse size="24" /> Inicio</h3>
         <ul>
@@ -102,12 +91,12 @@ const router = useRouter()
 
 const isLoggedIn = computed(() => !!auth.user)
 const isAdmin = computed(() => auth.isAdmin)
-
+/*
 onMounted(() => {
   if (auth.user) {
     router.push('/panel')
   }
-})
+})*/
 </script>
 
 <style scoped>

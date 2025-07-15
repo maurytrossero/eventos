@@ -30,11 +30,15 @@ const router = useRouter()
 
 const handleLogin = async () => {
   await auth.login(email.value, password.value)
+
   if (!auth.error) {
-    router.push('/panel')
+    // Si hay un redirect previo en la query, volvemos ahí; si no, vamos a /panel por defecto
+    const redirect = router.currentRoute.value.query.redirect
+    router.push(typeof redirect === 'string' ? redirect : '/panel')
   }
 }
 </script>
+
 
 
 <style scoped>

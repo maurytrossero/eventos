@@ -57,8 +57,9 @@ const routes: Array<RouteRecordRaw> = [
   { path: '/evento/:eventoId/invitacion', name: 'evento-invitacion', component: InvitationView, props: true },
   { path: '/evento/:eventoId/invitacion/galeria-interactiva', name: 'evento-galeria-interactiva', component: GalleryView, props: true },
   { path: '/evento/:eventoId/invitacion/moderar-galeria-interactiva', name: 'evento-moderar-galeria-interactiva', component: ModerateView, props: true },
-  { path: '/invitacion/:slug', name: 'invitacion-slug',  component: InvitationView,  props: true },
+  { path: '/invitacion/:slug', name: 'invitacion-slug', component: InvitationView, props: true },
 
+  // E-commerce
   { path: '/precios', name: 'precios', component: PricingView },
   { path: '/checkout', name: 'checkout', component: CheckoutView, meta: { requiresAuth: true } },
   { path: '/cuenta', name: 'cuenta', component: AccountView, meta: { requiresAuth: true } },
@@ -73,7 +74,7 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
 
-  // Esperar a que la carga inicial de Firebase termine
+  // Esperar carga inicial de Firebase Auth
   if (authStore.loadingUser) {
     await new Promise<void>((resolve) => {
       const unwatch = watch(
@@ -89,16 +90,20 @@ router.beforeEach(async (to, from, next) => {
   }
 
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
-  const isAuthPage = ['/login', '/register'].includes(to.path)
 
+  // Si no está logueado y la ruta requiere autenticación, redirigir a login
   if (requiresAuth && !authStore.isLoggedIn) {
-    return next('/login')
-  } else if (authStore.isLoggedIn && isAuthPage) {
+    return next({ path: '/login', query: { redirect: to.fullPath } })
+  }
+
+  // Si está logueado y va a /login o /register, redirigir a /panel
+  if (authStore.isLoggedIn && (to.path === '/login' || to.path === '/register')) {
     return next('/panel')
   }
 
-
+  // Dejar pasar todo lo demás
   next()
 })
+
 
 export default router
