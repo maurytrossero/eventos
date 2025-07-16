@@ -15,6 +15,8 @@
       pagination
       navigation
       class="gallery-swiper"
+      :class="{ 'swiper-fade-fix': transitionType === 'fade' }"
+      :style="transitionType === 'fade' ? { '--swiper-transition-duration': `${transition * 1000}ms` } : {}"
       @swiper="onSwiperInstance"
     >
       <swiper-slide v-for="item in gallery" :key="item.id" class="slide">
@@ -68,6 +70,8 @@
         pagination
         navigation
         class="fullscreen-swiper"
+        :class="{ 'swiper-fade-fix': transitionType === 'fade' }"
+        :style="transitionType === 'fade' ? { '--swiper-transition-duration': `${transition * 1000}ms` } : {}"
       >
         <swiper-slide v-for="item in gallery" :key="item.id" class="fullscreen-slide">
           <img :src="item.imageUrl" alt="Imagen en pantalla completa" />
@@ -77,8 +81,10 @@
         </swiper-slide>
       </swiper>
     </div>
+
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, onMounted, nextTick, watch, onUnmounted } from 'vue'
@@ -128,10 +134,10 @@ onMounted(() => {
     const newImages = images.filter(img => !existingIds.has(img.id))
 
     if (newImages.length > 0) {
-      // Agregar solo nuevas imágenes al array reactivo
       newImages.forEach(img => gallery.value.push(img))
 
-      // Mantener el slide activo sin animación para evitar salto visual
+      // Actualizar Swiper y mantener el slide activo para evitar apilamiento visual en fade
+      swiperInstance.value.update()
       swiperInstance.value.slideTo(currentSlideIndex, 0, false)
     }
   })
@@ -147,8 +153,6 @@ onMounted(() => {
     window.removeEventListener('keydown', handleKeydown)
   })
 })
-
-
 
 watch([duration, transition, transitionType], () => {
   swiperKey.value++
@@ -420,5 +424,21 @@ function toggleAutoplay() {
   .config-group button {
     width: 100%;
   }
+}
+
+/* FIX para el fade: evita que las slides se apilen y queden visibles a la vez */
+.swiper-fade-fix .swiper-slide {
+  position: relative !important;
+  opacity: 0 !important;
+  transition-property: opacity !important;
+  transition-duration: var(--swiper-transition-duration, 500ms) !important;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.swiper-fade-fix .swiper-slide-active {
+  opacity: 1 !important;
+  z-index: 10;
+  pointer-events: auto;
 }
 </style>
