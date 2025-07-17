@@ -210,11 +210,18 @@ watch(() => props.evento, (nuevoEvento) => {
   }
 
   /* Título principal (nombre, evento, etc.) */
-  .header h1 {
-    font-family: 'Amelia Faith', cursive; /* Cambiá la fuente aquí */
-    font-size: 3rem; /* Cambiá tamaño del título */
-    font-weight: normal;
-  }
+.header h1 {
+  font-family: 'Amelia Faith', cursive;
+  font-weight: normal;
+  text-align: center;
+
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: unset;
+
+  font-size: clamp(1.5rem, 10vw, 4rem);
+  max-width: 100%;
+}
 
   /* Cuenta regresiva */
   .countdown {
