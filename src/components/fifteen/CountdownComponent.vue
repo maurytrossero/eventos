@@ -3,7 +3,7 @@
   <div class="container" :style="{ backgroundImage: `url('${backgroundUrl}')` }">
     <div class="overlay">
       <div class="header">
-        <h2>MIS QUINCE</h2>
+        <h2>{{ evento.titulo || 'MIS QUINCE' }}</h2>
         <h1>{{ evento.nombreQuinceanera }}</h1>
       </div>
 
@@ -30,7 +30,8 @@ const props = defineProps<{
   evento: {
     fecha: string
     nombreQuinceanera: string
-    imagenFondo?: string  // <-- nuevo campo esperado
+    imagenFondo?: string  
+    titulo?: string 
   }
 }>()
 const defaultDate = new Date() // por ejemplo, hoy

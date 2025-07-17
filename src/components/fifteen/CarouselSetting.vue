@@ -15,22 +15,23 @@
     <label>Imágenes (una por línea)</label>
     <textarea v-model="imagenesRaw" rows="4" />
 
+    <label>Subir imagen desde tu dispositivo</label>
+    <input type="file" @change="handleUpload" accept="image/*" />
+
     <div class="buttons">
       <button @click="guardarConfiguracion">💾 Guardar</button>
       <button class="danger" @click="reestablecerConfiguracion">♻️ Reestablecer</button>
     </div>
 
-
-
     <p v-if="mensaje" class="mensaje">{{ mensaje }}</p>
-
   </div>
 </template>
 
 <script setup>
-  import { ref, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
 import { db } from '@/firebase'
+import { uploadImageToCloudinary } from '@/services/galleryService' // o tu path correcto
 
 const props = defineProps({
   eventoId: {
@@ -58,11 +59,6 @@ function syncRawToImagenes() {
 }
 
 async function cargarConfiguracion() {
-  if (!props.eventoId) {
-    console.error('eventoId no está definido')
-    return
-  }
-
   const docRef = doc(db, 'eventos', props.eventoId, 'configuracion', 'carousel')
   const docSnap = await getDoc(docRef)
 
@@ -86,13 +82,7 @@ async function cargarConfiguracion() {
 }
 
 async function guardarConfiguracion() {
-  if (!props.eventoId) {
-    console.error('No se puede guardar: eventoId es undefined')
-    return
-  }
-
   syncRawToImagenes()
-
   const docRef = doc(db, 'eventos', props.eventoId, 'configuracion', 'carousel')
 
   try {
@@ -114,12 +104,7 @@ async function guardarConfiguracion() {
     )
 
     mensaje.value = '✅ Cambios guardados correctamente.'
-
-    // Ocultar mensaje después de 3 segundos
-    setTimeout(() => {
-      mensaje.value = ''
-    }, 3000)
-
+    setTimeout(() => (mensaje.value = ''), 3000)
   } catch (e) {
     console.error(e)
     mensaje.value = '❌ Error al guardar cambios.'
@@ -127,12 +112,6 @@ async function guardarConfiguracion() {
 }
 
 async function reestablecerConfiguracion() {
-  if (!props.eventoId) {
-    console.error('No se puede reestablecer: eventoId es undefined')
-    mensaje.value = '❌ No se puede reestablecer: eventoId es inválido.'
-    return
-  }
-
   adornoSuperior.value = ''
   adornoInferior.value = ''
   frase.value = ''
@@ -147,7 +126,6 @@ async function reestablecerConfiguracion() {
       frase: '',
       imagenes: []
     })
-
     localStorage.removeItem(`carousel-${props.eventoId}`)
     mensaje.value = '✅ Configuración reestablecida.'
     setTimeout(() => (mensaje.value = ''), 3000)
@@ -157,42 +135,54 @@ async function reestablecerConfiguracion() {
   }
 }
 
+async function handleUpload(event) {
+  const file = event.target.files[0]
+  if (!file) return
 
+  try {
+    const url = await uploadImageToCloudinary(file)
+    imagenes.value.push(url)
+    syncImagenesToRaw()
+    mensaje.value = '✅ Imagen subida y añadida.'
+    setTimeout(() => (mensaje.value = ''), 2000)
+  } catch (e) {
+    console.error('Error al subir a Cloudinary:', e)
+    mensaje.value = '❌ Error al subir imagen.'
+  }
+}
 
 onMounted(cargarConfiguracion)
-
 </script>
 
+
 <style scoped>
-  .config-box {
-    background: #fafafa;
-    padding: 1rem;
-    border-radius: 10px;
-    max-width: 500px;       /* ancho max para escritorio */
-    width: 90vw;            /* ancho adaptable a móvil */
-    max-height: 90vh;       /* altura máxima con scroll */
-    overflow-y: auto;
-    margin: 1rem auto;
-    display: flex;
-    flex-direction: column;
-    gap: 0.7rem;
-    box-sizing: border-box;
-  }
+.config-box {
+  background: #fafafa;
+  padding: 1rem;
+  border-radius: 10px;
+  max-width: 500px;
+  width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  margin: 1rem auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  box-sizing: border-box;
+}
 
-  /* Inputs y textarea ocupan todo el ancho del contenedor */
-  textarea,
-  input {
-    width: 100%;
-    padding: 0.5rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    resize: vertical;
-    box-sizing: border-box;
-  }
+textarea,
+input {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  resize: vertical;
+  box-sizing: border-box;
+}
 
-  /* Botones ocupan su contenido y están alineados horizontalmente */
-  .buttons {
+.buttons {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
@@ -232,7 +222,40 @@ button.danger:hover {
   color: #333;
 }
 
-/* Responsivo para móviles */
+/* Galería miniaturas */
+.preview-box {
+  margin-top: 1rem;
+}
+.preview-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.preview-item {
+  position: relative;
+}
+.preview-item img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+.preview-item button.remove {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #ff4444;
+  border: none;
+  color: white;
+  font-size: 0.8rem;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+/* Responsivo */
 @media (max-width: 500px) {
   .buttons {
     flex-direction: column;
@@ -244,5 +267,80 @@ button.danger:hover {
     flex-grow: 0;
   }
 }
+.config-box {
+  background: #fafafa;
+  padding: 1rem;
+  border-radius: 10px;
+  max-width: 500px;
+  width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  margin: 1rem auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  box-sizing: border-box;
+}
 
+textarea,
+input {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+button {
+  padding: 0.5rem 1rem;
+  border: none;
+  color: white;
+  background-color: #6a5acd;
+  border-radius: 6px;
+  cursor: pointer;
+  flex-grow: 1;
+  min-width: 120px;
+  text-align: center;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #5747c0;
+}
+
+button.danger {
+  background-color: #b22222;
+}
+
+button.danger:hover {
+  background-color: #7f2c2c;
+}
+
+.mensaje {
+  margin-top: 0.5rem;
+  font-weight: bold;
+  text-align: center;
+  color: #333;
+}
+
+@media (max-width: 500px) {
+  .buttons {
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+
+  button {
+    min-width: 100%;
+    flex-grow: 0;
+  }
+}
 </style>

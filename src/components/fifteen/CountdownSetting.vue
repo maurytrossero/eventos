@@ -6,16 +6,32 @@
     <label>Nombre:</label>
     <input v-model="nombre" placeholder="Ej: Kiara" />
 
+    <label>Título del evento (ej: 'MIS QUINCE'):</label>
+    <input v-model="titulo" placeholder="Ej: MIS QUINCE, NUESTRA BODA, etc." />
+
     <label>Fecha y hora del evento:</label>
     <input type="datetime-local" v-model="fecha" />
 
-    <label>URL de imagen de fondo:</label>
-    <input v-model="imagenFondo" placeholder="Pega una URL válida (Dropbox, Drive, etc)" />
+    <label>Imagen de fondo:</label>
+    <input type="file" @change="onFileSelected" accept="image/*" />
+    <small>O pegá una URL de imagen:</small>
+    <input type="text" v-model="imagenFondo" placeholder="https://..." />
+
+    <small v-if="subiendoImagen">🕒 Subiendo imagen...</small>
+    <small v-if="errorImagen" class="danger">❌ {{ errorImagen }}</small>
 
     <div v-if="imagenFondo" class="preview">
       <p>Vista previa del fondo:</p>
       <img :src="imagenFondo" />
     </div>
+
+    <!-- Cropper -->
+    <ImageCropper
+      v-if="mostrarCropper"
+      :image="imagenTemporal"
+      @cropped="onImagenRecortada"
+      @cancel="mostrarCropper = false"
+    />
 
     <div class="buttons">
       <button @click="guardarCambios">💾 Guardar</button>
@@ -27,84 +43,80 @@
 </template>
 
 <script setup lang="ts">
-    import { ref, onMounted } from 'vue'
-    import { doc, getDoc, updateDoc } from 'firebase/firestore'
-    import { getFirestore } from 'firebase/firestore'
+import { ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
+import { doc, updateDoc, getDoc } from 'firebase/firestore'
+import { db } from '@/firebase'
+import { uploadInvitacionBackground } from '@/services/invitacionService'
+import ImageCropper from '@/components/ImageCropper.vue'
 
-    const props = defineProps<{ idEvento: string }>()
-    const emit = defineEmits(['actualizarEvento'])
+const route = useRoute()
+const eventoId = route.params.eventoId as string
+const evento = ref<any>(null)
 
-    const db = getFirestore()
+const imagenFondo = ref('')
+const imagenSeleccionada = ref<File | null>(null)
+const imagenTemporal = ref<string>('') // Base64 temporal para cropper
+const mostrarCropper = ref(false)
 
-    const nombre = ref('')
-    const fecha = ref('')
-    const imagenFondo = ref('')
-    const mensaje = ref('')
+const subiendoImagen = ref(false)
+const errorImagen = ref('')
+const mensaje = ref('')
 
-    onMounted(async () => {
-    const refEvento = doc(db, 'eventos', props.idEvento)
-    const snapshot = await getDoc(refEvento)
-    if (snapshot.exists()) {
-        const data = snapshot.data()
-        nombre.value = data.nombreQuinceanera || ''
-        fecha.value = data.fecha || ''
-        imagenFondo.value = data.imagenFondo || ''
-    }
+// 🔄 Cargar datos del evento
+const cargarEvento = async () => {
+  const eventoRef = doc(db, 'eventos', eventoId)
+  const snap = await getDoc(eventoRef)
+  evento.value = snap.data()
+  imagenFondo.value = evento.value?.imagenFondo || ''
+}
+cargarEvento()
+
+// ✅ Recibe el blob de imagen recortada
+const onImagenRecortada = async (blob: Blob) => {
+  imagenSeleccionada.value = new File([blob], 'fondo_recortado.jpg', { type: 'image/jpeg' })
+  mostrarCropper.value = false
+  await guardarImagenFondo()
+}
+
+// 📤 Subir imagen recortada
+const guardarImagenFondo = async () => {
+  if (!imagenSeleccionada.value) return
+  subiendoImagen.value = true
+  errorImagen.value = ''
+  try {
+    const nuevaURL = await uploadInvitacionBackground(imagenSeleccionada.value)
+    const eventoRef = doc(db, 'eventos', eventoId)
+
+    await updateDoc(eventoRef, {
+      imagenFondo: nuevaURL
     })
 
-    const guardarCambios = async () => {
-    const refEvento = doc(db, 'eventos', props.idEvento)
-    try {
-        await updateDoc(refEvento, {
-        nombreQuinceanera: nombre.value,
-        fecha: fecha.value,
-        imagenFondo: imagenFondo.value
-        })
+    const updatedSnap = await getDoc(eventoRef)
+    evento.value = updatedSnap.data()
+    imagenFondo.value = evento.value?.imagenFondo || ''
+    mensaje.value = '✅ Imagen guardada correctamente'
+  } catch (error) {
+    console.error(error)
+    errorImagen.value = '❌ Error al subir imagen'
+  } finally {
+    subiendoImagen.value = false
+  }
+}
 
-        // Emitir evento para que el padre actualice localmente sin esperar Firestore
-        emit('actualizarEvento', {
-        nombreQuinceanera: nombre.value,
-        fecha: fecha.value,
-        imagenFondo: imagenFondo.value
-        })
-
-        mensaje.value = '✅ Cambios guardados correctamente.'
-    } catch (e) {
-        console.error(e)
-        mensaje.value = '❌ Error al guardar cambios.'
+// 📁 Selección desde archivo
+const onFileSelected = (e: Event) => {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (file) {
+    const reader = new FileReader()
+    reader.onload = () => {
+      imagenTemporal.value = reader.result as string
+      mostrarCropper.value = true
     }
-    }
-
-    const restablecerValores = async () => {
-      const refEvento = doc(db, 'eventos', props.idEvento)
-
-      // Valores por defecto sugeridos
-      const valoresPorDefecto = {
-        nombreQuinceanera: 'Quinceañera',
-        fecha: '2025-12-31',
-        imagenFondo: 'https://dl.dropboxusercontent.com/scl/fi/3pe534n3rtymvhtlpxf34/fondo-cuenta-regresiva-horizontal.jpg?rlkey=2i5soo6xdsd7jz7rirv06kim2&st=b5x2h244'
-      }
-
-      try {
-        await updateDoc(refEvento, valoresPorDefecto)
-
-        // Actualizar reactividad local
-        nombre.value = valoresPorDefecto.nombreQuinceanera
-        fecha.value = valoresPorDefecto.fecha
-        imagenFondo.value = valoresPorDefecto.imagenFondo
-
-        // Emitir evento para que el padre también actualice
-        emit('actualizarEvento', valoresPorDefecto)
-
-        mensaje.value = '🔄 Se restablecieron los valores por defecto correctamente.'
-      } catch (e) {
-        console.error(e)
-        mensaje.value = '❌ Error al restablecer los valores.'
-      }
-    }
-
+    reader.readAsDataURL(file)
+  }
+}
 </script>
-
 
 
 <style scoped>
@@ -178,6 +190,14 @@ button.danger:hover {
   font-weight: bold;
   text-align: center;
   color: #333;
+}
+.danger {
+  color: red;
+}
+.preview img {
+  max-width: 100%;
+  margin-top: 0.5rem;
+  border-radius: 8px;
 }
 
 /* Responsivo para móviles */
