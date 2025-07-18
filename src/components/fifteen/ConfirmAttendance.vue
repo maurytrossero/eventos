@@ -1,11 +1,8 @@
 <!-- components/fifteen/ConfirmAttendance.vue -->
-
 <template>
   <div
     class="container"
-    :style="{
-      backgroundImage: 'url(https://dl.dropboxusercontent.com/scl/fi/ucpo6t3d9by764ew4yu27/fondo-topaz.png?rlkey=qdnl6efzqjgudccawx19t3yzr&st=mom1g4qi)'
-    }"
+    :style="{ backgroundImage: `url(${fondoConfirmacion})` }"
   >
     <div class="overlay">
       <div class="contenido">
@@ -21,45 +18,47 @@
           <button class="boton" @click="mostrarAlertaNoAsistira">No podré asistir</button>
         </div>
 
-      <!-- Formulario confirmación asistencia -->
-      <div v-if="formVisible" class="formulario">
-        <div class="campos">
-          <input v-model="nombre" type="text" placeholder="Nombre" />
-          <input v-model="apellido" type="text" placeholder="Apellido" />
-          <input v-model="telefono" type="tel" placeholder="Teléfono (ej: 1123456789)" />
-          <button @click="agregarAsistente" class="boton">Agregar</button>
-          <button @click="cancelarFormulario" class="boton cancelar">Cancelar</button>
+        <!-- Formulario confirmación asistencia -->
+        <div v-if="formVisible" class="formulario">
+          <div class="campos">
+            <input v-model="nombre" type="text" placeholder="Nombre" />
+            <input v-model="apellido" type="text" placeholder="Apellido" />
+            <input v-model="telefono" type="tel" placeholder="Teléfono (ej: 1123456789)" />
+            <button @click="agregarAsistente" class="boton">Agregar</button>
+            <button @click="cancelarFormulario" class="boton cancelar">Cancelar</button>
+          </div>
+
+          <ul class="lista" style="margin-top: 1rem;">
+            <li v-for="(a, i) in asistentes" :key="i">{{ a.nombre }} {{ a.apellido }}</li>
+          </ul>
+
+          <button @click="confirmarAsistencia" class="boton confirmar" style="margin-top: 1rem;">
+            Confirmar asistencia
+          </button>
+
+          <!-- Botón editar dentro del formulario -->
+          <button
+            @click="() => { formVisible = false; mostrarFormularioEdicion = true }"
+            class="boton cancelar"
+            style="margin-top: 1rem;"
+          >
+            Editar asistentes
+          </button>
         </div>
-
-        <ul class="lista" style="margin-top: 1rem;">
-          <li v-for="(a, i) in asistentes" :key="i">{{ a.nombre }} {{ a.apellido }}</li>
-        </ul>
-
-        <button @click="confirmarAsistencia" class="boton confirmar" style="margin-top: 1rem;">
-          Confirmar asistencia
-        </button>
-
-        <!-- Botón editar dentro del formulario -->
-        <button @click="() => { formVisible = false; mostrarFormularioEdicion = true }" class="boton cancelar" style="margin-top: 1rem;">
-          Editar asistentes
-        </button>
-      </div>
-
 
         <!-- Formulario edición asistentes por código -->
         <div v-if="mostrarFormularioEdicion" class="formulario-edicion">
           <h3>Editar por Código de familia</h3>
 
-        <input
-          v-model="codigoBusqueda"
-          placeholder="Ingresá código de familia"
-          style="text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 0.75rem;"
-        />
-        <div class="botones" style="width: 100%; justify-content: center; gap: 1rem; margin-bottom: 1rem;">
-          <button @click="buscarFamilia" class="boton">Buscar</button>
-          <button @click="cerrarEdicion" class="boton cancelar">Volver</button>
-        </div>
-
+          <input
+            v-model="codigoBusqueda"
+            placeholder="Ingresá código de familia"
+            style="text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 0.75rem;"
+          />
+          <div class="botones" style="width: 100%; justify-content: center; gap: 1rem; margin-bottom: 1rem;">
+            <button @click="buscarFamilia" class="boton">Buscar</button>
+            <button @click="cerrarEdicion" class="boton cancelar">Volver</button>
+          </div>
 
           <div v-if="documentoEdicionId" style="margin-top: 1rem; width: 100%;">
             <input v-model="telefonoEdicion" placeholder="Teléfono" />
@@ -72,7 +71,9 @@
               </li>
             </ul>
 
-            <button @click="agregarAsistenteEdicion" class="boton" style="margin-top: 0.5rem;">Agregar asistente</button>
+            <button @click="agregarAsistenteEdicion" class="boton" style="margin-top: 0.5rem;">
+              Agregar asistente
+            </button>
 
             <div class="botones" style="margin-top: 1rem; justify-content: center;">
               <button @click="guardarCambios" class="boton confirmar">Guardar cambios</button>
@@ -87,8 +88,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { collection, addDoc, query, where, getDocs, doc, updateDoc, serverTimestamp } from 'firebase/firestore'
+import { ref, onMounted, onUnmounted } from 'vue'
+import { collection, addDoc, query, where, getDocs, doc, updateDoc, serverTimestamp, onSnapshot } from 'firebase/firestore'
 import { db } from '@/firebase'
 import Swal from 'sweetalert2'
 
@@ -110,6 +111,28 @@ const codigoBusqueda = ref('')
 const telefonoEdicion = ref('')
 const asistentesEdicion = ref<Asistente[]>([])
 const documentoEdicionId = ref<string | null>(null)
+
+const fondoConfirmacion = ref('')
+const DEFAULT_IMAGE = 'https://dl.dropboxusercontent.com/scl/fi/ucpo6t3d9by764ew4yu27/fondo-topaz.png?rlkey=qdnl6efzqjgudccawx19t3yzr&st=mom1g4qi'
+
+let unsubscribe: (() => void) | null = null
+
+onMounted(() => {
+  const docRef = doc(db, 'eventos', props.eventoId)
+
+  unsubscribe = onSnapshot(docRef, snapshot => {
+    if (snapshot.exists()) {
+      const data = snapshot.data()
+      fondoConfirmacion.value = data.fondoConfirmacion || DEFAULT_IMAGE
+    } else {
+      fondoConfirmacion.value = DEFAULT_IMAGE
+    }
+  })
+})
+
+onUnmounted(() => {
+  if (unsubscribe) unsubscribe()
+})
 
 async function mostrarAlerta({
   icon = 'info',
@@ -214,16 +237,9 @@ async function confirmarAsistencia() {
     })
     return
   }
-  if (!telefono.value || typeof telefono.value !== 'string') {
-    mostrarAlerta({
-      icon: 'warning',
-      title: 'Atención',
-      text: 'El teléfono es inválido.'
-    })
-    return
-  }
+
   for (const a of asistentes.value) {
-    if (typeof a.nombre !== 'string' || !a.nombre.trim() || typeof a.apellido !== 'string' || !a.apellido.trim()) {
+    if (!a.nombre.trim() || !a.apellido.trim()) {
       mostrarAlerta({
         icon: 'warning',
         title: 'Atención',
@@ -236,14 +252,6 @@ async function confirmarAsistencia() {
   const codigoFamilia = generarCodigoFamilia()
 
   try {
-    console.log('Datos a guardar:', {
-      codigoFamilia,
-      telefono: telefono.value,
-      asistentes: asistentes.value,
-      confirmacion: true,
-      timestamp: new Date()
-    })
-
     await addDoc(collection(db, 'eventos', props.eventoId, 'familias'), {
       codigoFamilia,
       telefono: telefono.value,
@@ -269,7 +277,6 @@ async function confirmarAsistencia() {
         <p style="font-family: Bahnschrift, sans-serif; font-size: 0.95rem;">
           Te recomendamos anotarlo o hacerle una captura para futuras modificaciones.
         </p>`,
-
       showCancelButton: true,
       confirmButtonText: 'Copiar código',
       cancelButtonText: 'Cerrar',
@@ -397,7 +404,6 @@ function cerrarEdicion() {
   documentoEdicionId.value = null
 }
 </script>
-
 
 <style scoped>
 @font-face {

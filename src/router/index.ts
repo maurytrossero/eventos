@@ -28,6 +28,7 @@ import TriviaView from '@/views/TriviaView.vue'
 import PricingView from '@/views/PricingView.vue'
 import CheckoutView from '@/views/CheckoutView.vue'
 import AccountView from '@/views/AccountView.vue'
+import HelpView from '@/views/HelpView.vue'  // importa tu nueva vista ayuda/manual
 
 const routes: Array<RouteRecordRaw> = [
   { path: '/', name: 'home', component: HomeView },
@@ -63,6 +64,8 @@ const routes: Array<RouteRecordRaw> = [
   { path: '/precios', name: 'precios', component: PricingView },
   { path: '/checkout', name: 'checkout', component: CheckoutView, meta: { requiresAuth: true } },
   { path: '/cuenta', name: 'cuenta', component: AccountView, meta: { requiresAuth: true } },
+  { path: '/ayuda',  name: 'ayuda',  component: HelpView,  meta: { requiresAuth: true } // opción para proteger con login
+},
 ]
 
 const router = createRouter({

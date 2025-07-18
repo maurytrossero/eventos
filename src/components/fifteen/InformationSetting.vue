@@ -14,27 +14,20 @@
       ></textarea>
     </div>
 
-    <!-- Adorno superior -->
-    <div class="form-group">
-      <label class="block text-sm font-medium mb-1">Adorno superior (URL):</label>
-      <input
-        type="text"
-        v-model="config.adornoSuperior"
-        class="input w-full"
-        placeholder="https://..."
-      />
-    </div>
+<!-- Adorno superior -->
+<div class="form-group">
+  <label class="block text-sm font-medium mb-1">Adorno superior:</label>
+  <input type="file" accept="image/*" @change="handleImageUpload($event, 'adornoSuperior')" />
+  <input v-model="config.adornoSuperior" class="input w-full mt-2" placeholder="URL subida..." readonly />
+</div>
 
-    <!-- Adorno inferior -->
-    <div class="form-group">
-      <label class="block text-sm font-medium mb-1">Adorno inferior (URL):</label>
-      <input
-        type="text"
-        v-model="config.adornoInferior"
-        class="input w-full"
-        placeholder="https://..."
-      />
-    </div>
+<!-- Adorno inferior -->
+<div class="form-group">
+  <label class="block text-sm font-medium mb-1">Adorno inferior:</label>
+  <input type="file" accept="image/*" @change="handleImageUpload($event, 'adornoInferior')" />
+  <input v-model="config.adornoInferior" class="input w-full mt-2" placeholder="URL subida..." readonly />
+</div>
+
 
     <!-- Tarjetas -->
     <div class="form-group">
@@ -51,13 +44,21 @@
           </button>
         </div>
 
-        <label class="block text-sm font-medium mb-1">Imagen frontal (URL):</label>
-        <input
-          v-model="tarjeta.frontImage"
-          class="input w-full mb-2"
-          type="text"
-          placeholder="https://..."
-        />
+      <label class="block text-sm font-medium mb-1">Imagen frontal:</label>
+      <input
+        type="file"
+        accept="image/*"
+        class="input w-full mb-2"
+        @change="handleTarjetaImageUpload($event, index)"
+      />
+      <input
+        v-model="tarjeta.frontImage"
+        class="input w-full mb-2"
+        type="text"
+        readonly
+        placeholder="URL subida automáticamente"
+      />
+
 
         <label class="block text-sm font-medium mb-1">Texto frontal:</label>
         <input v-model="tarjeta.frontText" class="input w-full mb-2" type="text" />
@@ -141,6 +142,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 type TarjetaTipo = 'price' | 'location' | 'music'
+import { uploadImageToCloudinary } from '@/services/invitacionService'
 
 const props = defineProps<{
   modelValue: {
@@ -284,6 +286,31 @@ function actualizarTarjetaPorTipo(index: number, tipo: TarjetaTipo) {
   tarjeta.backContent = JSON.parse(JSON.stringify(defaults[tipo].backContent))
 }
 
+async function handleImageUpload(event: Event, field: 'adornoSuperior' | 'adornoInferior') {
+  const target = event.target as HTMLInputElement
+  if (!target.files?.length) return
+
+  const file = target.files[0]
+  try {
+    const imageUrl = await uploadImageToCloudinary(file)
+    config.value[field] = imageUrl
+  } catch (err) {
+    alert('Error subiendo la imagen: ' + (err as Error).message)
+  }
+}
+
+async function handleTarjetaImageUpload(event: Event, index: number) {
+  const target = event.target as HTMLInputElement
+  if (!target.files?.length) return
+
+  const file = target.files[0]
+  try {
+    const imageUrl = await uploadImageToCloudinary(file)
+    config.value.tarjetas[index].frontImage = imageUrl
+  } catch (err) {
+    alert('Error subiendo imagen de tarjeta: ' + (err as Error).message)
+  }
+}
 
 
 </script>

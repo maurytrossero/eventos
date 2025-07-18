@@ -7,10 +7,17 @@
     <textarea v-model="frase" rows="3" />
 
     <label>Adorno superior</label>
-    <input v-model="adornoSuperior" type="text" />
+    <input type="file" @change="handleUploadAdornoSuperior" accept="image/*" />
+    <div v-if="adornoSuperior" class="preview-box">
+      <img :src="adornoSuperior" alt="Adorno superior" width="120" />
+    </div>
 
     <label>Adorno inferior</label>
-    <input v-model="adornoInferior" type="text" />
+    <input type="file" @change="handleUploadAdornoInferior" accept="image/*" />
+    <div v-if="adornoInferior" class="preview-box">
+      <img :src="adornoInferior" alt="Adorno inferior" width="120" />
+    </div>
+
 
     <label>Imágenes (una por línea)</label>
     <textarea v-model="imagenesRaw" rows="4" />
@@ -148,6 +155,36 @@ async function handleUpload(event) {
   } catch (e) {
     console.error('Error al subir a Cloudinary:', e)
     mensaje.value = '❌ Error al subir imagen.'
+  }
+}
+
+async function handleUploadAdornoSuperior(event) {
+  const file = event.target.files[0]
+  if (!file) return
+
+  try {
+    const url = await uploadImageToCloudinary(file)
+    adornoSuperior.value = url
+    mensaje.value = '✅ Adorno superior actualizado.'
+    setTimeout(() => (mensaje.value = ''), 2000)
+  } catch (e) {
+    console.error(e)
+    mensaje.value = '❌ Error al subir adorno superior.'
+  }
+}
+
+async function handleUploadAdornoInferior(event) {
+  const file = event.target.files[0]
+  if (!file) return
+
+  try {
+    const url = await uploadImageToCloudinary(file)
+    adornoInferior.value = url
+    mensaje.value = '✅ Adorno inferior actualizado.'
+    setTimeout(() => (mensaje.value = ''), 2000)
+  } catch (e) {
+    console.error(e)
+    mensaje.value = '❌ Error al subir adorno inferior.'
   }
 }
 

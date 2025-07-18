@@ -12,6 +12,9 @@
         <router-link to="/about">¿Qué es?</router-link>
         <router-link to="/precios">Precios</router-link>
 
+        <!-- Enlace de Ayuda solo para usuarios autenticados -->
+        <router-link v-if="auth.user" to="/ayuda">Ayuda</router-link>
+
         <!-- No autenticado -->
         <router-link v-if="!auth.user" to="/login">Iniciar sesión</router-link>
         <router-link v-if="!auth.user" to="/register">Registrarse</router-link>
@@ -26,9 +29,10 @@
           </div>
         </template>
       </nav>
-    </div>
-  </header>
-</template>
+
+          </div>
+        </header>
+      </template>
 
 <script setup>
 import { useAuthStore } from '@/stores/authStore'
@@ -43,8 +47,6 @@ const handleLogout = async () => {
   router.push('/login')
 }
 </script>
-
-
 
 <style scoped>
 .header {
