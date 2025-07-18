@@ -38,6 +38,10 @@
             </a>
           </strong>
         </small>
+        <!-- QR Invitación -->
+        <div class="qr-container">
+          <qrcode-vue :value="urlInvitacion" :size="120" />
+        </div>
       </label>
 
       <!-- URL pública galería solo si está activa y hay slug -->
@@ -55,6 +59,10 @@
             </a>
           </strong>
         </small>
+        <!-- QR Galería -->
+        <div class="qr-container">
+          <qrcode-vue :value="urlGaleria" :size="120" />
+        </div>
       </label>
 
 
@@ -151,12 +159,13 @@
 
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getEventoById, addCancion, updateEvento, deleteEvento } from '@/services/firestoreService';
 import ModalDialog from './ModalDialog.vue';
 import { deleteField } from 'firebase/firestore';
 import { useAuthStore } from '@/stores/authStore'
+import QrcodeVue from 'qrcode.vue'
 
 interface Evento {
   id?: string;
@@ -281,6 +290,13 @@ const crearGaleria = async () => {
 const irAGaleriaInteractiva = () => {
   router.push({ name: 'evento-galeria-interactiva', params: { eventoId } });
 };
+const urlInvitacion = computed(() =>
+  `${baseURL}/invitacion/${eventoEditable.value.slug || ''}`
+)
+
+const urlGaleria = computed(() =>
+  `${baseURL}/galeria/${eventoEditable.value.slug || ''}`
+)
 </script>
 
 
@@ -417,5 +433,10 @@ const irAGaleriaInteractiva = () => {
 
 .accion-button.router:hover {
   background-color: #125aa0;
+}
+.qr-container {
+  margin-top: 8px;
+  display: flex;
+  justify-content: center;
 }
 </style>
