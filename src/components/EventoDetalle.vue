@@ -138,6 +138,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { getEventoById, addCancion, updateEvento, deleteEvento } from '@/services/firestoreService';
 import ModalDialog from './ModalDialog.vue';
 import { deleteField } from 'firebase/firestore';
+import { useAuthStore } from '@/stores/authStore'
 
 interface Evento {
   id?: string;
@@ -156,11 +157,21 @@ const evento = ref<Evento | null>(null);
 const eventoEditable = ref<Evento>({ nombre: '', fecha: '', lugar: '', slug: '' });
 const mostrarModal = ref(false);
 const baseURL = window.location.origin
+const auth = useAuthStore();
 
 const cargarEvento = async () => {
-  const data = await getEventoById(eventoId) as Evento;
+  const data = await getEventoById(eventoId) as Evento & { creadoPor?: string };
   evento.value = data;
   eventoEditable.value = { ...data };
+
+  // Validar permisos de edición
+  const usuarioEsCreador = data.creadoPor ? data.creadoPor === auth.user?.uid : false;
+  const usuarioEsAdmin = auth.isAdmin;
+
+  if (!usuarioEsCreador && !usuarioEsAdmin) {
+    alert('No tenés permisos para editar este evento');
+    return router.push('/no-autorizado');
+  }
 };
 
 onMounted(() => {

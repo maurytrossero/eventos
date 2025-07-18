@@ -28,7 +28,10 @@ import TriviaView from '@/views/TriviaView.vue'
 import PricingView from '@/views/PricingView.vue'
 import CheckoutView from '@/views/CheckoutView.vue'
 import AccountView from '@/views/AccountView.vue'
-import HelpView from '@/views/HelpView.vue'  // importa tu nueva vista ayuda/manual
+import HelpView from '@/views/HelpView.vue'
+
+// Vista de acceso denegado
+import UnauthorizedView from '@/views/UnauthorizedView.vue'
 
 const routes: Array<RouteRecordRaw> = [
   { path: '/', name: 'home', component: HomeView },
@@ -39,14 +42,14 @@ const routes: Array<RouteRecordRaw> = [
   { path: '/register', name: 'register', component: RegisterView },
   { path: '/auth/instagram/callback', name: 'auth-callback', component: AuthCallback },
 
-  // Panel protegido
+  // Panel
   { path: '/panel', name: 'panel', component: PanelView, meta: { requiresAuth: true } },
 
-  // ABM de eventos
-  { path: '/eventos', name: 'eventos-crear', component: EventosComponent },
-  { path: '/eventos/lista', name: 'eventos-lista', component: ListaEventos },
+  // Eventos
+  { path: '/eventos', name: 'eventos-crear', component: EventosComponent, meta: { requiresAuth: true } },
+  { path: '/eventos/lista', name: 'eventos-lista', component: ListaEventos, meta: { requiresAuth: true, requiresAdmin: true } },
   { path: '/evento/:eventoId/detalle', name: 'evento-detalle', component: EventoDetalle, props: true },
-  { path: '/evento/:eventoId/editar', name: 'evento-editar', component: EventoDetalle, props: true },
+  { path: '/evento/:eventoId/editar', name: 'evento-editar', component: EventoDetalle, props: true,   meta: { requiresAuth: true } },
   { path: '/evento/:eventoId/moderar', name: 'evento-moderar', component: ModerateView, props: true },
   { path: '/evento/:eventoId/trivia', name: 'evento-trivia', component: TriviaView, props: true },
   { path: '/evento/:eventoId/galeria', name: 'evento-galeria', component: GalleryView, props: true },
@@ -64,8 +67,10 @@ const routes: Array<RouteRecordRaw> = [
   { path: '/precios', name: 'precios', component: PricingView },
   { path: '/checkout', name: 'checkout', component: CheckoutView, meta: { requiresAuth: true } },
   { path: '/cuenta', name: 'cuenta', component: AccountView, meta: { requiresAuth: true } },
-  { path: '/ayuda',  name: 'ayuda',  component: HelpView,  meta: { requiresAuth: true } // opción para proteger con login
-},
+  { path: '/ayuda', name: 'ayuda', component: HelpView, meta: { requiresAuth: true } },
+
+  // Acceso denegado
+  { path: '/no-autorizado', name: 'no-autorizado', component: UnauthorizedView },
 ]
 
 const router = createRouter({
@@ -73,11 +78,11 @@ const router = createRouter({
   routes
 })
 
-// Protección de rutas con espera de Firebase Auth
+// Protección de rutas con roles y login
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
 
-  // Esperar carga inicial de Firebase Auth
+  // Esperar a que cargue el estado de usuario
   if (authStore.loadingUser) {
     await new Promise<void>((resolve) => {
       const unwatch = watch(
@@ -93,20 +98,24 @@ router.beforeEach(async (to, from, next) => {
   }
 
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+  const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin)
 
-  // Si no está logueado y la ruta requiere autenticación, redirigir a login
+  // Redirigir a login si no está logueado
   if (requiresAuth && !authStore.isLoggedIn) {
     return next({ path: '/login', query: { redirect: to.fullPath } })
   }
 
-  // Si está logueado y va a /login o /register, redirigir a /panel
+  // Redirigir si no es admin
+  if (requiresAdmin && !authStore.isAdmin) {
+    return next('/no-autorizado')
+  }
+
+  // Redirigir a /panel si ya está logueado y va a login o register
   if (authStore.isLoggedIn && (to.path === '/login' || to.path === '/register')) {
     return next('/panel')
   }
 
-  // Dejar pasar todo lo demás
   next()
 })
-
 
 export default router

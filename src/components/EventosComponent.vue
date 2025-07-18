@@ -2,19 +2,26 @@
   <div class="eventos-contenedor">
     <h1>Gestión de Eventos</h1>
 
-    <!-- Formulario para crear un nuevo evento -->
-    <form @submit.prevent="crearEvento" class="evento-formulario">
+    <!-- Mostrar el formulario solo si el usuario está logueado -->
+    <form v-if="auth.isLoggedIn" @submit.prevent="crearEvento" class="evento-formulario">
       <input v-model="nuevoEventoNombre" placeholder="Nombre del evento" required />
       <input v-model="nuevoEventoFecha" type="date" required />
       <input v-model="nuevoEventoLugar" placeholder="Lugar del evento (opcional)" />
       <button type="submit">Crear Evento</button>
     </form>
 
-    <h2>
+    <!-- Si no está logueado, mostrar un mensaje -->
+    <p v-else>
+      Para crear un evento necesitás iniciar sesión.  
+      <router-link to="/login">Iniciar sesión</router-link>
+    </p>
+
+    <h2 v-if="auth.user?.email === 'admin@example.com'">
       <router-link to="/eventos/lista" class="link-eventos">
         Ver listado de eventos
       </router-link>
     </h2>
+
 
     <div v-if="eventoId" class="sugerir-cancion">
       <input v-model="nuevaCancionNombre" placeholder="Nombre de la canción" />
