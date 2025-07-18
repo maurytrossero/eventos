@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { doc, updateDoc, getDoc } from 'firebase/firestore'
 import { db } from '@/firebase'
@@ -54,9 +54,12 @@ const route = useRoute()
 const eventoId = route.params.eventoId as string
 const evento = ref<any>(null)
 
+const nombre = ref('')
+const titulo = ref('')
+const fecha = ref('')
 const imagenFondo = ref('')
 const imagenSeleccionada = ref<File | null>(null)
-const imagenTemporal = ref<string>('') // Base64 temporal para cropper
+const imagenTemporal = ref('')
 const mostrarCropper = ref(false)
 
 const subiendoImagen = ref(false)
@@ -67,8 +70,13 @@ const mensaje = ref('')
 const cargarEvento = async () => {
   const eventoRef = doc(db, 'eventos', eventoId)
   const snap = await getDoc(eventoRef)
-  evento.value = snap.data()
-  imagenFondo.value = evento.value?.imagenFondo || ''
+  if (snap.exists()) {
+    evento.value = snap.data()
+    nombre.value = evento.value?.nombreQuinceanera || ''
+    titulo.value = evento.value?.titulo || ''
+    fecha.value = evento.value?.fecha || ''
+    imagenFondo.value = evento.value?.imagenFondo || ''
+  }
 }
 cargarEvento()
 
@@ -87,14 +95,10 @@ const guardarImagenFondo = async () => {
   try {
     const nuevaURL = await uploadInvitacionBackground(imagenSeleccionada.value)
     const eventoRef = doc(db, 'eventos', eventoId)
-
     await updateDoc(eventoRef, {
       imagenFondo: nuevaURL
     })
-
-    const updatedSnap = await getDoc(eventoRef)
-    evento.value = updatedSnap.data()
-    imagenFondo.value = evento.value?.imagenFondo || ''
+    imagenFondo.value = nuevaURL
     mensaje.value = '✅ Imagen guardada correctamente'
   } catch (error) {
     console.error(error)
@@ -116,8 +120,44 @@ const onFileSelected = (e: Event) => {
     reader.readAsDataURL(file)
   }
 }
-</script>
 
+// 💾 Guardar todos los cambios (nombre, título, fecha e imagen)
+const guardarCambios = async () => {
+  if (!nombre.value.trim()) {
+    mensaje.value = '❗ El nombre no puede estar vacío.'
+    return
+  }
+  if (!titulo.value.trim()) {
+    mensaje.value = '❗ El título no puede estar vacío.'
+    return
+  }
+
+  const eventoRef = doc(db, 'eventos', eventoId)
+  try {
+    await updateDoc(eventoRef, {
+      nombreQuinceanera: nombre.value,
+      titulo: titulo.value,
+      fecha: fecha.value,
+      imagenFondo: imagenFondo.value
+    })
+    mensaje.value = '✅ Cambios guardados correctamente.'
+  } catch (error) {
+    console.error(error)
+    mensaje.value = '❌ Error al guardar cambios.'
+  }
+}
+
+// 🔄 Restablecer valores a los valores guardados
+const restablecerValores = () => {
+  if (evento.value) {
+    nombre.value = evento.value?.nombreQuinceanera || ''
+    titulo.value = evento.value?.titulo || ''
+    fecha.value = evento.value?.fecha || ''
+    imagenFondo.value = evento.value?.imagenFondo || ''
+    mensaje.value = '🔄 Valores restablecidos.'
+  }
+}
+</script>
 
 <style scoped>
 .config-box {
@@ -191,16 +231,17 @@ button.danger:hover {
   text-align: center;
   color: #333;
 }
+
 .danger {
   color: red;
 }
+
 .preview img {
   max-width: 100%;
   margin-top: 0.5rem;
   border-radius: 8px;
 }
 
-/* Responsivo para móviles */
 @media (max-width: 500px) {
   .buttons {
     flex-direction: column;

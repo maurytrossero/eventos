@@ -1,6 +1,10 @@
 <!-- components/fifteen/ConfirmSetting.vue -->
 <template>
   <div class="config-box">
+
+    <label>Mensaje de confirmación (opcional):</label>
+    <textarea v-model="mensajeConfirmacion" placeholder="Ej: Podés confirmar tu asistencia hasta el 05/08"></textarea>
+
     <h2>🎨 Configurar Fondo de Confirmación</h2>
 
     <label>URL de imagen de fondo:</label>
@@ -49,6 +53,7 @@ const subiendo = ref(false)
 const imagenSeleccionada = ref<File | null>(null)
 const imagenTemporal = ref('')
 const mostrarCropper = ref(false)
+const mensajeConfirmacion = ref('')
 
 const DEFAULT_IMAGE = 'https://dl.dropboxusercontent.com/scl/fi/ucpo6t3d9by764ew4yu27/fondo-topaz.png?rlkey=qdnl6efzqjgudccawx19t3yzr&st=mom1g4qi'
 
@@ -59,6 +64,8 @@ onMounted(async () => {
   if (snapshot.exists()) {
     const data = snapshot.data()
     imagenFondo.value = data.fondoConfirmacion || ''
+    mensajeConfirmacion.value = data.mensajeConfirmacion || ''
+
   }
 })
 
@@ -111,7 +118,8 @@ const guardarCambios = async () => {
   const refEvento = doc(db, 'eventos', props.idEvento)
   try {
     await updateDoc(refEvento, {
-      fondoConfirmacion: imagenFondo.value
+        fondoConfirmacion: imagenFondo.value,
+        mensajeConfirmacion: mensajeConfirmacion.value
     })
     emit('actualizarFondoConfirmacion', imagenFondo.value)
     mensaje.value = '✅ Fondo guardado correctamente.'
@@ -126,7 +134,8 @@ const restablecerValores = async () => {
   const refEvento = doc(db, 'eventos', props.idEvento)
   try {
     await updateDoc(refEvento, {
-      fondoConfirmacion: DEFAULT_IMAGE
+        fondoConfirmacion: DEFAULT_IMAGE,
+        mensajeConfirmacion: ''
     })
 
     imagenFondo.value = DEFAULT_IMAGE
@@ -140,6 +149,16 @@ const restablecerValores = async () => {
 </script>
 
 <style scoped>
+textarea {
+  width: 100%;
+  height: 4rem;
+  margin-top: 0.25rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  resize: vertical;
+}
+
 .config-box {
   background: #fff;
   color: #333;

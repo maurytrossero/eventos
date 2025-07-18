@@ -191,7 +191,6 @@ async function handleUploadAdornoInferior(event) {
 onMounted(cargarConfiguracion)
 </script>
 
-
 <style scoped>
 .config-box {
   background: #fafafa;

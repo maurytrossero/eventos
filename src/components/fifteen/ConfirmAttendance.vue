@@ -8,9 +8,10 @@
       <div class="contenido">
 
         <!-- Mensaje principal -->
-        <p class="mensaje">
-          Podés confirmar y realizar el pago hasta el <strong>05/08</strong>
+        <p class="mensaje" v-if="mensajeConfirmacion">
+          <span v-html="mensajeConfirmacion" />
         </p>
+
 
         <!-- Botones principales -->
         <div class="botones" v-if="!formVisible && !mostrarFormularioEdicion">
@@ -105,6 +106,8 @@ const nombre = ref('')
 const apellido = ref('')
 const telefono = ref('')
 const asistentes = ref<Asistente[]>([])
+const mensajeConfirmacion = ref('')
+
 
 const mostrarFormularioEdicion = ref(false)
 const codigoBusqueda = ref('')
@@ -119,13 +122,14 @@ let unsubscribe: (() => void) | null = null
 
 onMounted(() => {
   const docRef = doc(db, 'eventos', props.eventoId)
-
   unsubscribe = onSnapshot(docRef, snapshot => {
     if (snapshot.exists()) {
       const data = snapshot.data()
       fondoConfirmacion.value = data.fondoConfirmacion || DEFAULT_IMAGE
+      mensajeConfirmacion.value = data.mensajeConfirmacion || ''
     } else {
       fondoConfirmacion.value = DEFAULT_IMAGE
+      mensajeConfirmacion.value = ''
     }
   })
 })

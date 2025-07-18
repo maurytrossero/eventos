@@ -33,6 +33,7 @@ const props = defineProps<{
     imagenFondo?: string  
     titulo?: string 
   }
+  
 }>()
 const defaultDate = new Date() // por ejemplo, hoy
 
