@@ -79,11 +79,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, onMounted, onUnmounted, nextTick, toRefs } from 'vue'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '@/firebase'
 
+// Componentes
 import CountdownComponent from '@/components/fifteen/CountdownComponent.vue'
 import CarouselComponent from '@/components/fifteen/CarouselComponent.vue'
 import InformationComponent from '@/components/fifteen/InformationComponent.vue'
@@ -93,9 +93,7 @@ import ResultadosTriviaComponent from '@/views/TriviaResultsView.vue'
 import GalleryCarousel from '@/components/gallery-live/GalleryCarousel.vue'
 import UploadForm from '@/components/gallery-live/UploadForm.vue'
 
-const route = useRoute()
-const eventoId = route.params.eventoId as string
-
+// Props y reactividad
 const props = defineProps<{
   evento: {
     fecha: string
@@ -104,12 +102,16 @@ const props = defineProps<{
     tituloGaleria?: string
     carouselConfig?: any
     informacionInvitacion?: any
-  }
+  },
+  eventoId: string
 }>()
+
+const { evento, eventoId } = toRefs(props)
 
 const triviaActiva = ref(false)
 const galeriaActiva = ref(false)
 
+// Refs a secciones
 const container = ref<HTMLElement | null>(null)
 const section1 = ref<HTMLElement | null>(null)
 const section2 = ref<HTMLElement | null>(null)
@@ -154,7 +156,7 @@ async function setupSections() {
 
 onMounted(async () => {
   try {
-    const eventoDocRef = doc(db, 'eventos', eventoId)
+    const eventoDocRef = doc(db, 'eventos', eventoId.value)
     const eventoSnap = await getDoc(eventoDocRef)
     if (eventoSnap.exists()) {
       const data = eventoSnap.data()
@@ -178,6 +180,7 @@ onUnmounted(() => {
   }
 })
 </script>
+
 
 <style scoped>
 .fifteen-view {

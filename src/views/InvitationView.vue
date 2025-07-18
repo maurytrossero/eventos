@@ -21,7 +21,9 @@
       :key="evento?.invitacion || 'sin-invitacion'"
       v-else-if="componenteInvitacion"
       :evento="evento"
+      :evento-id="eventoId"
     />
+
 
     <div 
       v-if="usuarioAutorizado && !seleccionando && evento?.invitacion && !abrirModalConfiguracion" 
