@@ -26,7 +26,7 @@
 
 
     <div 
-      v-if="usuarioAutorizado && !seleccionando && evento?.invitacion && !abrirModalConfiguracion" 
+      v-if="!rutaEsPublica && usuarioAutorizado && !seleccionando && evento?.invitacion && !abrirModalConfiguracion" 
       class="acciones-superiores"
     >
       <button class="accion editar" @click="abrirModalConfiguracion = true">✏️</button>
@@ -117,10 +117,11 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, shallowRef, ref, onMounted, onUnmounted, defineProps } from 'vue'
+import { defineAsyncComponent, shallowRef, ref, onMounted, onUnmounted, defineProps,computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { updateEvento } from '@/services/firestoreService'
 import { doc, onSnapshot, getFirestore, collection, query, where, getDocs } from 'firebase/firestore'
+
 
 import CountdownSetting from '@/components/fifteen/CountdownSetting.vue'
 import CarouselSetting from '@/components/fifteen/CarouselSetting.vue'
@@ -135,6 +136,8 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth'
 defineProps<{ slug?: string }>()
 
 const usuarioAutorizado = ref(false)
+const rutaEsPublica = computed(() => route.name === 'invitacion-slug')
+
 
 onMounted(() => {
   const auth = getAuth()

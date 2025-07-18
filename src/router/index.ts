@@ -62,6 +62,8 @@ const routes: Array<RouteRecordRaw> = [
   { path: '/evento/:eventoId/invitacion/galeria-interactiva', name: 'evento-galeria-interactiva', component: GalleryView, props: true },
   { path: '/evento/:eventoId/invitacion/moderar-galeria-interactiva', name: 'evento-moderar-galeria-interactiva', component: ModerateView, props: true },
   { path: '/invitacion/:slug', name: 'invitacion-slug', component: InvitationView, props: true },
+  { path: '/galeria/:slug',  name: 'galeria-slug',  component: GalleryView,  props: true,},
+
 
   // E-commerce
   { path: '/precios', name: 'precios', component: PricingView },

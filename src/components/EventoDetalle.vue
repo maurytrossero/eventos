@@ -40,6 +40,23 @@
         </small>
       </label>
 
+      <!-- URL pública galería solo si está activa y hay slug -->
+      <label v-if="evento?.galeriaActiva && eventoEditable.slug" style="margin-top: 1rem;">
+        <small style="color: #666; font-weight: 400;">
+          La galería se podrá acceder en:<br />
+          <strong>
+            <a
+              :href="`${baseURL}/galeria/${eventoEditable.slug}`"
+              target="_blank"
+              rel="noopener"
+              style="color: #007bff;"
+            >
+              {{ `${baseURL}/galeria/${eventoEditable.slug}` }}
+            </a>
+          </strong>
+        </small>
+      </label>
+
 
       <button @click="guardarCambios" class="accion-button guardar">Guardar Cambios</button>
     </div>
@@ -131,6 +148,7 @@
     />
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
@@ -249,9 +267,17 @@ const eliminarInvitacion = async () => {
   }
 };
 
-const crearGaleria = () => {
-  alert('Funcionalidad de galería interactiva próximamente.');
+const crearGaleria = async () => {
+  try {
+    await updateEvento(eventoId, { galeriaActiva: true });
+    await cargarEvento(); // recarga la info local del evento
+    router.push({ name: 'evento-galeria-interactiva', params: { eventoId } });
+  } catch (error) {
+    console.error('Error al activar la galería:', error);
+    alert('No se pudo activar la galería. Intentá nuevamente más tarde.');
+  }
 };
+
 const irAGaleriaInteractiva = () => {
   router.push({ name: 'evento-galeria-interactiva', params: { eventoId } });
 };

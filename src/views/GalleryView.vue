@@ -1,9 +1,9 @@
-<!-- views/GalleryView.vue.vue -->
+<!-- views/GalleryView.vue -->
 <template>
   <div :class="containerClass" ref="container">
     <!-- Galería activa -->
     <section
-      v-if="galeriaActiva"
+      v-if="galeriaActiva && usuarioAutorizado"
       ref="sectionGaleriaUpload"
       class="section galeria-section"
     >
@@ -43,11 +43,11 @@
   </div>
 </template>
 
-
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { doc, getDoc } from 'firebase/firestore'
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
+import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import { db } from '@/firebase'
 
 import GalleryCarousel from '@/components/gallery-live/GalleryCarousel.vue'
@@ -59,7 +59,7 @@ const props = defineProps({
 })
 
 const route = useRoute()
-const eventoId = route.params.eventoId as string
+const eventoId = ref<string>('')
 
 const container = ref<HTMLElement | null>(null)
 const sectionGaleriaCarousel = ref<HTMLElement | null>(null)
@@ -71,9 +71,38 @@ const sections = ref<HTMLElement[]>([])
 const evento = ref<any>(null)
 const galeriaActiva = ref(false)
 
+const usuarioAutorizado = ref(false)
+
+// Detectar si el usuario está autorizado (ejemplo con email fijo)
+onMounted(() => {
+  const auth = getAuth()
+  onAuthStateChanged(auth, (user) => {
+    usuarioAutorizado.value = user?.email === 'maurytrossero@gmail.com'
+  })
+})
+
 async function cargarEvento() {
   try {
-    const eventoDoc = doc(db, 'eventos', eventoId)
+    // Detectar si viene eventoId o slug en la URL
+    if (route.params.eventoId) {
+      eventoId.value = route.params.eventoId as string
+    } else if (route.params.slug) {
+      const slug = route.params.slug as string
+      const q = query(collection(db, 'eventos'), where('slug', '==', slug))
+      const snapshot = await getDocs(q)
+      if (!snapshot.empty) {
+        eventoId.value = snapshot.docs[0].id
+      } else {
+        console.warn('No se encontró evento para ese slug')
+        return
+      }
+    } else {
+      console.warn('No se recibió eventoId ni slug')
+      return
+    }
+
+    // Cargar datos del evento
+    const eventoDoc = doc(db, 'eventos', eventoId.value)
     const eventoSnap = await getDoc(eventoDoc)
     if (eventoSnap.exists()) {
       evento.value = eventoSnap.data()
@@ -106,7 +135,9 @@ function onScroll() {
 async function setupSections() {
   await nextTick()
   sections.value = [
-    ...(galeriaActiva.value ? [sectionGaleriaCarousel.value, sectionGaleriaUpload.value] : [])
+    ...(galeriaActiva.value
+      ? [sectionGaleriaCarousel.value, usuarioAutorizado.value ? sectionGaleriaUpload.value : null]
+      : [])
   ].filter(Boolean) as HTMLElement[]
 }
 
@@ -131,6 +162,7 @@ onUnmounted(() => {
   }
 })
 </script>
+
 
 <style scoped>
 .gallery-view {

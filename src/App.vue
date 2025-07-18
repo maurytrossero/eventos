@@ -1,16 +1,23 @@
 <template>
   <div id="app">
-    <MainHeader />
+    <MainHeader v-if="mostrarHeader" />
     <router-view />
   </div>
 </template>
 
 <script setup>
 import MainHeader from '@/components/MainHeader.vue'
-import { useAuthStore } from '@/stores/authStore'
+import { useRoute } from 'vue-router'
+import { computed } from 'vue'
 
-const auth = useAuthStore()
+const route = useRoute()
+
+const mostrarHeader = computed(() => {
+  // Ocultar header en ruta invitación pública o galería pública con slug
+  return !(route.name === 'invitacion-slug' || route.name === 'galeria-slug')
+})
 </script>
+
 
 <style scoped>
 #app {
