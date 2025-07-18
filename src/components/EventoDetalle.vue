@@ -29,18 +29,24 @@
           Usá letras, números y guiones. La invitación se podrá acceder en:<br />
           <strong>
             <a
-              :href="`${baseURL}/invitacion/${eventoEditable.slug}`"
+              :href="urlInvitacion"
               target="_blank"
               rel="noopener"
               style="color: #007bff;"
             >
-              {{ `${baseURL}/invitacion/${eventoEditable.slug}` }}
+              {{ urlInvitacion }}
             </a>
           </strong>
         </small>
         <!-- QR Invitación -->
-        <div class="qr-container">
-          <qrcode-vue :value="urlInvitacion" :size="120" />
+        <div class="qr-container" ref="qrWrapperInvitacion">
+          <qrcode-vue
+            :value="urlInvitacion"
+            :size="120"
+            render-as="canvas"
+            :key="'invitacion-' + eventoEditable.slug"
+          />
+          <button class="qr-boton" @click="descargarQR('invitacion')">Descargar QR</button>
         </div>
       </label>
 
@@ -50,21 +56,26 @@
           La galería se podrá acceder en:<br />
           <strong>
             <a
-              :href="`${baseURL}/galeria/${eventoEditable.slug}`"
+              :href="urlGaleria"
               target="_blank"
               rel="noopener"
               style="color: #007bff;"
             >
-              {{ `${baseURL}/galeria/${eventoEditable.slug}` }}
+              {{ urlGaleria }}
             </a>
           </strong>
         </small>
         <!-- QR Galería -->
-        <div class="qr-container">
-          <qrcode-vue :value="urlGaleria" :size="120" />
+        <div class="qr-container" ref="qrWrapperGaleria">
+          <qrcode-vue
+            :value="urlGaleria"
+            :size="120"
+            render-as="canvas"
+            :key="'galeria-' + eventoEditable.slug"
+          />
+          <button class="qr-boton" @click="descargarQR('galeria')">Descargar QR</button>
         </div>
       </label>
-
 
       <button @click="guardarCambios" class="accion-button guardar">Guardar Cambios</button>
     </div>
@@ -157,15 +168,14 @@
   </div>
 </template>
 
-
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getEventoById, addCancion, updateEvento, deleteEvento } from '@/services/firestoreService';
 import ModalDialog from './ModalDialog.vue';
 import { deleteField } from 'firebase/firestore';
-import { useAuthStore } from '@/stores/authStore'
-import QrcodeVue from 'qrcode.vue'
+import { useAuthStore } from '@/stores/authStore';
+import QrcodeVue from 'qrcode.vue';
 
 interface Evento {
   id?: string;
@@ -183,9 +193,45 @@ const eventoId = route.params.eventoId as string;
 const evento = ref<Evento | null>(null);
 const eventoEditable = ref<Evento>({ nombre: '', fecha: '', lugar: '', slug: '' });
 const mostrarModal = ref(false);
-const baseURL = window.location.origin
+const baseURL = window.location.origin;
 const auth = useAuthStore();
 
+// Refs para los wrappers de QR (divs)
+const qrWrapperInvitacion = ref<HTMLElement | null>(null);
+const qrWrapperGaleria = ref<HTMLElement | null>(null);
+
+// Computed URLs
+const urlInvitacion = computed(() =>
+  `${baseURL}/invitacion/${eventoEditable.value.slug || ''}`
+);
+
+const urlGaleria = computed(() =>
+  `${baseURL}/galeria/${eventoEditable.value.slug || ''}`
+);
+
+// Descargar QR como imagen PNG
+const descargarQR = (tipo: 'invitacion' | 'galeria') => {
+  const wrapper = tipo === 'invitacion' ? qrWrapperInvitacion.value : qrWrapperGaleria.value;
+
+  if (!wrapper) {
+    alert('No se encontró el contenedor del QR');
+    return;
+  }
+
+  const canvas = wrapper.querySelector('canvas') as HTMLCanvasElement | null;
+
+  if (!canvas || typeof canvas.toDataURL !== 'function') {
+    alert('No se pudo obtener el código QR como imagen');
+    return;
+  }
+
+  const link = document.createElement('a');
+  link.href = canvas.toDataURL('image/png');
+  link.download = `qr-${tipo}-${eventoEditable.value.slug || 'evento'}.png`;
+  link.click();
+};
+
+// Cargar evento desde Firestore
 const cargarEvento = async () => {
   const data = await getEventoById(eventoId) as Evento & { creadoPor?: string };
   evento.value = data;
@@ -205,7 +251,7 @@ onMounted(() => {
   cargarEvento();
 });
 
-// Autogenerar slug si no está presente y cambia el nombre
+// Autogenerar slug desde el nombre si está vacío
 watch(() => eventoEditable.value.nombre, (nuevoNombre) => {
   if (!eventoEditable.value.slug && nuevoNombre) {
     eventoEditable.value.slug = generateSlug(nuevoNombre);
@@ -220,6 +266,7 @@ function generateSlug(nombre: string): string {
     .replace(/(^-|-$)+/g, ''); // elimina guiones al inicio o fin
 }
 
+// Guardar cambios en Firestore
 const guardarCambios = async () => {
   if (!eventoEditable.value) return;
   try {
@@ -232,6 +279,7 @@ const guardarCambios = async () => {
   }
 };
 
+// Eliminar evento completo
 const eliminarEvento = async () => {
   const confirmacion = window.confirm('¿Estás seguro de que querés eliminar este evento? Esta acción no se puede deshacer.');
   if (!confirmacion) return;
@@ -245,6 +293,7 @@ const eliminarEvento = async () => {
   }
 };
 
+// Modal para sugerencia de canciones
 const abrirModal = () => { mostrarModal.value = true; };
 const cerrarModal = () => { mostrarModal.value = false; };
 
@@ -258,9 +307,11 @@ const enviarSugerencia = async (nombreCancion: string, artista: string) => {
   }
 };
 
+// Acciones relacionadas con la invitación
 const crearInvitacion = () => {
   router.push({ name: 'evento-invitacion', params: { eventoId } });
 };
+
 const verEditarInvitacion = () => {
   router.push({ name: 'evento-invitacion', params: { eventoId } });
 };
@@ -268,7 +319,7 @@ const verEditarInvitacion = () => {
 const eliminarInvitacion = async () => {
   try {
     await updateEvento(eventoId, { invitacion: deleteField() });
-    evento.value!.invitacion = undefined;
+    if (evento.value) evento.value.invitacion = undefined;
     alert('Invitación eliminada con éxito');
   } catch (error) {
     console.error("Error al eliminar la invitación:", error);
@@ -276,6 +327,7 @@ const eliminarInvitacion = async () => {
   }
 };
 
+// Acciones relacionadas con la galería
 const crearGaleria = async () => {
   try {
     await updateEvento(eventoId, { galeriaActiva: true });
@@ -290,13 +342,6 @@ const crearGaleria = async () => {
 const irAGaleriaInteractiva = () => {
   router.push({ name: 'evento-galeria-interactiva', params: { eventoId } });
 };
-const urlInvitacion = computed(() =>
-  `${baseURL}/invitacion/${eventoEditable.value.slug || ''}`
-)
-
-const urlGaleria = computed(() =>
-  `${baseURL}/galeria/${eventoEditable.value.slug || ''}`
-)
 </script>
 
 
@@ -434,9 +479,58 @@ const urlGaleria = computed(() =>
 .accion-button.router:hover {
   background-color: #125aa0;
 }
+
 .qr-container {
   margin-top: 8px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.qr-boton {
+  background-color: #1976d2;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.qr-boton:hover {
+  background-color: #125aa0;
+}
+
+
+.descargar-button {
+  margin-top: 6px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  background-color: #1976d2;
+  color: white;
+  transition: background-color 0.2s ease;
+}
+
+.descargar-button:hover {
+  background-color: #125aa0;
+}
+.qr-boton {
+  margin-top: 0.5rem;
+  background-color: #1976d2;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.qr-boton:hover {
+  background-color: #125aa0;
 }
 </style>
