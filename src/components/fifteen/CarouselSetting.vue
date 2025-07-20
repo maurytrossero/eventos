@@ -1,29 +1,47 @@
 <!-- components/fifteen/CarouselSetting.vue -->
 <template>
-  <div class="config-box">
-    <h2>🖼️ Configurar Carrusel</h2>
+  <div class="carousel-settings">
+    <h2 class="titulo">🖼️ Configurar Carrusel</h2>
 
-    <label>Frase</label>
-    <textarea v-model="frase" rows="3" />
-
-    <label>Adorno superior</label>
-    <input type="file" @change="handleUploadAdornoSuperior" accept="image/*" />
-    <div v-if="adornoSuperior" class="preview-box">
-      <img :src="adornoSuperior" alt="Adorno superior" width="120" />
+    <div class="form-group">
+      <label>Frase</label>
+      <textarea v-model="frase" rows="3" placeholder="Frase para mostrar" />
     </div>
 
-    <label>Adorno inferior</label>
-    <input type="file" @change="handleUploadAdornoInferior" accept="image/*" />
-    <div v-if="adornoInferior" class="preview-box">
-      <img :src="adornoInferior" alt="Adorno inferior" width="120" />
+    <div class="form-group">
+      <label>Adorno superior</label>
+      <div class="custom-file-input">
+        <label for="adornoSuperiorUpload">📁 Seleccionar imagen</label>
+        <input type="file" id="adornoSuperiorUpload" @change="handleUploadAdornoSuperior" accept="image/*" />
+      </div>
+      <div v-if="adornoSuperior" class="preview-box">
+        <img :src="adornoSuperior" alt="Adorno superior" width="120" />
+      </div>
     </div>
 
+    <div class="form-group">
+      <label>Adorno inferior</label>
+      <div class="custom-file-input">
+        <label for="adornoInferiorUpload">📁 Seleccionar imagen</label>
+        <input type="file" id="adornoInferiorUpload" @change="handleUploadAdornoInferior" accept="image/*" />
+      </div>
+      <div v-if="adornoInferior" class="preview-box">
+        <img :src="adornoInferior" alt="Adorno inferior" width="120" />
+      </div>
+    </div>
 
-    <label>Imágenes (una por línea)</label>
-    <textarea v-model="imagenesRaw" rows="4" />
+    <div class="form-group">
+      <label>Imágenes (una por línea)</label>
+      <textarea v-model="imagenesRaw" rows="4" placeholder="https://... (una por línea)" />
+    </div>
 
-    <label>Subir imagen desde tu dispositivo</label>
-    <input type="file" @change="handleUpload" accept="image/*" />
+    <div class="form-group">
+      <label>Subir imagen desde tu dispositivo</label>
+      <div class="custom-file-input">
+        <label for="imagenesUpload">📁 Seleccionar imagen</label>
+        <input type="file" id="imagenesUpload" @change="handleUpload" accept="image/*" />
+      </div>
+    </div>
 
     <div class="buttons">
       <button @click="guardarConfiguracion">💾 Guardar</button>
@@ -192,141 +210,77 @@ onMounted(cargarConfiguracion)
 </script>
 
 <style scoped>
-.config-box {
-  background: #fafafa;
-  padding: 1rem;
-  border-radius: 10px;
-  max-width: 500px;
-  width: 90vw;
-  max-height: 90vh;
-  overflow-y: auto;
-  margin: 1rem auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
-  box-sizing: border-box;
+.carousel-settings {
+  max-width: 600px;
+  margin: 0 auto;
+  font-family: 'Poppins', sans-serif;
+  background: #f9f9f9;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
 }
 
-textarea,
-input {
-  width: 100%;
-  padding: 0.5rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  resize: vertical;
-  box-sizing: border-box;
-}
-
-.buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  justify-content: center;
-}
-
-button {
-  padding: 0.5rem 1rem;
-  border: none;
-  color: white;
-  background-color: #6a5acd;
-  border-radius: 6px;
-  cursor: pointer;
-  flex-grow: 1;
-  min-width: 120px;
+.titulo {
   text-align: center;
-  box-sizing: border-box;
-  transition: background-color 0.3s ease;
-}
-
-button:hover {
-  background-color: #5747c0;
-}
-
-button.danger {
-  background-color: #b22222;
-}
-
-button.danger:hover {
-  background-color: #7f2c2c;
-}
-
-.mensaje {
-  margin-top: 0.5rem;
-  font-weight: bold;
-  text-align: center;
+  margin-bottom: 2rem;
   color: #333;
 }
 
-/* Galería miniaturas */
-.preview-box {
-  margin-top: 1rem;
-}
-.preview-grid {
+.form-group {
+  margin-bottom: 1.4rem;
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  flex-direction: column;
+  gap: 0.5rem;
 }
-.preview-item {
-  position: relative;
-}
-.preview-item img {
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
+
+textarea,
+input[type="text"],
+input[type="datetime-local"] {
+  padding: 0.6rem;
+  border: 1px solid #ccc;
   border-radius: 8px;
-  border: 1px solid #ccc;
+  font-size: 1rem;
+  font-family: 'Poppins', sans-serif;
+  background: white;
+  color: #333;
+  resize: vertical;
+  box-sizing: border-box;
 }
-.preview-item button.remove {
+
+.custom-file-input {
+  position: relative;
+  display: inline-block;
+}
+
+.custom-file-input input[type="file"] {
   position: absolute;
-  top: -8px;
-  right: -8px;
-  background: #ff4444;
-  border: none;
-  color: white;
-  font-size: 0.8rem;
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
   cursor: pointer;
 }
 
-/* Responsivo */
-@media (max-width: 500px) {
-  .buttons {
-    flex-direction: column;
-    gap: 0.7rem;
-  }
-
-  button {
-    min-width: 100%;
-    flex-grow: 0;
-  }
-}
-.config-box {
-  background: #fafafa;
-  padding: 1rem;
-  border-radius: 10px;
-  max-width: 500px;
-  width: 90vw;
-  max-height: 90vh;
-  overflow-y: auto;
-  margin: 1rem auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
-  box-sizing: border-box;
-}
-
-textarea,
-input {
-  width: 100%;
-  padding: 0.5rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
+.custom-file-input label {
+  display: inline-block;
+  padding: 0.6rem 1.2rem;
+  background-color: #e0e0e0;
+  color: #333;
   border-radius: 6px;
-  resize: vertical;
-  box-sizing: border-box;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  transition: background-color 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.custom-file-input label:hover {
+  background-color: #d0d0d0;
+}
+
+.preview-box {
+  margin-top: 0.5rem;
+  text-align: center;
 }
 
 .buttons {
@@ -334,23 +288,24 @@ input {
   flex-wrap: wrap;
   gap: 1rem;
   justify-content: center;
+  margin-top: 2rem;
 }
 
 button {
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1.5rem;
   border: none;
   color: white;
-  background-color: #6a5acd;
-  border-radius: 6px;
+  background-color: #4a90e2;
+  border-radius: 8px;
+  font-size: 1rem;
   cursor: pointer;
-  flex-grow: 1;
-  min-width: 120px;
-  text-align: center;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.2s ease;
+  font-family: 'Poppins', sans-serif;
+  min-width: 130px;
 }
 
 button:hover {
-  background-color: #5747c0;
+  background-color: #357ac4;
 }
 
 button.danger {
@@ -358,11 +313,11 @@ button.danger {
 }
 
 button.danger:hover {
-  background-color: #7f2c2c;
+  background-color: #8b1a1a;
 }
 
 .mensaje {
-  margin-top: 0.5rem;
+  margin-top: 1rem;
   font-weight: bold;
   text-align: center;
   color: #333;
@@ -371,12 +326,12 @@ button.danger:hover {
 @media (max-width: 500px) {
   .buttons {
     flex-direction: column;
-    gap: 0.7rem;
+    gap: 0.8rem;
   }
 
   button {
-    min-width: 100%;
-    flex-grow: 0;
+    width: 100%;
   }
 }
 </style>
+

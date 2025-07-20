@@ -4,16 +4,24 @@
     <h2>🛠️ Configurar Cuenta Regresiva</h2>
 
     <label>Nombre:</label>
-    <input v-model="nombre" placeholder="Ej: Kiara" />
+    <input type="text" v-model="nombre" placeholder="Ej: Kiara" />
 
     <label>Título del evento (ej: 'MIS QUINCE'):</label>
-    <input v-model="titulo" placeholder="Ej: MIS QUINCE, NUESTRA BODA, etc." />
+    <input type="text" v-model="titulo" placeholder="Ej: MIS QUINCE, NUESTRA BODA, etc." />
 
     <label>Fecha y hora del evento:</label>
     <input type="datetime-local" v-model="fecha" />
 
     <label>Imagen de fondo:</label>
-    <input type="file" @change="onFileSelected" accept="image/*" />
+    <div class="custom-file-input">
+      <label for="fileUpload">📁 Seleccionar imagen</label>
+      <input
+        type="file"
+        id="fileUpload"
+        @change="onFileSelected"
+        accept="image/*"
+      />
+    </div>
     <small>O pegá una URL de imagen:</small>
     <input type="text" v-model="imagenFondo" placeholder="https://..." />
 
@@ -25,7 +33,6 @@
       <img :src="imagenFondo" />
     </div>
 
-    <!-- Cropper -->
     <ImageCropper
       v-if="mostrarCropper"
       :image="imagenTemporal"
@@ -35,7 +42,7 @@
 
     <div class="buttons">
       <button @click="guardarCambios">💾 Guardar</button>
-      <button @click="restablecerValores" class="danger">🗑️ Restablecer</button>
+      <button class="danger" @click="restablecerValores">♻️ Reestablecer</button>
     </div>
 
     <p v-if="mensaje" class="mensaje">{{ mensaje }}</p>
@@ -66,7 +73,6 @@ const subiendoImagen = ref(false)
 const errorImagen = ref('')
 const mensaje = ref('')
 
-// 🔄 Cargar datos del evento
 const cargarEvento = async () => {
   const eventoRef = doc(db, 'eventos', eventoId)
   const snap = await getDoc(eventoRef)
@@ -80,14 +86,12 @@ const cargarEvento = async () => {
 }
 cargarEvento()
 
-// ✅ Recibe el blob de imagen recortada
 const onImagenRecortada = async (blob: Blob) => {
   imagenSeleccionada.value = new File([blob], 'fondo_recortado.jpg', { type: 'image/jpeg' })
   mostrarCropper.value = false
   await guardarImagenFondo()
 }
 
-// 📤 Subir imagen recortada
 const guardarImagenFondo = async () => {
   if (!imagenSeleccionada.value) return
   subiendoImagen.value = true
@@ -108,7 +112,6 @@ const guardarImagenFondo = async () => {
   }
 }
 
-// 📁 Selección desde archivo
 const onFileSelected = (e: Event) => {
   const file = (e.target as HTMLInputElement).files?.[0]
   if (file) {
@@ -121,7 +124,6 @@ const onFileSelected = (e: Event) => {
   }
 }
 
-// 💾 Guardar todos los cambios (nombre, título, fecha e imagen)
 const guardarCambios = async () => {
   if (!nombre.value.trim()) {
     mensaje.value = '❗ El nombre no puede estar vacío.'
@@ -147,7 +149,6 @@ const guardarCambios = async () => {
   }
 }
 
-// 🔄 Restablecer valores a los valores guardados
 const restablecerValores = () => {
   if (evento.value) {
     nombre.value = evento.value?.nombreQuinceanera || ''
@@ -161,35 +162,68 @@ const restablecerValores = () => {
 
 <style scoped>
 .config-box {
-  background: #fafafa;
-  padding: 1rem;
-  border-radius: 10px;
-  max-width: 500px;
-  width: 90vw;
-  max-height: 90vh;
-  overflow-y: auto;
+  background: #fff;
+  padding: 2rem;
+  border-radius: 16px;
+  max-width: 600px;
+  width: 100%;
   margin: auto;
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
+  gap: 1.5rem;
   box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  color: #333;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
-input {
-  padding: 0.5rem;
+label {
+  font-weight: 500;
+  margin-bottom: 0.4rem;
+  display: block;
+  color: #444;
+}
+
+input[type="text"],
+input[type="datetime-local"],
+input[type="file"] {
+  padding: 0.75rem 1rem;
   font-size: 1rem;
   width: 100%;
   box-sizing: border-box;
   border: 1px solid #ccc;
-  border-radius: 6px;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  font-family: inherit;
+  transition: border 0.2s, background-color 0.2s;
+}
+
+input[type="text"]:focus,
+input[type="datetime-local"]:focus {
+  border-color: #999;
+  background-color: #fff;
+  outline: none;
+}
+
+input[type="file"] {
+  padding: 0.5rem 0.3rem;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+small {
+  font-size: 0.85rem;
+  color: #777;
 }
 
 .preview img {
   max-width: 100%;
   max-height: 300px;
   object-fit: contain;
-  border-radius: 6px;
+  border-radius: 8px;
   margin-top: 0.5rem;
+  border: 1px solid #e0e0e0;
 }
 
 .buttons {
@@ -197,24 +231,24 @@ input {
   flex-wrap: wrap;
   gap: 1rem;
   justify-content: center;
+  margin-top: 2rem;
 }
 
 button {
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1.5rem;
   border: none;
   color: white;
-  background-color: #6a5acd;
-  border-radius: 6px;
+  background-color: #4a90e2;
+  border-radius: 8px;
+  font-size: 1rem;
   cursor: pointer;
-  flex-grow: 1;
-  min-width: 120px;
-  text-align: center;
-  box-sizing: border-box;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.2s ease;
+  font-family: 'Poppins', sans-serif;
+  min-width: 130px;
 }
 
 button:hover {
-  background-color: #5747c0;
+  background-color: #357ac4;
 }
 
 button.danger {
@@ -222,35 +256,55 @@ button.danger {
 }
 
 button.danger:hover {
-  background-color: #7f2c2c;
+  background-color: #8b1a1a;
 }
 
 .mensaje {
-  margin-top: 0.5rem;
+  margin-top: 1rem;
   font-weight: bold;
   text-align: center;
   color: #333;
 }
 
-.danger {
-  color: red;
+.custom-file-input {
+  position: relative;
+  display: inline-block;
 }
 
-.preview img {
-  max-width: 100%;
-  margin-top: 0.5rem;
-  border-radius: 8px;
+.custom-file-input input[type="file"] {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.custom-file-input label {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background-color: #e0e0e0;
+  color: #333;
+  font-family: 'Poppins', sans-serif;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.custom-file-input label:hover {
+  background-color: #d0d0d0;
 }
 
 @media (max-width: 500px) {
   .buttons {
     flex-direction: column;
-    gap: 0.7rem;
+    gap: 0.8rem;
   }
 
   button {
-    min-width: 100%;
-    flex-grow: 0;
+    width: 100%;
   }
 }
 </style>

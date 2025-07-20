@@ -1,142 +1,172 @@
 <!-- components/fifteen/InformationSetting.vue -->
 <template>
-  <div class="config-section">
-    <h2 class="text-xl font-bold mb-4">📝 Configuración de Información</h2>
+  <section class="carousel-settings">
+    <h2 class="titulo">📝 Configuración de Información</h2>
 
     <!-- Texto invitación -->
     <div class="form-group">
-      <label class="block text-sm font-medium mb-1">Texto invitación:</label>
+      <label>Texto invitación:</label>
       <textarea
         v-model="config.textoInvitacion"
         rows="3"
-        class="input w-full"
         placeholder="El regalo es opcional,\nla asistencia es obligatoria"
       ></textarea>
     </div>
 
-<!-- Adorno superior -->
-<div class="form-group">
-  <label class="block text-sm font-medium mb-1">Adorno superior:</label>
-  <input type="file" accept="image/*" @change="handleImageUpload($event, 'adornoSuperior')" />
-  <input v-model="config.adornoSuperior" class="input w-full mt-2" placeholder="URL subida..." readonly />
-</div>
+    <!-- Adorno superior -->
+    <div class="form-group">
+      <label>Adorno superior:</label>
+      <div class="custom-file-input">
+        <label for="adornoSuperiorUpload">📁 Seleccionar imagen</label>
+        <input
+          id="adornoSuperiorUpload"
+          type="file"
+          accept="image/*"
+          @change="handleImageUpload($event, 'adornoSuperior')"
+        />
+      </div>
+      <div v-if="config.adornoSuperior" class="preview-box">
+        <img :src="config.adornoSuperior" alt="Adorno superior" width="120" />
+      </div>
+      <input
+        v-model="config.adornoSuperior"
+        type="text"
+        readonly
+        placeholder="URL subida..."
+        style="margin-top: 0.5rem;"
+      />
+    </div>
 
-<!-- Adorno inferior -->
-<div class="form-group">
-  <label class="block text-sm font-medium mb-1">Adorno inferior:</label>
-  <input type="file" accept="image/*" @change="handleImageUpload($event, 'adornoInferior')" />
-  <input v-model="config.adornoInferior" class="input w-full mt-2" placeholder="URL subida..." readonly />
-</div>
-
+    <!-- Adorno inferior -->
+    <div class="form-group">
+      <label>Adorno inferior:</label>
+      <div class="custom-file-input">
+        <label for="adornoInferiorUpload">📁 Seleccionar imagen</label>
+        <input
+          id="adornoInferiorUpload"
+          type="file"
+          accept="image/*"
+          @change="handleImageUpload($event, 'adornoInferior')"
+        />
+      </div>
+      <div v-if="config.adornoInferior" class="preview-box">
+        <img :src="config.adornoInferior" alt="Adorno inferior" width="120" />
+      </div>
+      <input
+        v-model="config.adornoInferior"
+        type="text"
+        readonly
+        placeholder="URL subida..."
+        style="margin-top: 0.5rem;"
+      />
+    </div>
 
     <!-- Tarjetas -->
     <div class="form-group">
-      <label class="block text-sm font-medium mb-2">Tarjetas:</label>
+      <label>Tarjetas:</label>
       <div
         v-for="(tarjeta, index) in config.tarjetas"
         :key="index"
-        class="modal-box border rounded p-4 mb-4"
+        class="card-box"
       >
-        <div class="flex justify-between items-center mb-2">
+        <div class="card-header">
           <h3 class="font-semibold">Tarjeta {{ index + 1 }}</h3>
-          <button class="text-red-500 text-sm" @click="removeTarjeta(index)">
-            Eliminar
-          </button>
-        </div>
-
-      <label class="block text-sm font-medium mb-1">Imagen frontal:</label>
-      <input
-        type="file"
-        accept="image/*"
-        class="input w-full mb-2"
-        @change="handleTarjetaImageUpload($event, index)"
-      />
-      <input
-        v-model="tarjeta.frontImage"
-        class="input w-full mb-2"
-        type="text"
-        readonly
-        placeholder="URL subida automáticamente"
-      />
-
-
-        <label class="block text-sm font-medium mb-1">Texto frontal:</label>
-        <input v-model="tarjeta.frontText" class="input w-full mb-2" type="text" />
-
-        <label class="block text-sm font-medium mb-1">Ícono frontal:</label>
-        <input
-          v-model="tarjeta.frontIcon"
-          class="input w-full mb-2"
-          type="text"
-          placeholder="music, cake, etc."
-        />
-
-        <label class="block text-sm font-medium mb-1">Tipo de contenido:</label>
-        <select
-          v-model="tarjeta.backContent.type"
-          class="input w-full mb-2"
-          @change="actualizarTarjetaPorTipo(index, tarjeta.backContent.type)"
-        >
-          <option value="price">Precio</option>
-          <option value="location">Ubicación</option>
-          <option value="music">Música</option>
-        </select>
-
-
-        <!-- BackContent dinámico -->
-        <div v-if="tarjeta.backContent.type === 'price'">
-          <div
-            v-for="(price, pIndex) in tarjeta.backContent.prices"
-            :key="pIndex"
-            class="pl-2 mb-2 flex items-center"
-          >
-            <input
-              v-model="price.description"
-              class="input mb-1 mr-2 w-1/2"
-              placeholder="Descripción"
-            />
-            <input v-model="price.amount" class="input w-1/2" placeholder="Monto" />
-            <button
-              class="text-red-500 text-xs ml-2"
-              @click="removePrice(index, pIndex)"
-              type="button"
-            >
-              Eliminar
+          <div>
+            <button class="toggle-btn" @click="toggleCard(index)">
+              {{ collapsedCards[index] ? '➕' : '➖' }}
             </button>
+            <button class="btn-danger text-sm" @click="removeTarjeta(index)">Eliminar</button>
           </div>
-          <button class="text-blue-600 text-sm" @click="addPrice(index)" type="button">
-            + Agregar precio
-          </button>
         </div>
 
-        <div v-if="tarjeta.backContent.type === 'location'" class="mt-2">
-          <label class="block text-sm font-medium mb-1">Dirección:</label>
-          <textarea
-            v-model="tarjeta.backContent.address"
-            class="input w-full mb-2"
-            rows="2"
-          ></textarea>
-          <label class="block text-sm font-medium mb-1">URL de Google Maps:</label>
-          <input v-model="tarjeta.backContent.googleMapsUrl" class="input w-full" />
-        </div>
+        <div v-if="!collapsedCards[index]">
+          <label>Imagen frontal:</label>
+          <div class="custom-file-input mb-2">
+            <label :for="'tarjetaFrontImageUpload' + index">📁 Seleccionar imagen</label>
+            <input
+              :id="'tarjetaFrontImageUpload' + index"
+              type="file"
+              accept="image/*"
+              @change="handleTarjetaImageUpload($event, index)"
+            />
+          </div>
+          <input
+            v-model="tarjeta.frontImage"
+            type="text"
+            readonly
+            placeholder="URL subida automáticamente"
+            class="mb-2"
+          />
 
-        <!-- No backContent editing needed for 'music' type -->
+          <label>Texto frontal:</label>
+          <input v-model="tarjeta.frontText" type="text" class="mb-2" />
+
+          <label>Icono frontal:</label>
+          <input
+            v-model="tarjeta.frontIcon"
+            type="text"
+            placeholder="music, cake, etc."
+            class="mb-2"
+          />
+
+          <label>Tipo de contenido:</label>
+          <select
+            v-model="tarjeta.backContent.type"
+            class="mb-2"
+            @change="actualizarTarjetaPorTipo(index, tarjeta.backContent.type)"
+          >
+            <option value="price">Precio</option>
+            <option value="location">Ubicación</option>
+            <option value="music">Música</option>
+          </select>
+
+          <!-- BackContent -->
+          <div v-if="tarjeta.backContent.type === 'price'">
+            <div
+              v-for="(price, pIndex) in tarjeta.backContent.prices"
+              :key="pIndex"
+              class="pl-2 mb-2 flex items-center"
+              style="gap: 0.5rem;"
+            >
+              <input
+                v-model="price.description"
+                placeholder="Descripción"
+                style="flex: 1;"
+              />
+              <input
+                v-model="price.amount"
+                placeholder="Monto"
+                style="flex: 1;"
+              />
+              <button
+                class="btn-danger text-xs"
+                @click="removePrice(index, pIndex)"
+                style="padding: 0.25rem 0.5rem;"
+              >
+                Eliminar
+              </button>
+            </div>
+            <button class="btn-link text-sm" @click="addPrice(index)">+ Agregar precio</button>
+          </div>
+
+          <div v-if="tarjeta.backContent.type === 'location'" class="mt-2">
+            <label>Dirección:</label>
+            <textarea v-model="tarjeta.backContent.address" rows="2"></textarea>
+            <label>URL de Google Maps:</label>
+            <input v-model="tarjeta.backContent.googleMapsUrl" type="text" />
+          </div>
+        </div>
       </div>
 
-      <button class="text-blue-600 text-sm" @click="addTarjeta" type="button">
-        + Agregar tarjeta
-      </button>
+      <button class="btn-link text-sm" @click="addTarjeta">+ Agregar tarjeta</button>
     </div>
-    
+
     <!-- Botones guardar/restablecer -->
     <div class="buttons mt-4">
-      <button @click="guardarCambios">💾 Guardar cambios</button>
+      <button @click="guardarCambios">💾 Guardar </button>
       <button class="danger" @click="restablecerCambios">♻️ Reestablecer</button>
     </div>
-
-
-  </div>
-  
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -169,6 +199,20 @@ watch(
   },
   { deep: true }
 )
+
+const collapsedCards = ref<boolean[]>(config.value.tarjetas.map(() => false))
+
+watch(
+  () => config.value.tarjetas.length,
+  () => {
+    collapsedCards.value = config.value.tarjetas.map(() => false)
+  },
+  { immediate: true }
+)
+
+function toggleCard(index: number) {
+  collapsedCards.value[index] = !collapsedCards.value[index]
+}
 
 function addTarjeta() {
   const defaultType = 'price'
@@ -311,246 +355,105 @@ async function handleTarjetaImageUpload(event: Event, index: number) {
     alert('Error subiendo imagen de tarjeta: ' + (err as Error).message)
   }
 }
-
-
 </script>
 
 <style scoped>
-.config-section {
-  background: #fafafa;
-  padding: 1rem;
-  border-radius: 10px;
-  max-width: 700px;
-  width: 90vw;
-  max-height: 90vh;
-  overflow-y: auto;
-  overflow-x: hidden; /* 👈 Evita desborde horizontal */
-  margin: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
-  box-sizing: border-box;
+.carousel-settings {
+  max-width: 600px;
+  margin: 0 auto;
+  font-family: 'Poppins', sans-serif;
+  background: #f9f9f9;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
 }
 
-label {
-  font-weight: 600;
-  margin-bottom: 0.3rem;
-  display: block;
-  font-size: 0.9rem;
-}
-
-.input {
-  padding: 0.5rem;
-  font-size: 1rem;
-  width: 100%;
-  box-sizing: border-box;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  max-width: 100%; /* 👈 Asegura que nunca se desborde */
-}
-
-textarea.input {
-  resize: vertical;
-  min-height: 60px;
-  max-width: 100%;
-}
-
-.modal-box {
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 1rem;
-  box-sizing: border-box;
-  overflow-x: hidden; /* 👈 Previene que el contenido interno desborde */
-}
-
-.buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  justify-content: flex-start;
-}
-
-button {
-  padding: 0.5rem 1rem;
-  border: none;
-  color: white;
-  background-color: #6a5acd;
-  border-radius: 6px;
-  cursor: pointer;
-  min-width: 120px;
+.titulo {
   text-align: center;
-  box-sizing: border-box;
-  transition: background-color 0.3s ease;
-  font-weight: 600;
-}
-
-button:hover {
-  background-color: #5747c0;
-}
-
-button.text-red-500 {
-  background: none;
-  color: #b22222;
-  padding: 0.2rem 0.5rem;
-  font-weight: 600;
-  border-radius: 4px;
-  min-width: auto;
-}
-
-button.text-red-500:hover {
-  background-color: #fddede;
-}
-
-button.text-blue-600 {
-  background: none;
-  color: #6a5acd;
-  padding: 0.3rem 0.6rem;
-  font-weight: 600;
-  border-radius: 4px;
-  min-width: auto;
-}
-
-button.text-blue-600:hover {
-  background-color: #e0d9fc;
+  margin-bottom: 2rem;
+  color: #333;
 }
 
 .form-group {
+  margin-bottom: 1.4rem;
   display: flex;
   flex-direction: column;
-  margin-bottom: 1rem;
-  max-width: 100%;
+  gap: 0.5rem;
 }
 
-.flex {
-  display: flex;
-}
-
-.justify-between {
-  justify-content: space-between;
-}
-
-.items-center {
-  align-items: center;
-}
-
-.mb-2 {
-  margin-bottom: 0.5rem;
-}
-
-.mb-1 {
-  margin-bottom: 0.25rem;
-}
-
-.pl-2 {
-  padding-left: 0.5rem;
-}
-
-.w-full {
-  width: 100%;
-  max-width: 100%;
-}
-
-.w-1\/2 {
-  width: 50%;
-}
-
-.text-sm {
-  font-size: 0.875rem;
-}
-
-.font-medium {
-  font-weight: 500;
-}
-
-.font-semibold {
-  font-weight: 600;
-}
-
-.text-red-500 {
-  color: #b22222;
-}
-
-.text-blue-600 {
-  color: #6a5acd;
-}
-
-/* Responsive mobile adjustments */
-@media (max-width: 500px) {
-  .config-section {
-    max-width: 100%;
-    width: 95vw;
-  }
-
-  .buttons {
-    flex-direction: column;
-    gap: 0.7rem;
-  }
-
-  button {
-    min-width: 100%;
-  }
-}
-.config-section {
-  background: #fafafa;
-  padding: 1rem;
-  border-radius: 10px;
-  max-width: 500px;
-  width: 90vw;
-  max-height: 90vh;
-  overflow-y: auto;
-  margin: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
-  box-sizing: border-box;
-}
-
-/* Aplicar estilo general a inputs y textarea */
-input,
 textarea,
-select {
-  padding: 0.5rem;
-  font-size: 1rem;
-  width: 100%;
-  box-sizing: border-box;
+input[type="text"],
+input[type="datetime-local"] {
+  padding: 0.6rem;
   border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: 'Poppins', sans-serif;
+  background: white;
+  color: #333;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.custom-file-input {
+  position: relative;
+  display: inline-block;
+}
+
+.custom-file-input input[type="file"] {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.custom-file-input label {
+  display: inline-block;
+  padding: 0.6rem 1.2rem;
+  background-color: #e0e0e0;
+  color: #333;
   border-radius: 6px;
-  background-color: white;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  transition: background-color 0.2s ease;
+  font-size: 0.9rem;
 }
 
-/* Estilos para las tarjetas individuales */
-.modal-box {
-  background: #ffffff;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+.custom-file-input label:hover {
+  background-color: #d0d0d0;
 }
 
-/* Botones dentro del form */
-/* Estilos unificados para botones principales */
+.preview-box {
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
 .buttons {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
   justify-content: center;
+  margin-top: 2rem;
 }
 
 button {
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1.5rem;
   border: none;
   color: white;
-  background-color: #6a5acd;
-  border-radius: 6px;
+  background-color: #4a90e2;
+  border-radius: 8px;
+  font-size: 1rem;
   cursor: pointer;
-  flex-grow: 1;
-  min-width: 120px;
-  text-align: center;
-  box-sizing: border-box;
-  transition: background-color 0.3s ease;
-  font-weight: 600;
+  transition: background-color 0.2s ease;
+  font-family: 'Poppins', sans-serif;
+  min-width: 130px;
 }
 
 button:hover {
-  background-color: #5747c0;
+  background-color: #357ac4;
 }
 
 button.danger {
@@ -558,28 +461,75 @@ button.danger {
 }
 
 button.danger:hover {
-  background-color: #7f2c2c;
+  background-color: #8b1a1a;
 }
 
-/* Responsive para móviles */
+.btn-danger {
+  background: none;
+  color: #b22222;
+  font-weight: 600;
+  border-radius: 4px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.btn-danger:hover {
+  background-color: #fddede;
+}
+
+.btn-link {
+  background: none;
+  color: #4a90e2;
+  font-weight: 600;
+  border-radius: 4px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.btn-link:hover {
+  background-color: #d7e4fc;
+}
+
+.card-box {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  margin-bottom: 1.5rem;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  margin-right: 0.5rem;
+  color: #4a90e2;
+  font-weight: 700;
+}
+
+.toggle-btn:hover {
+  color: #357ac4;
+}
+
 @media (max-width: 500px) {
   .buttons {
     flex-direction: column;
-    gap: 0.7rem;
+    gap: 0.8rem;
   }
 
   button {
-    min-width: 100%;
-    flex-grow: 0;
+    width: 100%;
   }
 }
-
-/* Responsivo para móviles */
-@media (max-width: 500px) {
-  .config-section {
-    padding: 0.8rem;
-    width: 95vw;
-  }
-}
-
 </style>

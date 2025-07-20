@@ -1,19 +1,26 @@
 <!-- components/fifteen/ConfirmSetting.vue -->
 <template>
   <div class="config-box">
+    <h2 class="text-xl font-bold text-gray-800">🎨 Configurar Fondo de Confirmación</h2>
 
-    <label>Mensaje de confirmación (opcional):</label>
-    <textarea v-model="mensajeConfirmacion" placeholder="Ej: Podés confirmar tu asistencia hasta el 05/08"></textarea>
+    <div class="form-group">
+      <label class="label">Mensaje de confirmación (opcional):</label>
+      <textarea v-model="mensajeConfirmacion" placeholder="Ej: Podés confirmar tu asistencia hasta el 05/08" class="form-textarea"></textarea>
+    </div>
 
-    <h2>🎨 Configurar Fondo de Confirmación</h2>
+    <div class="form-group">
+      <label class="label">URL de imagen de fondo:</label>
+      <input v-model="imagenFondo" placeholder="Pega una URL válida (Dropbox, Drive, etc)" class="form-input" />
+    </div>
 
-    <label>URL de imagen de fondo:</label>
-    <input v-model="imagenFondo" placeholder="Pega una URL válida (Dropbox, Drive, etc)" />
+    <div class="form-group">
+      <label class="label">O seleccioná una imagen desde tu dispositivo:</label>
+      <label class="custom-file-upload">
+        📁 Seleccionar imagen
+        <input type="file" @change="onFileSelected" accept="image/*" />
+      </label>
+    </div>
 
-    <label>O seleccioná una imagen desde tu dispositivo:</label>
-    <input type="file" @change="onFileSelected" accept="image/*" />
-
-    <!-- Cropper -->
     <ImageCropper
       v-if="mostrarCropper"
       :image="imagenTemporal"
@@ -22,19 +29,18 @@
     />
 
     <div v-if="imagenFondo" class="preview">
-      <p>Vista previa del fondo:</p>
+      <p class="text-sm text-gray-600 font-medium mb-2">Vista previa del fondo:</p>
       <img :src="imagenFondo" />
     </div>
 
     <div class="buttons">
-      <button @click="guardarCambios" :disabled="subiendo">💾 Guardar</button>
-      <button class="danger" @click="restablecerValores">🗑️ Restablecer</button>
+      <button @click="guardarCambios" :disabled="subiendo" class="btn btn-primary">💾 Guardar</button>
+      <button @click="restablecerValores" class="btn btn-danger">🗑️ Restablecer</button>
     </div>
 
     <p v-if="mensaje" class="mensaje">{{ mensaje }}</p>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
@@ -149,91 +155,137 @@ const restablecerValores = async () => {
 </script>
 
 <style scoped>
-textarea {
-  width: 100%;
-  height: 4rem;
-  margin-top: 0.25rem;
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-  border: none;
-  resize: vertical;
-}
-
 .config-box {
   background: #fff;
-  color: #333;
   padding: 2rem;
-  border-radius: 1rem;
+  border-radius: 16px;
   max-width: 600px;
-  margin: auto;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-label {
-  display: block;
-  margin-top: 1rem;
-}
-input[type="text"],
-input[type="file"] {
   width: 100%;
-  padding: 0.5rem;
-  margin-top: 0.25rem;
-  border-radius: 0.5rem;
-  border: none;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  color: #333;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
-.preview {
-  margin-top: 1rem;
+
+.label {
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 0.4rem;
+  display: block;
 }
+
+.form-input,
+.form-textarea {
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background-color: #f9f9f9;
+  font-family: inherit;
+  transition: all 0.3s ease;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  border-color: #6366f1;
+  background-color: #fff;
+  outline: none;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.custom-file-upload {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 1rem;
+  background-color: #f9f9f9;
+  color: #333;
+  border: 1px solid #d1d5db;
+  transition: background-color 0.3s ease;
+  font-family: inherit;
+}
+
+.custom-file-upload:hover {
+  background-color: #f3f4f6;
+}
+
+.custom-file-upload input[type="file"] {
+  display: none;
+}
+
 .preview img {
   max-width: 100%;
   max-height: 300px;
   object-fit: contain;
-  border-radius: 0.75rem;
+  border-radius: 8px;
   margin-top: 0.5rem;
+  border: 1px solid #e0e0e0;
 }
+
 .buttons {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
-  justify-content: center;
-  margin-top: 1.5rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
 }
-button {
-  padding: 0.5rem 1rem;
+
+.btn {
+  padding: 0.75rem 1.5rem;
   border: none;
-  color: white;
-  background-color: #6a5acd;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  flex-grow: 1;
-  min-width: 120px;
-  text-align: center;
-  box-sizing: border-box;
-  transition: background-color 0.3s ease;
   font-weight: 600;
+  font-family: inherit;
+  transition: background-color 0.3s ease;
 }
-button:hover {
-  background-color: #5747c0;
+
+.btn-primary {
+  color: #fff;
+  background-color: #6366f1;
 }
-button.danger {
-  background-color: #b22222;
+
+.btn-primary:hover {
+  background-color: #4f46e5;
 }
-button.danger:hover {
-  background-color: #7f2c2c;
+
+.btn-danger {
+  color: #fff;
+  background-color: #ef4444;
 }
-@media (max-width: 500px) {
+
+.btn-danger:hover {
+  background-color: #dc2626;
+}
+
+.mensaje {
+  margin-top: 0.5rem;
+  font-weight: bold;
+  text-align: center;
+  color: #444;
+}
+
+@media (max-width: 600px) {
   .buttons {
     flex-direction: column;
-    gap: 0.7rem;
+    align-items: stretch;
   }
-  button {
-    min-width: 100%;
-    flex-grow: 0;
+
+  .btn-primary,
+  .btn-danger {
+    width: 100%;
   }
-}
-.mensaje {
-  margin-top: 1rem;
-  font-style: italic;
-  color: #888;
-  font-size: 0.95rem;
 }
 </style>

@@ -61,7 +61,7 @@
                   <button :class="{ active: tabActual === 'countdown' }" @click="cambiarTab('countdown')">Cuenta Regresiva</button>
                   <button :class="{ active: tabActual === 'carousel' }" @click="cambiarTab('carousel')">Carrusel</button>
                   <button :class="{ active: tabActual === 'info' }" @click="cambiarTab('info')">Información</button>
-                  <button :class="{ active: tabActual === 'confirm' }" @click="cambiarTab('confirm')">Fondo Confirmación</button>
+                  <button :class="{ active: tabActual === 'confirm' }" @click="cambiarTab('confirm')">Confirmación</button>
                   <button :class="{ active: tabActual === 'trivia' }" @click="cambiarTab('trivia')">Preguntas Trivia</button>
                   <button :class="{ active: tabActual === 'galeria' }" @click="cambiarTab('galeria')">Galería</button>
                 </div>
@@ -75,20 +75,20 @@
               <button :class="{ active: tabActual === 'countdown' }" @click="cambiarTab('countdown')">Cuenta Regresiva</button>
               <button :class="{ active: tabActual === 'carousel' }" @click="cambiarTab('carousel')">Carrusel</button>
               <button :class="{ active: tabActual === 'info' }" @click="cambiarTab('info')">Información</button>
-              <button :class="{ active: tabActual === 'confirm' }" @click="cambiarTab('confirm')">Fondo Confirmación</button>
+              <button :class="{ active: tabActual === 'confirm' }" @click="cambiarTab('confirm')">Confirmación</button>
               <button :class="{ active: tabActual === 'trivia' }" @click="cambiarTab('trivia')">Preguntas Trivia</button>
               <button :class="{ active: tabActual === 'galeria' }" @click="cambiarTab('galeria')">Galería</button>
             </div>
           </div>
 
           <!-- Contenido según pestaña -->
-          <div v-if="tabActual === 'countdown'">
+          <div v-if="tabActual === 'countdown'" ref="refCountdown">
             <CountdownSetting :idEvento="eventoId" @actualizarEvento="actualizarEventoLocal" />
           </div>
-          <div v-else-if="tabActual === 'carousel'">
+          <div v-else-if="tabActual === 'carousel'" ref="refCarousel">
             <CarouselSetting :eventoId="eventoId" @actualizarEvento="actualizarEventoLocal" />
           </div>
-          <div v-else-if="tabActual === 'info'">
+          <div v-else-if="tabActual === 'info'" ref="refInfo">
             <InformationSetting
               :modelValue="evento.informacionInvitacion || {
                 adornoSuperior: '',
@@ -100,13 +100,13 @@
               :idEvento="eventoId"
             />
           </div>
-          <div v-else-if="tabActual === 'confirm'">
+          <div v-else-if="tabActual === 'confirm'" ref="refConfirm">
             <ConfirmBackgroundSetting :idEvento="eventoId" @actualizarEvento="actualizarEventoLocal" />
           </div>
-          <div v-else-if="tabActual === 'trivia'">
+          <div v-else-if="tabActual === 'trivia'" ref="refTrivia">
             <TriviaSetting :eventoId="eventoId" />
           </div>
-          <div v-else-if="tabActual === 'galeria'">
+          <div v-else-if="tabActual === 'galeria'" ref="refGaleria">
             <GallerySetting
               :eventoId="eventoId"
               :modelValue="evento.galeriaConfig || { activa: false, opciones: {} }"
@@ -114,6 +114,7 @@
               @actualizarEvento="actualizarEventoLocal"
             />
           </div>
+
 
           <!-- Botón Cerrar -->
           <button class="cerrar" @click="abrirModalConfiguracion = false">✖</button>
@@ -132,6 +133,7 @@ import {
   onUnmounted,
   computed,
   nextTick,
+  Ref, // 👈 Agregado aquí
 } from 'vue'
 import { useRoute } from 'vue-router'
 import { updateEvento } from '@/services/firestoreService'
@@ -162,7 +164,12 @@ const usuarioAutorizado = ref(false) // CORRECCIÓN: inicializa aquí
 const route = useRoute()
 const rutaEsPublica = computed(() => route.name === 'invitacion-slug')
 
-const detalleRef = ref<HTMLElement | null>(null)
+const refCountdown = ref<HTMLElement | null>(null)
+const refCarousel = ref<HTMLElement | null>(null)
+const refInfo = ref<HTMLElement | null>(null)
+const refConfirm = ref<HTMLElement | null>(null)
+const refTrivia = ref<HTMLElement | null>(null)
+const refGaleria = ref<HTMLElement | null>(null)
 
 const tabActual = ref<
   'countdown' | 'carousel' | 'info' | 'confirm' | 'trivia' | 'galeria'
@@ -356,16 +363,23 @@ function cambiarTab(tab: typeof tabActual.value) {
   tabActual.value = tab
   mostrarOpciones.value = false
 
-  // Esperamos el DOM para el nuevo formulario antes de hacer scroll
   nextTick(() => {
-    if (contenedorInvitacion.value) {
-      contenedorInvitacion.value.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      })
+    const refMap: Record<typeof tabActual.value, Ref<HTMLElement | null>> = {
+      countdown: refCountdown,
+      carousel: refCarousel,
+      info: refInfo,
+      confirm: refConfirm,
+      trivia: refTrivia,
+      galeria: refGaleria,
+    }
+
+    const target = refMap[tab]?.value
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
   })
 }
+
 </script>
 
 <style scoped>
