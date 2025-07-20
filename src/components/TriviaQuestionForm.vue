@@ -1,16 +1,22 @@
 <!-- src/components/TriviaQuestionForm.vue -->
 <template>
-  <div class="question-form">
-    <h2>Configuración de Preguntas de la Trivia</h2>
+  <div class="trivia-settings">
+    <h2 class="titulo">📝 Configuración de Preguntas de la Trivia</h2>
 
-    <label class="toggle-trivia">
-      <input type="checkbox" v-model="triviaActiva" />
-      Activar trivia para este evento
-    </label>
+    <div class="form-group toggle-trivia">
+      <label>
+        <input type="checkbox" v-model="triviaActiva" />
+        Activar trivia para este evento
+      </label>
+    </div>
 
     <template v-if="questions.length === 0">
       <p class="empty-message">Aún no se han cargado preguntas para este evento.</p>
-      <button @click="addQuestion" class="add-question">➕ Añadir primera pregunta</button>
+      <div class="buttons">
+        <button @click="addQuestion" class="btn add-question" type="button">
+          ➕ Añadir primera pregunta
+        </button>
+      </div>
     </template>
 
     <template v-else>
@@ -46,39 +52,46 @@
             Correcta
             <button
               @click="removeOption(index, i)"
-              class="remove"
+              class="btn remove"
               :disabled="question.options.length <= 4"
               title="Cada pregunta debe tener siempre 4 opciones"
+              type="button"
             >
               ❌
             </button>
           </div>
           <button
             @click="addOption(index)"
-            class="add"
+            class="btn add"
             :disabled="question.options.length >= 4"
             title="Cada pregunta debe tener siempre 4 opciones"
+            type="button"
           >
             ➕ Añadir opción
           </button>
         </div>
 
-        <button @click="removeQuestion(index)" class="remove-question">
+        <button @click="removeQuestion(index)" class="btn remove-question" type="button">
           Eliminar pregunta ❌
         </button>
         <hr />
       </div>
 
-      <button @click="addQuestion" class="add-question">➕ Añadir pregunta</button>
-    </template>
+      <div class="buttons">
+        <button @click="addQuestion" class="btn add-question" type="button">
+          ➕ Añadir pregunta
+        </button>
 
-    <button
-      v-if="questions.length > 0"
-      @click="saveQuestions"
-      class="save"
-    >
-      💾 Guardar preguntas
-    </button>
+        <button
+          v-if="questions.length > 0"
+          @click="saveQuestions"
+          class="btn save"
+          type="button"
+        >
+          💾 Guardar preguntas
+        </button>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -94,7 +107,6 @@ import {
   deleteDoc
 } from 'firebase/firestore'
 
-
 const props = defineProps({
   eventoId: { type: String, required: true }
 })
@@ -107,7 +119,6 @@ const eventoDocRef = doc(db, 'eventos', props.eventoId)
 
 onMounted(async () => {
   try {
-    // Cargar preguntas desde la subcolección
     const querySnapshot = await getDocs(questionsCollectionRef)
     const loadedQuestions = []
     querySnapshot.forEach((docSnap) => {
@@ -115,7 +126,6 @@ onMounted(async () => {
     })
     questions.value = loadedQuestions
 
-    // Cargar triviaActiva del documento del evento
     const eventoSnap = await getDoc(eventoDocRef)
     if (eventoSnap.exists()) {
       triviaActiva.value = eventoSnap.data().triviaActiva || false
@@ -168,13 +178,11 @@ async function saveQuestions() {
   }
 
   try {
-    // Eliminar preguntas existentes
     const existingDocs = await getDocs(questionsCollectionRef)
     for (const d of existingDocs.docs) {
       await deleteDoc(d.ref)
     }
 
-    // Guardar nuevas preguntas
     for (let i = 0; i < questions.value.length; i++) {
       const questionDocRef = doc(questionsCollectionRef)
       await setDoc(questionDocRef, {
@@ -183,7 +191,6 @@ async function saveQuestions() {
       })
     }
 
-    // Guardar el estado de triviaActiva dentro del evento
     await setDoc(eventoDocRef, {
       triviaActiva: triviaActiva.value
     }, { merge: true })
@@ -196,78 +203,170 @@ async function saveQuestions() {
 }
 </script>
 
-
 <style scoped>
-.question-form {
-  max-width: 800px;
-  margin: auto;
-  padding: 1rem;
-  background: #f8f8f8;
-  border-radius: 10px;
-  font-family: sans-serif;
+.trivia-settings {
+  max-width: 600px;
+  margin: 0 auto;
+  font-family: 'Poppins', sans-serif;
+  background: #f9f9f9;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
 }
-.question-block {
-  margin-bottom: 1.5rem;
-  background: white;
-  padding: 1rem;
-  border-radius: 8px;
+
+.titulo {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #333;
+  font-weight: 600;
 }
+
+.form-group {
+  margin-bottom: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.toggle-trivia label {
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1rem;
+}
+
+input[type='text'],
+input[type='checkbox'],
+textarea,
 .question-input,
 .option-input {
-  width: 100%;
   padding: 0.6rem;
-  margin-bottom: 0.5rem;
-  border-radius: 5px;
   border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: 'Poppins', sans-serif;
+  background: white;
+  color: #333;
+  box-sizing: border-box;
 }
+
+.question-input {
+  margin-bottom: 1rem;
+  width: 100%;
+}
+
+.option-input {
+  flex: 1;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
 .option-item {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
+
 .radio-correct {
   margin-left: 0.5rem;
-}
-button {
   cursor: pointer;
 }
-.add,
-.remove,
-.remove-question,
-.add-question,
-.save {
-  margin-top: 0.5rem;
-  padding: 0.4rem 0.8rem;
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 5px;
-  font-size: 0.9rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  width: 200px; /* ancho fijo */
+  color: white;
+  box-sizing: border-box;
+  white-space: nowrap;
 }
-.add,
-.add-question {
+
+
+.btn.add-question {
+  background-color: #4a90e2;
+}
+
+.btn.add-question:hover {
+  background-color: #357ac4;
+}
+
+.btn.add {
+  background-color: #4a90e2;
+}
+
+.btn.add:hover {
+  background-color: #357ac4;
+}
+
+.btn.remove,
+.btn.remove-question {
+  background-color: #b22222;
+}
+
+.btn.remove:hover,
+.btn.remove-question:hover {
+  background-color: #8b1a1a;
+}
+
+.btn.save {
   background-color: #4caf50;
-  color: white;
+  margin-top: 1.5rem;
 }
-.remove,
-.remove-question {
-  background-color: #f44336;
-  color: white;
+
+.btn.save:hover {
+  background-color: #388e3c;
 }
-.save {
-  background-color: #2196f3;
-  color: white;
-  margin-top: 1rem;
-}
+
 .empty-message {
   text-align: center;
   margin: 1rem 0;
   font-style: italic;
   color: #666;
 }
-.toggle-trivia {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: bold;
+
+hr {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin-top: 1rem;
   margin-bottom: 1rem;
 }
+
+.buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+@media (max-width: 500px) {
+  .btn {
+    width: 100%;
+  }
+
+  .option-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .buttons {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+}
+
 </style>
