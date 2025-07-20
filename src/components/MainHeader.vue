@@ -212,6 +212,39 @@ const handleLogout = async () => {
   }
 }
 
+/* Modo oscuro para MainHeader */
+.dark-mode .header {
+  background-color: #1e1e2f;
+  color: #f5f5f5;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+}
+
+.dark-mode .nav {
+  background-color: #2e3b4e;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7);
+}
+
+.dark-mode .nav a {
+  color: #d6caa5;
+}
+
+.dark-mode .nav a:hover {
+  color: #b98b4e;
+}
+
+.dark-mode .logout-btn {
+  border-color: #9a733b;
+  color: #f0e6d2;
+}
+
+.dark-mode .logout-btn:hover {
+  background-color: #b98b4e;
+  color: #f0e6d2;
+}
+
+.dark-mode .menu-toggle {
+  color: #f0e6d2;
+}
 
 </style>
 

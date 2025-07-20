@@ -549,5 +549,112 @@ const irAGaleriaInteractiva = () => {
     white-space: normal;       /* permite salto de línea */
   }
 }
+/* Modo oscuro */
+@media (prefers-color-scheme: dark) {
+  .evento-detalle {
+    background: linear-gradient(to bottom right, #1e1e2f, #2c3e50);
+    color: #f5f5f5;
+  }
+
+  .form-edicion {
+    background: #2e3b4e;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.7);
+  }
+
+  .form-edicion label {
+    color: #d6caa5;
+  }
+
+  .form-edicion input {
+    background: #455a75;
+    border: 1px solid #9a733b;
+    color: #f0e6d2;
+  }
+
+  .form-edicion input::placeholder {
+    color: #b9a86d;
+  }
+
+  .accion-button.guardar {
+    background-color: #9a733b;
+    color: #f0e6d2;
+  }
+
+  .accion-button.guardar:hover {
+    background-color: #b98b4e;
+  }
+
+  .acciones-grid {
+  background: transparent;
+  }
+
+  .accion-card {
+    background-color: #2e3b4e;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
+    color: #d6caa5;
+  }
+
+  .accion-card.danger-card {
+    background-color: #4d1a1a;
+    color: #f9d4d4;
+  }
+
+  .accion-card h2 {
+    color: #e1c27d;
+  }
+
+  .accion-button {
+    background-color: #9a733b;
+    color: #f0e6d2;
+  }
+
+  .accion-button:hover {
+    background-color: #b98b4e;
+  }
+
+  .accion-button.secondary {
+    background-color: #455a75;
+    color: #cfcfcf;
+  }
+
+  .accion-button.secondary:hover {
+    background-color: #566d8c;
+  }
+
+  .accion-button.danger {
+    background-color: #b71c1c;
+  }
+
+  .accion-button.danger:hover {
+    background-color: #d32f2f;
+  }
+
+  .accion-button.router {
+    background-color: #9a733b;
+    color: #f0e6d2;
+  }
+
+  .accion-button.router:hover {
+    background-color: #b98b4e;
+  }
+
+  .qr-boton {
+    background-color: #9a733b;
+    color: #f0e6d2;
+  }
+
+  .qr-boton:hover {
+    background-color: #b98b4e;
+  }
+
+  .descargar-button {
+    background-color: #9a733b;
+    color: #f0e6d2;
+  }
+
+  .descargar-button:hover {
+    background-color: #b98b4e;
+  }
+}
 
 </style>
