@@ -60,17 +60,21 @@ h1 {
 
 input {
   width: 100%;
+  box-sizing: border-box;
   padding: 0.8rem;
   margin: 0.5rem 0;
   border: 1px solid #ccc;
   border-radius: 10px;
   font-size: 1rem;
   background-color: #fdf8f3;
+  color: #2c3e50;
+  animation: fadeInUp 0.8s ease forwards;
   opacity: 0;
   transform: translateY(20px);
-  animation: fadeInUp 0.8s ease forwards;
+  animation-delay: 0.3s;
   animation-fill-mode: forwards;
 }
+
 
 input:nth-of-type(1) {
   animation-delay: 0.3s;
@@ -148,5 +152,42 @@ button:disabled {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+@media (prefers-color-scheme: dark) {
+  h1 {
+  color: #f1f5f9;
+}
 
+  .auth-container {
+    background: #1e293b;
+    color: #f1f5f9;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.25);
+  }
+
+  input {
+    background-color: #334155;
+    border-color: #475569;
+    color: #f1f5f9;
+  }
+
+  input::placeholder {
+    color: #cbd5e1;
+  }
+
+  button {
+    background-color: #b98b4e;
+    color: white;
+  }
+
+  button:hover {
+    background-color: #9a733b;
+  }
+
+  .alt-link a {
+    color: #facc15;
+  }
+
+  .error {
+    color: #f87171;
+  }
+}
 </style>

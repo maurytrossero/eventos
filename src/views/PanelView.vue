@@ -147,7 +147,21 @@ const logout = async () => {
   font-size: 1.1rem;
   color: #555;
 }
+h1 {
+  font-size: 2rem;
+  word-break: break-word;
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+}
+@media (max-width: 600px) {
+  h1 {
+    font-size: 1.3rem;
+  }
 
+  h2 {
+    font-size: 1rem;
+  }
+}
 /* Animaciones */
 @keyframes fadeIn {
   from { opacity: 0; }

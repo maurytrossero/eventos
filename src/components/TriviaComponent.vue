@@ -320,53 +320,77 @@ function getOptionClass(option) {
   color: white;
   font-family: 'Baloo', sans-serif;
   padding: 1rem;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
+
 .start-screen, .game-screen, .end-screen {
   text-align: center;
-  width: 90%;
+  width: 100%;
   max-width: 600px;
+  box-sizing: border-box;
+  padding: 0 1rem;
 }
+
 .name-input {
   padding: 15px;
   border-radius: 10px;
   border: none;
   font-size: 18px;
   text-align: center;
-  width: calc(100% - 30px);
-  margin-top: 10px;
+  width: 100%;
+  max-width: 400px;
+  margin: 10px auto;
+  box-sizing: border-box;
 }
+
 .start-button, .option-button, .restart-button {
   background: #ffd700;
   color: black;
-  padding: 10px 15px;
+  padding: 12px 20px;
   border-radius: 15px;
   cursor: pointer;
   font-size: 18px;
   border: none;
   width: 100%;
-  margin-top: 10px;
+  max-width: 400px;
+  margin: 10px auto;
+  box-sizing: border-box;
 }
+
 .options {
   list-style: none;
   padding: 0;
+  margin-top: 1rem;
+  width: 100%;
 }
+
 .option-item {
   margin: 10px 0;
+  display: flex;
+  justify-content: center;
 }
+
 .option-button {
   background: white;
   color: black;
   font-size: 20px;
   border-radius: 15px;
+  padding: 12px 20px;
+  width: 100%;
+  max-width: 400px;
 }
+
 .correct-answer {
   background-color: green !important;
   color: white;
 }
+
 .incorrect-answer {
   background-color: red !important;
   color: white;
 }
+
 .feedback-text {
   font-size: 24px;
   font-weight: bold;
@@ -377,14 +401,19 @@ function getOptionClass(option) {
   color: white;
   animation: popUp 0.5s ease;
 }
+
 @keyframes popUp {
   0% { transform: scale(0); opacity: 0; }
   50% { transform: scale(1.2); opacity: 1; }
   100% { transform: scale(1); opacity: 1; }
 }
+
 .warning-text {
   color: #b22222;
   font-weight: bold;
-  margin-bottom: 1rem;
+  margin: 1rem auto;
+  max-width: 400px;
+  text-align: center;
 }
 </style>
+
