@@ -116,9 +116,9 @@ import {
 /* Banner */
 .header-banner {
   display: flex;
-  flex-direction: column;  /* vertical */
-  align-items: center;     /* centrado horizontal */
-  gap: 0.8rem;             /* separación entre logo y slogan */
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
   margin-bottom: 2rem;
 }
 
@@ -127,7 +127,6 @@ import {
   height: auto;
 }
 
-  
 .slogan {
   font-size: 1.5rem;
   color: #b98b4e;
@@ -248,37 +247,6 @@ a:hover {
 .fade-in-up {
   animation-name: fadeInUp;
 }
-.dark-mode .about-container {
-  background-color: #1e1e2f;
-  color: #f5f5f5;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
-}
-
-.dark-mode h1,
-.dark-mode h2 {
-  color: #cfcaa5;
-}
-
-.dark-mode .slogan {
-  color: #b98b4e;
-}
-
-.dark-mode a {
-  color: #b98b4e;
-}
-
-.dark-mode a:hover {
-  color: #8a6239;
-}
-
-.dark-mode li {
-  color: #dcdcdc;
-}
-
-.dark-mode .top-icon {
-  color: #b98b4e;
-}
-
 
 @keyframes fadeIn {
   to {
@@ -286,12 +254,61 @@ a:hover {
     transform: none;
   }
 }
+
 @keyframes fadeInDown {
-  0% { opacity: 0; transform: translateY(-20px); }
-  100% { opacity: 1; transform: none; }
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
 }
+
 @keyframes fadeInUp {
-  0% { opacity: 0; transform: translateY(20px); }
-  100% { opacity: 1; transform: none; }
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 🌙 Modo oscuro automático */
+@media (prefers-color-scheme: dark) {
+  .about-container {
+    background-color: #1e1e2f;
+    color: #f5f5f5;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  }
+
+  h1,
+  h2 {
+    color: #cfcaa5;
+  }
+
+  .slogan {
+    color: #b98b4e;
+  }
+
+  a {
+    color: #b98b4e;
+  }
+
+  a:hover {
+    color: #8a6239;
+  }
+
+  li {
+    color: #dcdcdc;
+  }
+
+  .top-icon {
+    color: #b98b4e;
+  }
 }
 </style>
+

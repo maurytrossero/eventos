@@ -184,4 +184,57 @@ h1 {
   0%, 100% { box-shadow: 0 0 6px #b98b4e; }
   50% { box-shadow: 0 0 15px #b98b4e; }
 }
+@media (prefers-color-scheme: dark) {
+  .account {
+    background: #2e3b4e;
+    color: #f0f0f0;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+  }
+
+  h1 {
+    color: #d4a755;
+  }
+
+  h2 {
+    color: #f0e6c0;
+  }
+
+  .btn {
+    background: #406d9e;
+    color: white;
+  }
+
+  .btn:hover {
+    background: #2b4e78;
+  }
+
+  .btn-highlight {
+    background: #d4a755;
+    color: #1f2d3d;
+  }
+
+  .btn-highlight:hover {
+    background: #b98b4e;
+  }
+
+  .btn-disabled {
+    background: #888;
+    color: #ccc;
+  }
+
+  .logout-btn {
+    background-color: #d4a755;
+    color: #1f2d3d;
+  }
+
+  .logout-btn:hover {
+    background-color: #b98b4e;
+  }
+
+  .user-info p,
+  .plan-info p {
+    color: #d6d6d6;
+  }
+}
+
 </style>

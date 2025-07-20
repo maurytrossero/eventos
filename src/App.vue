@@ -19,22 +19,25 @@ const mostrarHeader = computed(() => {
 </script>
 
 
-<style scoped>
+<style>
+body,
 #app {
+  margin: 0;
+  padding: 0;
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin: 0;
-  padding: 0;
-}
-</style>
-
-<style>
-body {
-  margin: 0;
-  padding: 0;
   background-color: #f0f2f5;
+}
+
+/* Modo oscuro */
+@media (prefers-color-scheme: dark) {
+  body,
+  #app {
+    background-color: #1e1e2f;
+    color: #f5f5f5;
+  }
 }
 </style>

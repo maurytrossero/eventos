@@ -41,31 +41,36 @@
 .pricing-view {
   max-width: 900px;
   margin: 3rem auto;
-  padding: 2rem;
-  text-align: center;
+  padding: 2rem 3rem;
   font-family: 'Poppins', sans-serif;
-  animation: fadeIn 0.8s ease;
+  text-align: center;
+  color: #1f2d3d;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
 }
 
+/* Títulos */
 .pricing-view h1 {
   font-size: 2.5rem;
-  color: #2c4a77;
+  color: #406d9e;
+  margin-bottom: 1rem;
   animation: fadeInDown 0.7s ease;
 }
 
 .pricing-view p {
   font-size: 1.2rem;
-  color: #555;
-  margin-top: 0.5rem;
+  color: #34495e;
+  margin-bottom: 2rem;
   animation: fadeIn 1s ease;
 }
 
+/* Planes */
 .plans {
   display: flex;
   flex-wrap: wrap;
   gap: 2rem;
   justify-content: center;
-  margin-top: 2rem;
 }
 
 .plan {
@@ -101,6 +106,7 @@
   color: #34495e;
 }
 
+/* Botones */
 .btn {
   display: inline-block;
   margin-top: 1rem;
@@ -144,16 +150,29 @@
   animation: fadeInUp 0.8s ease;
 }
 
-/* Dark mode */
+/* 🌙 Modo oscuro automático */
 @media (prefers-color-scheme: dark) {
   .pricing-view {
     background-color: #1e1e2f;
-    color: #f0f0f0;
+    color: #f5f5f5;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  }
+
+  .pricing-view h1 {
+    color: #cfcaa5;
+  }
+
+  .pricing-view p {
+    color: #dcdcdc;
   }
 
   .plan {
     background-color: #2e3b4e;
     box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
+  }
+
+  .plan h2 {
+    color: #e0e0e0;
   }
 
   .plan ul {
@@ -177,3 +196,4 @@
   }
 }
 </style>
+

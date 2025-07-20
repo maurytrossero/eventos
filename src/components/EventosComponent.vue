@@ -1,6 +1,6 @@
 <template>
   <div class="eventos-contenedor">
-    <h1>Gestión de Eventos</h1>
+    <h1>Crear un nuevo evento</h1>
 
     <!-- Mostrar el formulario solo si el usuario está logueado -->
     <form v-if="auth.isLoggedIn" @submit.prevent="crearEvento" class="evento-formulario">
@@ -113,96 +113,185 @@ onMounted(() => {
 
 <style scoped>
 .eventos-contenedor {
-  max-width: 100%; /* Occupy full width */
-  min-height: 100vh; /* Ensure it occupies full height */
+  max-width: 800px;
   margin: 0 auto;
-  padding: 20px;
-  text-align: center;
-  font-family: 'Arial', sans-serif; /* Use a pleasant font */
-  color: #333; /* Text color for better readability */
-  background-color: #f8f9fa; /* Light background for contrast */
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  padding: 2rem;
+  font-family: 'Poppins', sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 h1 {
-  font-size: 2.5em; /* Increase main title size */
-  color: #2c3e50; /* Darker color for title */
+  font-size: 2.2rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: #2c3e50;
 }
 
 h2 {
-  font-size: 2em; /* Increase subtitle size */
-  color: #34495e; /* Slightly lighter color for subtitle */
+  font-size: 1.6rem;
+  margin-top: 2rem;
+  text-align: center;
+  color: #34495e;
 }
 
 .link-eventos {
-  color: #2980b9; /* Link color */
-  text-decoration: none; /* Remove underline from links */
-  transition: color 0.3s ease; /* Smooth color transition */
+  color: #3498db;
+  text-decoration: none;
+  font-weight: bold;
 }
 
 .link-eventos:hover {
-  color: #3498db; /* Lighter color on hover */
-  text-decoration: underline; /* Underline on hover */
+  text-decoration: underline;
+  color: #2980b9;
 }
 
 .evento-formulario {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-bottom: 20px;
-  width: 60%; /* Set fixed width for form */
-  margin: 20px auto; /* Center form with margin */
-  padding: 15px; /* Padding inside the form */
-  border: 2px solid #ccc; /* Increase border width */
-  border-radius: 8px; /* Rounded corners for elegance */
-  background-color: #ffffff; /* White background for form */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Slight shadow for form */
+  gap: 1rem;
+  background-color: #ffffff;
+  padding: 1.5rem;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+  transition: background-color 0.3s ease;
 }
 
 .evento-formulario input,
 .evento-formulario button {
-  padding: 10px;
+  padding: 0.75rem;
+  border-radius: 8px;
   font-size: 1rem;
+  font-family: 'Poppins', sans-serif;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  box-sizing: border-box;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .evento-formulario button {
-  background-color: #007bff;
+  background-color: #4a90e2;
   color: white;
+  font-weight: bold;
   cursor: pointer;
 }
 
 .evento-formulario button:hover {
-  background-color: #0056b3;
+  background-color: #357ac4;
 }
 
 .sugerir-cancion {
-  margin: 20px 0;
+  margin-top: 2rem;
+  background-color: #fff;
+  padding: 1.5rem;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.sugerir-cancion input {
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.sugerir-cancion button {
+  background-color: #4caf50;
+  color: white;
+  font-weight: bold;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.sugerir-cancion button:hover {
+  background-color: #388e3c;
 }
 
 .canciones-lista {
   list-style-type: none;
   padding: 0;
+  margin-top: 1rem;
 }
 
 .cancion-item {
-  padding: 8px;
+  padding: 0.5rem;
   border-bottom: 1px solid #ccc;
+  font-size: 0.95rem;
+  color: #444;
 }
 
-/* Responsive styles */
-@media (max-width: 768px) {
+/* Modo oscuro */
+@media (prefers-color-scheme: dark) {
+  .eventos-contenedor {
+    background-color: #1e1e1e;
+    color: #f0f0f0;
+  }
+
+  h1, h2 {
+    color: #ffffff;
+  }
+
+  .link-eventos {
+    color: #85c1ff;
+  }
+
+  .evento-formulario,
+  .sugerir-cancion {
+    background-color: #2b2b2b;
+    border-color: #444;
+  }
+
+  .evento-formulario input,
+  .sugerir-cancion input {
+    background-color: #3a3a3a;
+    color: #f0f0f0;
+    border-color: #555;
+  }
+
+  .evento-formulario button,
+  .sugerir-cancion button {
+    background-color: #007bff;
+  }
+
+  .evento-formulario button:hover {
+    background-color: #0056b3;
+  }
+
+  .sugerir-cancion button:hover {
+    background-color: #2e7d32;
+  }
+
+  .cancion-item {
+    border-color: #555;
+    color: #ddd;
+  }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .evento-formulario {
+    padding: 1rem;
+  }
+
+  .sugerir-cancion {
+    padding: 1rem;
+  }
+
   h1 {
-    font-size: 2em; /* Adjust size for smaller screens */
+    font-size: 1.8rem;
   }
 
   h2 {
-    font-size: 1.5em; /* Adjust size for smaller screens */
-  }
-
-  .evento-formulario {
-    width: 80%; /* Adjust form width for smaller screens */
+    font-size: 1.3rem;
   }
 }
 </style>

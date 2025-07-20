@@ -58,7 +58,7 @@ const handleLogout = async () => {
 <style scoped>
 .header {
   background-color: #f0eae5;
-  padding: 0.4rem 0;
+  padding: 0.4rem 1.5rem;
   color: #2c4a77;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
@@ -66,7 +66,6 @@ const handleLogout = async () => {
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -80,16 +79,16 @@ const handleLogout = async () => {
   transition: height 0.3s ease;
 }
 
-/* Menú hamburguesa solo en mobile */
+/* Botón hamburguesa (solo mobile) */
 .menu-toggle {
   display: none;
   background: none;
   border: none;
   cursor: pointer;
-  color: #2c4a77;
+  color: inherit;
 }
 
-/* NAV */
+/* Menú */
 .nav {
   display: flex;
   align-items: center;
@@ -109,7 +108,7 @@ const handleLogout = async () => {
   color: #b98b4e;
 }
 
-/* USER INFO */
+/* Usuario logueado */
 .user-card {
   display: flex;
   align-items: center;
@@ -138,27 +137,28 @@ const handleLogout = async () => {
   color: white;
 }
 
+/* Responsive */
 @media (max-width: 768px) {
-    .menu-toggle {
+  .menu-toggle {
     display: block;
   }
+
   .nav {
     position: absolute;
     top: 100%;
-    left: 0.5rem;             /* margen izquierdo */
-    right: 1.5rem;            /* margen derecho mayor */
-    max-width: calc(100vw - 2rem); /* ancho máximo acorde a márgenes */
+    left: 1.5rem;
+    right: 1.5rem;
     background: #f0eae5;
     flex-direction: column;
     align-items: flex-start;
-    padding: 0.7rem 1rem;
+    padding: 0.8rem 1rem;
     gap: 0.6rem;
     transform: translateY(-15px);
     opacity: 0;
     pointer-events: none;
     border-bottom: 1px solid #ddd;
-    border-radius: 8px;       /* bordes redondeados */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* sombra sutil */
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     z-index: 99;
   }
 
@@ -168,83 +168,55 @@ const handleLogout = async () => {
     pointer-events: auto;
   }
 
+  .user-card {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-left: 0;
+    gap: 0.3rem;
+  }
+
+  .logout-btn {
+    width: 100%;
+    font-size: 0.85rem;
+    padding: 0.3rem 0.6rem;
+  }
+}
+
+/* Modo oscuro automático */
+@media (prefers-color-scheme: dark) {
+  .header {
+    background-color: #2a2a34;
+    color: #f5f5f5;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+  }
+
+  .nav {
+    background-color: #2a2a34;
+  }
+
   .nav a {
-    font-size: 0.9rem;
-    padding: 0.25rem 0;
-    color: #2c4a77;
-    font-weight: 600;
-    text-decoration: none;
-    transition: color 0.3s ease;
+    color: #e6dec9;
   }
 
   .nav a:hover {
     color: #b98b4e;
   }
 
-  .user-card {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.2rem;
-    margin-left: 0;
-  }
-
-  .user-email {
-    font-size: 0.85rem;
-    opacity: 0.9;
-  }
-
   .logout-btn {
-    width: 100%;
-    padding: 0.3rem 0.6rem;
-    font-size: 0.85rem;
-    background-color: transparent;
-    border: 1.5px solid #2c4a77;
-    color: #2c4a77;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
+    border-color: #e6dec9;
+    color: #e6dec9;
   }
 
   .logout-btn:hover {
     background-color: #b98b4e;
     color: white;
   }
-}
 
-/* Modo oscuro para MainHeader */
-.dark-mode .header {
-  background-color: #1e1e2f;
-  color: #f5f5f5;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+  .menu-toggle {
+    color: #f5f5f5;
+  }
 }
-
-.dark-mode .nav {
-  background-color: #2e3b4e;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7);
-}
-
-.dark-mode .nav a {
-  color: #d6caa5;
-}
-
-.dark-mode .nav a:hover {
-  color: #b98b4e;
-}
-
-.dark-mode .logout-btn {
-  border-color: #9a733b;
-  color: #f0e6d2;
-}
-
-.dark-mode .logout-btn:hover {
-  background-color: #b98b4e;
-  color: #f0e6d2;
-}
-
-.dark-mode .menu-toggle {
-  color: #f0e6d2;
-}
-
 </style>
+
+
 
