@@ -178,6 +178,9 @@ h1 {
 
 /* Modo oscuro */
 @media (prefers-color-scheme: dark) {
+  h1 {
+    color: #f1f5f9;
+  }
   .lista-eventos {
     background: linear-gradient(to bottom right, #1e1e2f, #2c3e50);
     color: #f0f0f0;
