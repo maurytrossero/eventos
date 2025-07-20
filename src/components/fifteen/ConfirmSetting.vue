@@ -1,24 +1,32 @@
 <!-- components/fifteen/ConfirmSetting.vue -->
 <template>
-  <div class="config-box">
-    <h2 class="text-xl font-bold text-gray-800">🎨 Configurar Fondo de Confirmación</h2>
+  <div class="carousel-settings">
+    <h2 class="titulo">🎨 Configurar Fondo de Confirmación</h2>
 
     <div class="form-group">
-      <label class="label">Mensaje de confirmación (opcional):</label>
-      <textarea v-model="mensajeConfirmacion" placeholder="Ej: Podés confirmar tu asistencia hasta el 05/08" class="form-textarea"></textarea>
+      <label>Mensaje de confirmación (opcional):</label>
+      <textarea
+        v-model="mensajeConfirmacion"
+        placeholder="Ej: Podés confirmar tu asistencia hasta el 05/08"
+        rows="3"
+      />
     </div>
 
     <div class="form-group">
-      <label class="label">URL de imagen de fondo:</label>
-      <input v-model="imagenFondo" placeholder="Pega una URL válida (Dropbox, Drive, etc)" class="form-input" />
+      <label>URL de imagen de fondo:</label>
+      <input
+        v-model="imagenFondo"
+        placeholder="Pega una URL válida (Dropbox, Drive, etc)"
+        type="text"
+      />
     </div>
 
     <div class="form-group">
-      <label class="label">O seleccioná una imagen desde tu dispositivo:</label>
-      <label class="custom-file-upload">
-        📁 Seleccionar imagen
-        <input type="file" @change="onFileSelected" accept="image/*" />
-      </label>
+      <label>O seleccioná una imagen desde tu dispositivo:</label>
+      <div class="custom-file-input">
+        <label for="fileUpload">📁 Seleccionar imagen</label>
+        <input id="fileUpload" type="file" @change="onFileSelected" accept="image/*" />
+      </div>
     </div>
 
     <ImageCropper
@@ -28,19 +36,21 @@
       @cancel="mostrarCropper = false"
     />
 
-    <div v-if="imagenFondo" class="preview">
+    <div v-if="imagenFondo" class="preview-box">
       <p class="text-sm text-gray-600 font-medium mb-2">Vista previa del fondo:</p>
-      <img :src="imagenFondo" />
+      <img :src="imagenFondo" alt="Fondo de confirmación" />
     </div>
 
     <div class="buttons">
-      <button @click="guardarCambios" :disabled="subiendo" class="btn btn-primary">💾 Guardar</button>
-      <button @click="restablecerValores" class="btn btn-danger">🗑️ Restablecer</button>
+      <button @click="guardarCambios" :disabled="subiendo">💾 Guardar</button>
+      <button class="danger" @click="restablecerValores">♻️ Reestablecer</button>
     </div>
 
     <p v-if="mensaje" class="mensaje">{{ mensaje }}</p>
   </div>
 </template>
+
+
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
@@ -155,82 +165,84 @@ const restablecerValores = async () => {
 </script>
 
 <style scoped>
-.config-box {
-  background: #fff;
-  padding: 2rem;
-  border-radius: 16px;
+.carousel-settings {
   max-width: 600px;
-  width: 100%;
-  margin: auto;
+  margin: 0 auto;
+  font-family: 'Poppins', sans-serif;
+  background: #f9f9f9;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+}
+
+.titulo {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 1.4rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  box-sizing: border-box;
+  gap: 0.5rem;
+}
+
+textarea,
+input[type="text"],
+input[type="datetime-local"] {
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
   font-family: 'Poppins', sans-serif;
-  font-size: 16px;
+  background: white;
   color: #333;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-}
-
-.label {
-  font-weight: 500;
-  color: #333;
-  margin-bottom: 0.4rem;
-  display: block;
-}
-
-.form-input,
-.form-textarea {
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
-  width: 100%;
-  border-radius: 8px;
-  border: 1px solid #d1d5db;
-  background-color: #f9f9f9;
-  font-family: inherit;
-  transition: all 0.3s ease;
-}
-
-.form-input:focus,
-.form-textarea:focus {
-  border-color: #6366f1;
-  background-color: #fff;
-  outline: none;
-}
-
-textarea {
   resize: vertical;
-  min-height: 100px;
+  box-sizing: border-box;
 }
 
-.custom-file-upload {
+.custom-file-input {
+  position: relative;
   display: inline-block;
-  padding: 0.75rem 1.5rem;
+}
+
+.custom-file-input input[type="file"] {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
   cursor: pointer;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 1rem;
-  background-color: #f9f9f9;
+}
+
+.custom-file-input label {
+  display: inline-block;
+  padding: 0.6rem 1.2rem;
+  background-color: #e0e0e0;
   color: #333;
-  border: 1px solid #d1d5db;
-  transition: background-color 0.3s ease;
-  font-family: inherit;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  transition: background-color 0.2s ease;
+  font-size: 0.9rem;
 }
 
-.custom-file-upload:hover {
-  background-color: #f3f4f6;
+.custom-file-input label:hover {
+  background-color: #d0d0d0;
 }
 
-.custom-file-upload input[type="file"] {
-  display: none;
+.preview-box {
+  margin-top: 0.5rem;
+  text-align: center;
 }
 
-.preview img {
+.preview-box img {
   max-width: 100%;
   max-height: 300px;
   object-fit: contain;
   border-radius: 8px;
-  margin-top: 0.5rem;
   border: 1px solid #e0e0e0;
 }
 
@@ -238,53 +250,54 @@ textarea {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
-  justify-content: flex-end;
-  margin-top: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
 }
 
-.btn {
+button {
   padding: 0.75rem 1.5rem;
   border: none;
+  color: white;
+  background-color: #4a90e2;
   border-radius: 8px;
+  font-size: 1rem;
   cursor: pointer;
-  font-weight: 600;
-  font-family: inherit;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.2s ease;
+  font-family: 'Poppins', sans-serif;
+  min-width: 130px;
 }
 
-.btn-primary {
-  color: #fff;
-  background-color: #6366f1;
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-.btn-primary:hover {
-  background-color: #4f46e5;
+button:hover:enabled {
+  background-color: #357ac4;
 }
 
-.btn-danger {
-  color: #fff;
-  background-color: #ef4444;
+button.danger {
+  background-color: #b22222;
 }
 
-.btn-danger:hover {
-  background-color: #dc2626;
+button.danger:hover {
+  background-color: #8b1a1a;
 }
 
 .mensaje {
-  margin-top: 0.5rem;
+  margin-top: 1rem;
   font-weight: bold;
   text-align: center;
-  color: #444;
+  color: #333;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 500px) {
   .buttons {
     flex-direction: column;
-    align-items: stretch;
+    gap: 0.8rem;
   }
 
-  .btn-primary,
-  .btn-danger {
+  button {
     width: 100%;
   }
 }

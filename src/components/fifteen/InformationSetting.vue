@@ -10,6 +10,7 @@
         v-model="config.textoInvitacion"
         rows="3"
         placeholder="El regalo es opcional,\nla asistencia es obligatoria"
+        class="form-textarea"
       ></textarea>
     </div>
 
@@ -18,6 +19,7 @@
       <label>Adorno superior:</label>
       <div class="custom-file-input">
         <label for="adornoSuperiorUpload">📁 Seleccionar imagen</label>
+        <br>
         <input
           id="adornoSuperiorUpload"
           type="file"
@@ -34,6 +36,7 @@
         readonly
         placeholder="URL subida..."
         style="margin-top: 0.5rem;"
+        class="form-input"
       />
     </div>
 
@@ -58,108 +61,110 @@
         readonly
         placeholder="URL subida..."
         style="margin-top: 0.5rem;"
+        class="form-input"
       />
     </div>
 
-    <!-- Tarjetas -->
-    <div class="form-group">
-      <label>Tarjetas:</label>
-      <div
-        v-for="(tarjeta, index) in config.tarjetas"
-        :key="index"
-        class="card-box"
-      >
-        <div class="card-header">
-          <h3 class="font-semibold">Tarjeta {{ index + 1 }}</h3>
-          <div>
-            <button class="toggle-btn" @click="toggleCard(index)">
-              {{ collapsedCards[index] ? '➕' : '➖' }}
-            </button>
-            <button class="btn-danger text-sm" @click="removeTarjeta(index)">Eliminar</button>
-          </div>
-        </div>
-
-        <div v-if="!collapsedCards[index]">
-          <label>Imagen frontal:</label>
-          <div class="custom-file-input mb-2">
-            <label :for="'tarjetaFrontImageUpload' + index">📁 Seleccionar imagen</label>
-            <input
-              :id="'tarjetaFrontImageUpload' + index"
-              type="file"
-              accept="image/*"
-              @change="handleTarjetaImageUpload($event, index)"
-            />
-          </div>
-          <input
-            v-model="tarjeta.frontImage"
-            type="text"
-            readonly
-            placeholder="URL subida automáticamente"
-            class="mb-2"
-          />
-
-          <label>Texto frontal:</label>
-          <input v-model="tarjeta.frontText" type="text" class="mb-2" />
-
-          <label>Icono frontal:</label>
-          <input
-            v-model="tarjeta.frontIcon"
-            type="text"
-            placeholder="music, cake, etc."
-            class="mb-2"
-          />
-
-          <label>Tipo de contenido:</label>
-          <select
-            v-model="tarjeta.backContent.type"
-            class="mb-2"
-            @change="actualizarTarjetaPorTipo(index, tarjeta.backContent.type)"
-          >
-            <option value="price">Precio</option>
-            <option value="location">Ubicación</option>
-            <option value="music">Música</option>
-          </select>
-
-          <!-- BackContent -->
-          <div v-if="tarjeta.backContent.type === 'price'">
-            <div
-              v-for="(price, pIndex) in tarjeta.backContent.prices"
-              :key="pIndex"
-              class="pl-2 mb-2 flex items-center"
-              style="gap: 0.5rem;"
-            >
-              <input
-                v-model="price.description"
-                placeholder="Descripción"
-                style="flex: 1;"
-              />
-              <input
-                v-model="price.amount"
-                placeholder="Monto"
-                style="flex: 1;"
-              />
-              <button
-                class="btn-danger text-xs"
-                @click="removePrice(index, pIndex)"
-                style="padding: 0.25rem 0.5rem;"
-              >
-                Eliminar
-              </button>
-            </div>
-            <button class="btn-link text-sm" @click="addPrice(index)">+ Agregar precio</button>
-          </div>
-
-          <div v-if="tarjeta.backContent.type === 'location'" class="mt-2">
-            <label>Dirección:</label>
-            <textarea v-model="tarjeta.backContent.address" rows="2"></textarea>
-            <label>URL de Google Maps:</label>
-            <input v-model="tarjeta.backContent.googleMapsUrl" type="text" />
-          </div>
-        </div>
+<!-- Tarjetas -->
+<div class="form-group">
+  <label>Tarjetas:</label>
+  <div
+    v-for="(tarjeta, index) in config.tarjetas"
+    :key="index"
+    class="card-box"
+  >
+    <div class="card-header">
+      <h3 class="font-semibold">Tarjeta {{ index + 1 }}</h3>
+      <div>
+        <button class="toggle-btn" @click="toggleCard(index)">
+          {{ collapsedCards[index] ? '➕' : '➖' }}
+        </button>
+        <button class="btn-danger text-sm" @click="removeTarjeta(index)">Eliminar</button>
       </div>
-
-      <button class="btn-link text-sm" @click="addTarjeta">+ Agregar tarjeta</button>
     </div>
+
+    <div v-if="!collapsedCards[index]">
+      <label>Imagen frontal:</label>
+      <div class="custom-file-input mb-2">
+        <label :for="'tarjetaFrontImageUpload' + index">📁 Seleccionar imagen</label>
+        <input
+          :id="'tarjetaFrontImageUpload' + index"
+          type="file"
+          accept="image/*"
+          @change="handleTarjetaImageUpload($event, index)"
+        />
+      </div>
+      <label>URL imagen frontal:</label>
+      <input
+        v-model="tarjeta.frontImage"
+        type="text"
+        readonly
+        placeholder="URL subida automáticamente"
+        class="form-input mb-2"
+      />
+
+      <label>Texto frontal:</label>
+      <input v-model="tarjeta.frontText" type="text" class="form-input mb-2" />
+
+      <label>Icono frontal:</label>
+      <input
+        v-model="tarjeta.frontIcon"
+        type="text"
+        placeholder="music, cake, etc."
+        class="form-input mb-2"
+      />
+
+      <label>Tipo de contenido:</label>
+      <select
+        v-model="tarjeta.backContent.type"
+        class="form-input mb-2"
+        @change="actualizarTarjetaPorTipo(index, tarjeta.backContent.type)"
+      >
+        <option value="price">Precio</option>
+        <option value="location">Ubicación</option>
+        <option value="music">Música</option>
+      </select>
+
+      <!-- BackContent -->
+<div v-if="tarjeta.backContent.type === 'price'">
+  <label>Precios:</label>
+  <div
+    v-for="(price, pIndex) in tarjeta.backContent.prices"
+    :key="pIndex"
+    class="price-row"
+  >
+    <input
+      v-model="price.description"
+      placeholder="Descripción"
+      class="form-input"
+    />
+    <input
+      v-model="price.amount"
+      placeholder="Monto"
+      class="form-input"
+    />
+    <button
+      class="btn-danger"
+      @click="removePrice(index, pIndex)"
+      title="Eliminar precio"
+    >
+      Eliminar
+    </button>
+  </div>
+  <button class="btn-link" @click="addPrice(index)">+ Agregar precio</button>
+</div>
+
+
+      <div v-if="tarjeta.backContent.type === 'location'" class="mt-2">
+        <label>Dirección:</label>
+        <textarea v-model="tarjeta.backContent.address" rows="2" class="form-textarea mb-2"></textarea>
+        <label>URL de Google Maps:</label>
+        <input v-model="tarjeta.backContent.googleMapsUrl" type="text" class="form-input" />
+      </div>
+    </div>
+  </div>
+</div>
+
 
     <!-- Botones guardar/restablecer -->
     <div class="buttons mt-4">
@@ -381,9 +386,18 @@ async function handleTarjetaImageUpload(event: Event, index: number) {
   gap: 0.5rem;
 }
 
-textarea,
-input[type="text"],
-input[type="datetime-local"] {
+.form-input {
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: 'Poppins', sans-serif;
+  background: white;
+  color: #333;
+  box-sizing: border-box;
+}
+
+.form-textarea {
   padding: 0.6rem;
   border: 1px solid #ccc;
   border-radius: 8px;
@@ -532,4 +546,96 @@ button.danger:hover {
     width: 100%;
   }
 }
+/* Cada campo label + input o textarea en bloque vertical */
+.form-group > label,
+.card-box label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+  color: #222;
+}
+
+/* Inputs, selects, textarea con ancho completo */
+.form-input,
+.form-textarea,
+select {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  box-sizing: border-box;
+  margin-bottom: 1rem;
+  font-family: 'Poppins', sans-serif;
+  color: #333;
+  resize: vertical;
+}
+
+/* Contenedor fila para inputs y botón eliminar en precios */
+.price-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.price-row input {
+  flex: 1;
+  margin-bottom: 0; /* para evitar doble margin */
+}
+
+/* Botón eliminar en precio más pequeño, alineado */
+.price-row button.btn-danger {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+/* Para el grupo de precios agregar botón */
+.btn-link {
+  margin-top: -0.5rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  font-weight: 600;
+  color: #3b82f6;
+  background: none;
+  border: none;
+}
+
+/* Opcional: mejorar botón de eliminar tarjeta y toggle */
+.card-header button {
+  margin-left: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.card-header .btn-danger {
+  color: #b22222;
+  background: none;
+  border: none;
+}
+
+.card-header .btn-danger:hover {
+  color: #8b1a1a;
+}
+
+/* Ajustes para file input */
+.custom-file-input label {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background-color: #e0e0e0;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.custom-file-input input[type="file"] {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
 </style>
