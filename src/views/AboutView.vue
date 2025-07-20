@@ -257,6 +257,50 @@ a:hover {
 .fade-in-up {
   animation-name: fadeInUp;
 }
+@media (prefers-color-scheme: dark) {
+  .about-container {
+    background-color: #2e3b4e;
+    color: #d6caa5;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
+  }
+
+  h1 {
+    color: #b98b4e;
+  }
+
+  h2 {
+    color: #d4a755;
+  }
+
+  .slogan {
+    color: #d4a755;
+  }
+
+  .top-icon {
+    color: #d4a755;
+  }
+
+  .intro p,
+  li {
+    color: #d6caa5;
+  }
+
+  ul {
+    max-width: 480px;
+  }
+
+  a {
+    color: #b98b4e;
+  }
+
+  a:hover {
+    color: #8a6239;
+  }
+
+  .image-row img {
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.8);
+  }
+}
 
 @keyframes fadeIn {
   to {

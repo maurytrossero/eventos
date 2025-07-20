@@ -1,4 +1,4 @@
-// views/HomeView.vue (actualizado)
+//views/HomeView.vue (actualizado)
 <template>
   <div class="home">
     <h1>Bienvenido a Eventizate</h1>

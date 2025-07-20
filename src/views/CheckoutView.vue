@@ -129,6 +129,8 @@ const confirmarCompra = async () => {
 
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
 [v-cloak] { display: none; }
 
 .checkout {
@@ -140,6 +142,7 @@ const confirmarCompra = async () => {
   padding: 2rem;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  color: #1f2d3d;
 }
 
 .fade-in-down {
@@ -166,6 +169,7 @@ h1 {
   padding: 1rem;
   border-radius: 10px;
   border: 1px solid #e1d5c4;
+  color: #34495e;
 }
 
 .plan-detalle h3 {
@@ -186,6 +190,8 @@ select {
   border-radius: 8px;
   border: 1px solid #ccc;
   font-size: 1rem;
+  color: #1f2d3d;
+  background: white;
 }
 
 .error-msg {
@@ -225,6 +231,7 @@ select {
   font-weight: 600;
 }
 
+/* Animaciones */
 @keyframes fadeInDown {
   from { opacity: 0; transform: translateY(-20px); }
   to { opacity: 1; transform: translateY(0); }
@@ -234,4 +241,60 @@ select {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  .checkout {
+    background-color: #2e3b4e;
+    color: #f5f5f5;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  }
+
+  h1 {
+    color: #b98b4e;
+  }
+
+  .plan-detalle {
+    background-color: #1e2637;
+    border-color: #b98b4e;
+    color: #d6caa5;
+  }
+
+  .plan-detalle h3 {
+    color: #b98b4e;
+  }
+
+  select {
+    background-color: #1e2637;
+    border-color: #444;
+    color: #d6caa5;
+  }
+
+  .error-msg {
+    color: #f28b82;
+  }
+
+  .confirmar-btn {
+    background-color: #9a733b;
+    color: #f0e6d2;
+  }
+
+  .confirmar-btn[disabled] {
+    background-color: #b3a86e;
+  }
+
+  .confirmar-btn:hover:not([disabled]) {
+    background-color: #b98b4e;
+  }
+
+  .checkout-empty .btn {
+    background-color: #406d9e;
+    color: #f0f0f0;
+  }
+
+  .checkout-empty .btn:hover {
+    background-color: #2b4e78;
+  }
+}
+
 </style>

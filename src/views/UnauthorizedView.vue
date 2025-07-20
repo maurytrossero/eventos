@@ -49,4 +49,31 @@
 .boton-volver:hover {
   background-color: #0056b3;
 }
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  .unauthorized-contenedor {
+    background-color: #1e1e2f;
+    border-color: #444;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+  }
+
+  .titulo {
+    color: #e57373; /* rojo más claro para fondo oscuro */
+  }
+
+  .mensaje {
+    color: #ccc;
+  }
+
+  .boton-volver {
+    background-color: #406d9e;
+    color: #f0f0f0;
+  }
+
+  .boton-volver:hover {
+    background-color: #2b4e78;
+  }
+}
 </style>
+

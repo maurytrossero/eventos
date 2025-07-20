@@ -248,6 +248,37 @@ a:hover {
 .fade-in-up {
   animation-name: fadeInUp;
 }
+.dark-mode .about-container {
+  background-color: #1e1e2f;
+  color: #f5f5f5;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode h1,
+.dark-mode h2 {
+  color: #cfcaa5;
+}
+
+.dark-mode .slogan {
+  color: #b98b4e;
+}
+
+.dark-mode a {
+  color: #b98b4e;
+}
+
+.dark-mode a:hover {
+  color: #8a6239;
+}
+
+.dark-mode li {
+  color: #dcdcdc;
+}
+
+.dark-mode .top-icon {
+  color: #b98b4e;
+}
+
 
 @keyframes fadeIn {
   to {
