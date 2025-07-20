@@ -7,7 +7,7 @@
         <LogoEventizate />
       </router-link>
 
-      <!-- Botón hamburguesa solo en mobile -->
+      <!-- Botón hamburguesa (mobile) -->
       <button class="menu-toggle" @click="toggleMenu">
         <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" viewBox="0 0 24 24">
           <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -22,6 +22,7 @@
         <router-link v-if="auth.user" to="/ayuda">Ayuda</router-link>
         <router-link v-if="!auth.user" to="/login">Iniciar sesión</router-link>
         <router-link v-if="!auth.user" to="/register">Registrarse</router-link>
+
         <template v-if="auth.user">
           <router-link to="/panel">Panel</router-link>
           <router-link to="/cuenta">Cuenta</router-link>
@@ -36,24 +37,32 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
-import { useRouter } from 'vue-router'
 import LogoEventizate from '@/components/LogoEventizate.vue'
 
 const auth = useAuthStore()
 const router = useRouter()
+const route = useRoute()
+
 const isMenuOpen = ref(false)
 
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value
 }
 
+// Cierra el menú al cambiar de ruta
+watch(() => route.fullPath, () => {
+  isMenuOpen.value = false
+})
+
 const handleLogout = async () => {
   await auth.logout()
   router.push('/login')
 }
 </script>
+
 
 <style scoped>
 .header {
