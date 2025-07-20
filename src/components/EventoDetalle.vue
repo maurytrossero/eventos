@@ -27,16 +27,17 @@
         />
         <small style="color: #666; font-weight: 400;">
           Usá letras, números y guiones. La invitación se podrá acceder en:<br />
-          <strong>
-            <a
-              :href="urlInvitacion"
-              target="_blank"
-              rel="noopener"
-              style="color: #007bff;"
-            >
-              {{ urlInvitacion }}
-            </a>
-          </strong>
+        <strong>
+          <a
+            :href="urlInvitacion"
+            target="_blank"
+            rel="noopener"
+            style="color: #007bff;"
+          >
+            {{ urlInvitacion }}
+          </a>
+        </strong>
+
         </small>
         <!-- QR Invitación -->
         <div class="qr-container" ref="qrWrapperInvitacion">
@@ -533,4 +534,20 @@ const irAGaleriaInteractiva = () => {
 .qr-boton:hover {
   background-color: #125aa0;
 }
+@media (max-width: 768px) {
+  /* Contenedor para que no desborde */
+  .form-edicion small {
+    overflow-wrap: break-word; /* fuerza quiebre de palabra larga */
+    word-break: break-word;    /* quiebra en palabras largas */
+  }
+
+  .form-edicion small a {
+    display: inline-block;     /* para respetar ancho máximo */
+    max-width: 100%;           /* no superar ancho contenedor */
+    overflow-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;       /* permite salto de línea */
+  }
+}
+
 </style>
