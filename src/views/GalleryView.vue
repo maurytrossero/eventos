@@ -248,4 +248,25 @@ onUnmounted(() => {
     bottom: 0.5rem;
   }
 }
+@media (prefers-color-scheme: dark) {
+  .gallery-view {
+    background-color: #1e1e1e;
+    color: #f5f5f5;
+  }
+
+  .section {
+    background-color: transparent;
+    color: inherit;
+  }
+
+  .nav-btn {
+    background-color: rgba(250, 250, 250, 0.15);
+    color: #fff;
+  }
+
+  .nav-btn:hover:not(:disabled) {
+    background-color: rgba(250, 250, 250, 0.35);
+  }
+}
+
 </style>

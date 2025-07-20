@@ -99,4 +99,32 @@ h1 {
 .gallery-item button:hover {
   background-color: #c0392b;
 }
+@media (prefers-color-scheme: dark) {
+  .moderation-gallery {
+    background-color: #1e1e1e;
+    color: #f5f5f5;
+  }
+
+  h1 {
+    color: #f3d1a2;
+  }
+
+  .gallery-item {
+    background: #2b2b2b;
+    box-shadow: 0 0 10px rgba(185, 139, 78, 0.25);
+  }
+
+  .gallery-item p {
+    color: #ddd;
+  }
+
+  .gallery-item button {
+    background-color: #c0392b;
+  }
+
+  .gallery-item button:hover {
+    background-color: #a93226;
+  }
+}
+
 </style>

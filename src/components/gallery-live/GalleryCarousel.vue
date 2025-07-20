@@ -441,4 +441,66 @@ function toggleAutoplay() {
   z-index: 10;
   pointer-events: auto;
 }
+@media (prefers-color-scheme: dark) {
+  .carousel-background {
+    background-color: #1a1a1a;
+    color: #f5f5f5;
+  }
+
+  .gallery-swiper {
+    background: #2a2a2a;
+    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+  }
+
+  .message {
+    color: #f0f0f0;
+  }
+
+  .config-panel {
+    background-color: #2c2c2c;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+  }
+
+  .config-group {
+    color: #ddd;
+  }
+
+  .config-group input,
+  .config-group select {
+    background-color: #1e1e1e;
+    border: 1px solid #444;
+    color: #fff;
+  }
+
+  .config-group button {
+    background-color: #b98b4e;
+    color: white;
+  }
+
+  .config-group button:hover {
+    background-color: #9a733b;
+  }
+
+  .fullscreen-message-container {
+    background-color: rgba(20, 20, 20, 0.85);
+  }
+
+  .fullscreen-message {
+    color: #eee;
+  }
+
+  .swiper-button-next,
+  .swiper-button-prev {
+    color: #f5f5f5;
+  }
+
+  .swiper-pagination-bullet {
+    background-color: #f5f5f5;
+  }
+
+  .swiper-pagination-bullet-active {
+    background-color: #b98b4e;
+  }
+}
+
 </style>

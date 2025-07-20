@@ -278,5 +278,61 @@ async function handleUpload() {
     font-size: 1rem;
   }
 }
+@media (prefers-color-scheme: dark) {
+  .page-background {
+    background-color: #1a1a1a;
+  }
+
+  .upload-gallery {
+    background-color: #2a2a2a;
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.05);
+  }
+
+  .title {
+    color: #e0c48a;
+  }
+
+  .custom-btn {
+    background-color: #3a3a3a;
+    border-color: #e0c48a;
+    color: #e0c48a;
+  }
+
+  .custom-btn:hover {
+    background-color: #4a4a4a;
+  }
+
+  .textarea {
+    background-color: #1f1f1f;
+    color: #f0f0f0;
+    border-color: #e0c48a;
+  }
+
+  .textarea:focus {
+    border-color: #e0c48a;
+    box-shadow: 0 0 6px #e0c48a88;
+  }
+
+  .btn-submit {
+    background-color: #e0c48a;
+    color: #1a1a1a;
+  }
+
+  .btn-submit:hover:not(:disabled) {
+    background-color: #c0a56a;
+  }
+
+  .filename {
+    color: #ccc;
+  }
+
+  .msg-success {
+    color: #6dd36d;
+  }
+
+  .msg-error {
+    color: #ff6a6a;
+  }
+}
 
 </style>
