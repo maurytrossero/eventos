@@ -140,4 +140,38 @@ function guardarTitulo() {
   color: #777;
   margin-top: 1rem;
 }
+@media (prefers-color-scheme: dark) {
+  .gallery-setting {
+    background: #1e1e1e;
+    color: #f0f0f0;
+  }
+
+  .toggle-gallery {
+    color: #f0f0f0;
+  }
+
+  .gallery-title-label {
+    color: #e0e0e0;
+  }
+
+  .gallery-title-label input {
+    background-color: #2b2b2b;
+    color: #f0f0f0;
+    border-color: #6b4f2e;
+  }
+
+  .gallery-title-label input:focus {
+    border-color: #9a733b;
+    box-shadow: 0 0 5px #9a733baa;
+  }
+
+  .info-text {
+    color: #aaaaaa;
+  }
+
+  .toggle-gallery input[type='checkbox'] {
+    accent-color: #81c784;
+  }
+}
+
 </style>

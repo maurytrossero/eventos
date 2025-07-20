@@ -636,4 +636,64 @@ function cambiarTab(tab: typeof tabActual.value) {
       font-size: 1rem;
     }
   }
+  @media (prefers-color-scheme: dark) {
+  .modal-content {
+    background-color: #1e1e1e;
+    color: #eeeeee;
+  }
+
+  .tabs-responsive {
+    background-color: #1e1e1e;
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+  }
+
+  .tabs button {
+    background-color: #2c2c2c;
+    color: #ddd;
+  }
+
+  .tabs button.active {
+    background-color: #1976d2;
+    color: white;
+  }
+
+  .collapse-toggle {
+    background-color: #2c2c2c;
+    color: #ddd;
+  }
+
+  .cerrar {
+    background-color: #333;
+    color: #ddd;
+  }
+
+  .accion {
+    background-color: #333;
+    color: #ddd;
+  }
+
+  .accion.editar {
+    color: #64b5f6;
+  }
+
+  .accion.eliminar {
+    color: #e57373;
+  }
+
+  /* Formularios internos (inputs, etc.) */
+  input,
+  textarea,
+  select {
+    background-color: #2c2c2c;
+    color: #eee;
+    border: 1px solid #555;
+  }
+
+  input:focus,
+  textarea:focus {
+    border-color: #1976d2;
+    box-shadow: 0 0 4px #1976d2aa;
+  }
+}
+
 </style>

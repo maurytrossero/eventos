@@ -301,4 +301,55 @@ button.danger:hover {
     width: 100%;
   }
 }
+@media (prefers-color-scheme: dark) {
+  .carousel-settings {
+    background: #1e1e1e;
+    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.05);
+  }
+
+  .titulo,
+  .mensaje,
+  label,
+  p,
+  textarea,
+  input[type="text"] {
+    color: #f1f1f1;
+  }
+
+  textarea,
+  input[type="text"] {
+    background: #2a2a2a;
+    border: 1px solid #555;
+  }
+
+  .custom-file-input label {
+    background-color: #333;
+    color: #eee;
+  }
+
+  .custom-file-input label:hover {
+    background-color: #444;
+  }
+
+  .preview-box img {
+    border: 1px solid #444;
+  }
+
+  button {
+    background-color: #3a8ddb;
+  }
+
+  button:hover:enabled {
+    background-color: #2f76b6;
+  }
+
+  button.danger {
+    background-color: #b22222;
+  }
+
+  button.danger:hover {
+    background-color: #8b1a1a;
+  }
+}
+
 </style>

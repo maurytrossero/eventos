@@ -307,4 +307,67 @@ button.danger:hover {
     width: 100%;
   }
 }
+@media (prefers-color-scheme: dark) {
+  .config-box {
+    background: #1e1e1e;
+    color: #f1f1f1;
+    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.04);
+  }
+
+  label {
+    color: #ccc;
+  }
+
+  input[type="text"],
+  input[type="datetime-local"],
+  input[type="file"] {
+    background-color: #2a2a2a;
+    border: 1px solid #555;
+    color: #eee;
+  }
+
+  input[type="text"]:focus,
+  input[type="datetime-local"]:focus {
+    background-color: #1a1a1a;
+    border-color: #777;
+  }
+
+  .custom-file-input label {
+    background-color: #444;
+    color: #eee;
+  }
+
+  .custom-file-input label:hover {
+    background-color: #555;
+  }
+
+  .preview img {
+    border: 1px solid #555;
+  }
+
+  .mensaje {
+    color: #ccc;
+  }
+
+  small {
+    color: #aaa;
+  }
+
+  button {
+    background-color: #3a8ddb;
+  }
+
+  button:hover {
+    background-color: #2f76b6;
+  }
+
+  button.danger {
+    background-color: #a52828;
+  }
+
+  button.danger:hover {
+    background-color: #821c1c;
+  }
+}
+
 </style>

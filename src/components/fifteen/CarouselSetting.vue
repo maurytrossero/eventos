@@ -333,5 +333,55 @@ button.danger:hover {
     width: 100%;
   }
 }
+@media (prefers-color-scheme: dark) {
+  .carousel-settings {
+    background: #1e1e1e;
+    color: #f0f0f0;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .titulo {
+    color: #f0f0f0;
+  }
+
+  textarea,
+  input[type="text"],
+  input[type="datetime-local"] {
+    background: #2a2a2a;
+    border: 1px solid #555;
+    color: #f0f0f0;
+  }
+
+  .custom-file-input label {
+    background-color: #333;
+    color: #f0f0f0;
+  }
+
+  .custom-file-input label:hover {
+    background-color: #444;
+  }
+
+  .mensaje {
+    color: #f0f0f0;
+  }
+
+  button {
+    background-color: #4a90e2;
+    color: white;
+  }
+
+  button:hover {
+    background-color: #357ac4;
+  }
+
+  button.danger {
+    background-color: #c0392b;
+  }
+
+  button.danger:hover {
+    background-color: #992d22;
+  }
+}
+
 </style>
 

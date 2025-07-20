@@ -637,5 +637,80 @@ select {
   opacity: 0;
   cursor: pointer;
 }
+@media (prefers-color-scheme: dark) {
+  .carousel-settings {
+    background: #1e1e1e;
+    color: #f0f0f0;
+  }
+
+  .titulo,
+  .form-group > label,
+  .card-box label,
+  .card-header h3 {
+    color: #f0f0f0;
+  }
+
+  .form-input,
+  .form-textarea,
+  select {
+    background: #2b2b2b;
+    color: #f0f0f0;
+    border: 1px solid #444;
+  }
+
+  .card-box {
+    background: #2b2b2b;
+    border-color: #444;
+  }
+
+  .custom-file-input label {
+    background-color: #3a3a3a;
+    color: #f0f0f0;
+  }
+
+  .custom-file-input label:hover {
+    background-color: #505050;
+  }
+
+  .btn-link {
+    color: #60a5fa;
+  }
+
+  .btn-link:hover {
+    background-color: #1e3a8a33;
+  }
+
+  .btn-danger {
+    color: #f87171;
+  }
+
+  .btn-danger:hover {
+    background-color: #7f1d1d33;
+  }
+
+  button {
+    background-color: #357ac4;
+    color: white;
+  }
+
+  button:hover {
+    background-color: #2463a8;
+  }
+
+  .toggle-btn {
+    color: #60a5fa;
+  }
+
+  .toggle-btn:hover {
+    color: #3b82f6;
+  }
+
+  input[readonly] {
+    background-color: #2b2b2b;
+    color: #ccc;
+    border-color: #444;
+  }
+}
+
 
 </style>

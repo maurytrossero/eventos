@@ -368,5 +368,69 @@ hr {
     gap: 0.8rem;
   }
 }
+@media (prefers-color-scheme: dark) {
+  .trivia-settings {
+    background: #1e1e1e;
+    color: #f0f0f0;
+  }
+
+  .titulo {
+    color: #f0f0f0;
+  }
+
+  .toggle-trivia label {
+    color: #f0f0f0;
+  }
+
+  .question-input,
+  .option-input,
+  input[type='text'],
+  textarea,
+  select {
+    background-color: #2b2b2b;
+    color: #f0f0f0;
+    border: 1px solid #444;
+  }
+
+  .radio-correct {
+    accent-color: #4a90e2;
+  }
+
+  .empty-message {
+    color: #aaa;
+  }
+
+  .btn.add-question,
+  .btn.add {
+    background-color: #357ac4;
+  }
+
+  .btn.add-question:hover,
+  .btn.add:hover {
+    background-color: #2463a8;
+  }
+
+  .btn.remove,
+  .btn.remove-question {
+    background-color: #8b1a1a;
+  }
+
+  .btn.remove:hover,
+  .btn.remove-question:hover {
+    background-color: #a94444;
+  }
+
+  .btn.save {
+    background-color: #2e7d32;
+  }
+
+  .btn.save:hover {
+    background-color: #1b5e20;
+  }
+
+  hr {
+    border-top: 1px solid #444;
+  }
+}
 
 </style>
