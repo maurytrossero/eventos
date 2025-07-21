@@ -146,6 +146,28 @@
         </div>
       </div>
 
+      <!-- Lista de invitados -->
+      <div class="accion-card">
+        <div class="icon-header">👥</div>
+        <h2>Invitados</h2>
+        <div class="acciones-btns">
+          <button @click="verListaInvitados" class="accion-button" v-if="hayInvitadosConfirmados">
+            Ver lista
+          </button>
+        </div>
+      </div>
+
+      <div class="accion-card">
+        <div class="icon-header">🪑</div>
+        <h2>Mesas</h2>
+        <div class="acciones-btns">
+          <button @click="verListaMesas" class="accion-button">
+            Ver mesas
+          </button>
+        </div>
+      </div>
+
+
       <!-- Riesgo -->
       <div class="accion-card danger-card">
         <div class="icon-header">⚠️</div>
@@ -178,6 +200,8 @@ import { deleteField } from 'firebase/firestore';
 import { useAuthStore } from '@/stores/authStore';
 import QrcodeVue from 'qrcode.vue';
 import Swal from 'sweetalert2';
+import { getDocs, collection } from 'firebase/firestore'
+import { db } from '@/firebase' // Ajustá el path si lo tenés en otra carpeta
 
 interface Evento {
   id?: string;
@@ -199,6 +223,36 @@ const mostrarModal = ref(false);
 const auth = useAuthStore();
 const baseURL = window.location.origin;
 const prefersDark = ref(window.matchMedia('(prefers-color-scheme: dark)').matches);
+const hayInvitadosConfirmados = ref(false);
+
+function verListaInvitados() {
+  router.push({ name: 'evento-invitados', params: { eventoId } })
+}
+
+function verListaMesas() {
+  router.push({ name: 'evento-mesas', params: { eventoId } })
+}
+
+const verificarInvitados = async () => {
+  try {
+    const subcoleccionRef = collection(db, 'eventos', eventoId, 'familias'); // plural
+    const querySnapshot = await getDocs(subcoleccionRef);
+
+    querySnapshot.docs.forEach(doc => {
+      console.log('Familia doc:', doc.id, doc.data());
+    });
+
+    hayInvitadosConfirmados.value = querySnapshot.docs.some(doc => {
+      const data = doc.data();
+      return Array.isArray(data.asistentes) && data.asistentes.length > 0;
+    });
+
+    console.log('¿Hay invitados confirmados?', hayInvitadosConfirmados.value);
+  } catch (error) {
+    console.error('Error verificando invitados:', error);
+  }
+};
+
 
 // Referencias para QR
 const qrWrapperInvitacion = ref<HTMLElement | null>(null);
@@ -241,9 +295,11 @@ const cargarEvento = async () => {
   }
 };
 
-onMounted(() => {
-  cargarEvento();
+onMounted(async () => {
+  await cargarEvento();
+  await verificarInvitados();
 });
+
 
 // Slug autogenerado
 watch(() => eventoEditable.value.nombre, (nuevoNombre) => {

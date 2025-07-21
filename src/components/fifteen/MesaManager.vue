@@ -1,4 +1,4 @@
-<!-- components/fifteen/CMesaManager.vue -->
+<!-- components/fifteen/MesaManager.vue -->
 <template>
   <div class="mesa-container">
     <div class="mesas-wrapper">
@@ -46,10 +46,8 @@
   </div>
 </template>
 
-<script setup>
-/* global defineProps, defineEmits */
-
-import { ref, onMounted, computed } from 'vue';
+<script setup lang="ts">
+import { ref, onMounted, computed, defineProps } from 'vue';
 import { db } from '@/firebase';
 import {
   collection,
@@ -60,14 +58,43 @@ import {
   updateDoc,
 } from 'firebase/firestore';
 
-const asistentes = ref([]);
+interface Asistente {
+  id: string;
+  nombre: string;
+  apellido: string;
+}
+
+interface Mesa {
+  id: string;
+  numero: number;
+  asistentes: Asistente[];
+}
+
+const props = defineProps({
+  eventoId: {
+    type: String,
+    required: true
+  }
+});
+
+// Tipamos los refs con las interfaces definidas
+const asistentes = ref<Asistente[]>([]);
+const mesas = ref<Mesa[]>([]);
+const nuevoNumeroMesa = ref('');
+// Tipamos asistenteSeleccionado como un objeto con claves numéricas y valores Asistente o undefined
+const asistenteSeleccionado = ref<Record<number, Asistente | undefined>>({});
+
+onMounted(() => {
+  cargarMesas();
+  cargarAsistentesDesdeFamilias();
+});
 
 async function cargarAsistentesDesdeFamilias() {
-  const snapshot = await getDocs(collection(db, 'familias'));
-  const todasLasFamilias = snapshot.docs.map(doc => doc.data());
+  const familiasSnapshot = await getDocs(collection(db, 'eventos', props.eventoId, 'familias'));
+  const todasLasFamilias = familiasSnapshot.docs.map(doc => doc.data());
   let contador = 0;
-  asistentes.value = todasLasFamilias.flatMap(f => 
-    (f.asistentes || []).map(a => ({
+  asistentes.value = todasLasFamilias.flatMap(f =>
+    (f.asistentes || []).map((a: any) => ({
       id: `${a.nombre}-${a.apellido}-${contador++}`, // ID temporal único
       nombre: a.nombre,
       apellido: a.apellido,
@@ -75,23 +102,18 @@ async function cargarAsistentesDesdeFamilias() {
   );
 }
 
-const mesas = ref([]);
-const nuevoNumeroMesa = ref('');
-const asistenteSeleccionado = ref({});
-
-// Cargar mesas y asistentes al montar
-onMounted(() => {
-  cargarMesas();
-  cargarAsistentesDesdeFamilias();
-});
-
-// Cargar mesas desde Firestore
 async function cargarMesas() {
-  const snapshot = await getDocs(collection(db, 'mesas'));
-  mesas.value = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  const mesasSnapshot = await getDocs(collection(db, 'eventos', props.eventoId, 'mesas'));
+  mesas.value = mesasSnapshot.docs.map(doc => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      numero: data.numero,
+      asistentes: data.asistentes || [],
+    } as Mesa;
+  });
 }
 
-// Crear nueva mesa
 async function crearMesa() {
   const numero = parseInt(nuevoNumeroMesa.value);
   if (!numero || isNaN(numero)) {
@@ -106,7 +128,7 @@ async function crearMesa() {
   }
 
   try {
-    await addDoc(collection(db, 'mesas'), {
+    await addDoc(collection(db, 'eventos', props.eventoId, 'mesas'), {
       numero,
       asistentes: [],
     });
@@ -118,46 +140,42 @@ async function crearMesa() {
   }
 }
 
-// Eliminar mesa
-async function eliminarMesa(id) {
+async function eliminarMesa(id: string) {
   if (!confirm('¿Estás seguro de eliminar esta mesa?')) return;
 
   try {
-    await deleteDoc(doc(db, 'mesas', id));
+    await deleteDoc(doc(db, 'eventos', props.eventoId, 'mesas', id));
     await cargarMesas();
   } catch (err) {
     console.error('Error al eliminar mesa:', err);
   }
 }
 
-// Computed: asistentes disponibles (no asignados a ninguna mesa)
 const asistentesDisponibles = computed(() => {
   const usados = mesas.value.flatMap(m => (m.asistentes || []).map(a => a.id));
   return asistentes.value.filter(a => !usados.includes(a.id));
 });
 
-// Asignar asistente a mesa
-async function asignarAsistente(index) {
+async function asignarAsistente(index: number) {
   const mesa = mesas.value[index];
-  const asistente = asistenteSeleccionado.value?.[index];
-  if (!asistente || mesa.asistentes.find(a => a.id === asistente.id)) return;
+  const asistente = asistenteSeleccionado.value[index];
+  if (!asistente) return;
+  if (mesa.asistentes.find(a => a.id === asistente.id)) return;
 
   mesa.asistentes.push(asistente);
-  asistenteSeleccionado.value[index] = '';
+  asistenteSeleccionado.value[index] = undefined;
   await guardarMesa(mesa);
 }
 
-// Quitar asistente de mesa
-async function quitarAsistenteDeMesa(index, asistente) {
+async function quitarAsistenteDeMesa(index: number, asistente: Asistente) {
   const mesa = mesas.value[index];
   mesa.asistentes = mesa.asistentes.filter(a => a.id !== asistente.id);
   await guardarMesa(mesa);
 }
 
-// Guardar mesa en Firestore
-async function guardarMesa(mesa) {
+async function guardarMesa(mesa: Mesa) {
   try {
-    const mesaRef = doc(db, 'mesas', mesa.id);
+    const mesaRef = doc(db, 'eventos', props.eventoId, 'mesas', mesa.id);
     await updateDoc(mesaRef, {
       asistentes: mesa.asistentes,
     });
@@ -166,6 +184,8 @@ async function guardarMesa(mesa) {
   }
 }
 </script>
+
+
 
 
 

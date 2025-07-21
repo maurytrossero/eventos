@@ -14,7 +14,7 @@
 
       <div class="mesas-lista">
         <div
-          v-for="(mesa, index) in mesasFiltradas"
+          v-for="(mesa) in mesasFiltradas"
           :key="mesa.id"
           class="mesa-card"
         >
@@ -35,22 +35,41 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted, computed } from 'vue'
+<script setup lang="ts">
+import { ref, onMounted, computed, defineProps } from 'vue'
 import { db } from '@/firebase'
 import { collection, getDocs } from 'firebase/firestore'
 
-const asistentes = ref([])
-const mesas = ref([])
+const props = defineProps({
+  eventoId: {
+    type: String,
+    required: true
+  }
+})
+
+interface Asistente {
+  id: string
+  nombre: string
+  apellido?: string
+}
+
+interface Mesa {
+  id: string
+  numero: number
+  asistentes: Asistente[]
+}
+
+const asistentes = ref<Asistente[]>([])
+const mesas = ref<Mesa[]>([])
 const busqueda = ref('')
 
 async function cargarAsistentesDesdeFamilias() {
-  const snapshot = await getDocs(collection(db, 'familias'))
-  const todasLasFamilias = snapshot.docs.map(doc => doc.data())
+  const snapshot = await getDocs(collection(db, 'eventos', props.eventoId, 'familias'))
+  const todasLasFamilias = snapshot.docs.map(doc => doc.data() as { asistentes?: Array<{ nombre: string; apellido?: string }> })
   let contador = 0
   asistentes.value = todasLasFamilias.flatMap(f =>
     (f.asistentes || []).map(a => ({
-      id: `${a.nombre}-${a.apellido}-${contador++}`,
+      id: `${a.nombre}-${a.apellido ?? ''}-${contador++}`,
       nombre: a.nombre,
       apellido: a.apellido
     }))
@@ -58,8 +77,15 @@ async function cargarAsistentesDesdeFamilias() {
 }
 
 async function cargarMesas() {
-  const snapshot = await getDocs(collection(db, 'mesas'))
-  mesas.value = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+  const snapshot = await getDocs(collection(db, 'eventos', props.eventoId, 'mesas'))
+  mesas.value = snapshot.docs.map(doc => {
+    const data = doc.data() as { numero: number; asistentes?: Asistente[] }
+    return {
+      id: doc.id,
+      numero: data.numero,
+      asistentes: data.asistentes || []
+    }
+  })
 }
 
 onMounted(() => {
@@ -72,16 +98,18 @@ const mesasFiltradas = computed(() => {
   const texto = busqueda.value.toLowerCase()
   return mesas.value.filter(mesa =>
     (mesa.asistentes || []).some(a =>
-      `${a.nombre} ${a.apellido}`.toLowerCase().includes(texto)
+      `${a.nombre} ${a.apellido ?? ''}`.toLowerCase().includes(texto)
     )
   )
 })
 
-function esBuscado(a) {
+function esBuscado(a: Asistente) {
   const texto = busqueda.value.toLowerCase()
-  return `${a.nombre} ${a.apellido}`.toLowerCase().includes(texto)
+  return `${a.nombre} ${a.apellido ?? ''}`.toLowerCase().includes(texto)
 }
 </script>
+
+
 
 <style scoped>
 @font-face {

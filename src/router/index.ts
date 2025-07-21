@@ -64,6 +64,13 @@ const routes: Array<RouteRecordRaw> = [
   { path: '/invitacion/:slug', name: 'invitacion-slug', component: InvitationView, props: true },
   { path: '/galeria/:slug',  name: 'galeria-slug',  component: GalleryView,  props: true,},
 
+  //Familias
+  {  path: '/evento/:eventoId/invitados',  name: 'evento-invitados',  component: () => import('@/components/fifteen/InvitadosComponent.vue'),  props: true},
+
+  
+  //Mesas
+  {  path: '/evento/:eventoId/mesas',  name: 'evento-mesas',  component: () => import('@/components/fifteen/MesaList.vue'),  props: true},
+
 
   // E-commerce
   { path: '/precios', name: 'precios', component: PricingView },

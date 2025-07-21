@@ -69,31 +69,69 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { db } from '@/firebase';
-import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import {
+  collection,
+  getDocs,
+  deleteDoc,
+  doc,
+  CollectionReference,
+} from 'firebase/firestore';
+import { useRoute } from 'vue-router';
+
 import EditfamilyModal from './EditfamilyModal.vue';
 
-const familias = ref([]);
-const mostrarModal = ref(false);
-const familiaSeleccionada = ref(null);
+// Definición tipos
+interface Asistente {
+  nombre: string;
+  apellido: string;
+  [key: string]: any;
+}
 
+interface Familia {
+  id: string;
+  nombre?: string;
+  telefono?: string;
+  codigoFamilia?: string;
+  asistentes?: Asistente[];  // Ahora es arreglo de asistentes
+  [key: string]: any;
+}
+
+// Router
+const route = useRoute();
+const eventoId = route.params.eventoId as string;
+
+// Refs
+const familias = ref<Familia[]>([]);
+const mostrarModal = ref(false);
+const familiaSeleccionada = ref<Familia | null>(null);
+
+// Cargar familias del evento específico
 onMounted(async () => {
   await cargarFamilias();
 });
 
 async function cargarFamilias() {
-  const querySnapshot = await getDocs(collection(db, 'familias'));
-  familias.value = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  try {
+    const familiasRef = collection(db, 'eventos', eventoId, 'familias') as CollectionReference;
+    const querySnapshot = await getDocs(familiasRef);
+    familias.value = querySnapshot.docs.map((doc): Familia => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+  } catch (error) {
+    console.error('Error al cargar familias:', error);
+  }
 }
 
-async function eliminarFamilia(index) {
+async function eliminarFamilia(index: number) {
   const familia = familias.value[index];
   const confirmado = window.confirm(`¿Estás seguro de eliminar la Familia ${index + 1}?`);
   if (confirmado) {
     try {
-      await deleteDoc(doc(db, 'familias', familia.id));
+      await deleteDoc(doc(db, 'eventos', eventoId, 'familias', familia.id));
       familias.value.splice(index, 1);
     } catch (error) {
       console.error('Error al eliminar familia:', error);
@@ -102,17 +140,17 @@ async function eliminarFamilia(index) {
   }
 }
 
-function editarFamilia(familia) {
+function editarFamilia(familia: Familia) {
   familiaSeleccionada.value = { ...familia };
   mostrarModal.value = true;
 }
 
-function esTelefonoValido(tel) {
+function esTelefonoValido(tel: string): boolean {
   const limpio = tel.replace(/\D/g, '');
   return limpio.length === 10 && !limpio.startsWith('0') && !limpio.startsWith('15');
 }
 
-function formatearTelefonoWA(tel) {
+function formatearTelefonoWA(tel: string): string {
   let limpio = tel.replace(/\D/g, '');
   if (limpio.startsWith('0')) limpio = limpio.substring(1);
   if (limpio.startsWith('15')) limpio = limpio.substring(2);

@@ -22,8 +22,6 @@
 </template>
 
 <script setup>
-/* global defineProps, defineEmits */
-
 import { ref, watch } from 'vue';
 import { db } from '@/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
@@ -63,6 +61,7 @@ async function guardarCambios() {
   }
 }
 </script>
+
 
 <style scoped>
 @font-face {
