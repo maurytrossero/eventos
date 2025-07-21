@@ -153,6 +153,7 @@ import InformationSetting from '@/components/fifteen/InformationSetting.vue'
 import ConfirmBackgroundSetting from '@/components/fifteen/ConfirmSetting.vue'
 import TriviaSetting from '@/components/TriviaQuestionForm.vue'
 import GallerySetting from '@/components/gallery-live/GallerySetting.vue'
+import Swal from 'sweetalert2'
 
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
 
@@ -170,6 +171,7 @@ const refInfo = ref<HTMLElement | null>(null)
 const refConfirm = ref<HTMLElement | null>(null)
 const refTrivia = ref<HTMLElement | null>(null)
 const refGaleria = ref<HTMLElement | null>(null)
+const prefersDark = ref(window.matchMedia('(prefers-color-scheme: dark)').matches)
 
 const tabActual = ref<
   'countdown' | 'carousel' | 'info' | 'confirm' | 'trivia' | 'galeria'
@@ -317,6 +319,19 @@ const seleccionarPlantilla = async (nombre: string) => {
 const eliminarInvitacion = async () => {
   if (!eventoId.value) return
 
+  const result = await Swal.fire({
+    title: '¿Estás seguro?',
+    text: 'Esta acción ocultará la invitación. Podés volver a crearla más adelante.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar',
+  })
+
+  if (!result.isConfirmed) return
+
   try {
     await updateEvento(eventoId.value, { invitacion: '' })
 
@@ -327,10 +342,14 @@ const eliminarInvitacion = async () => {
 
     componenteInvitacion.value = null
     seleccionando.value = true
+
+    Swal.fire('Eliminado', 'La invitación fue eliminada correctamente.', 'success')
   } catch (error) {
     console.error('Error al eliminar invitación:', error)
+    Swal.fire('Error', 'No se pudo eliminar la invitación. Intenta nuevamente.', 'error')
   }
 }
+
 
 function handleUpdateInfo(nuevaInfo: any) {
   if (!evento.value) return

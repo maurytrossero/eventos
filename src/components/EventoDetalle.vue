@@ -362,7 +362,7 @@ const verEditarInvitacion = () => router.push({ name: 'evento-invitacion', param
 const eliminarInvitacion = async () => {
   const confirmacion = await Swal.fire({
     title: '¿Eliminar invitación?',
-    text: 'Esta acción no se puede deshacer.',
+    text: 'Esta acción ocultará la invitación. Podés volver a crearla más adelante.',
     icon: 'warning',
     showCancelButton: true,
     confirmButtonText: 'Eliminar',
@@ -376,15 +376,22 @@ const eliminarInvitacion = async () => {
   if (!confirmacion.isConfirmed) return;
 
   try {
-    await updateEvento(eventoId, { invitacion: deleteField() });
+    await updateEvento(eventoId, {
+      invitacion: deleteField()
+    });
+
     if (evento.value) evento.value.invitacion = undefined;
+
     await Swal.fire({
       title: 'Invitación eliminada',
+      text: 'La invitación fue desactivada correctamente.',
       icon: 'success',
       confirmButtonColor: '#4caf50',
       background: prefersDark.value ? '#2e3b4e' : '#fff',
       color: prefersDark.value ? '#f0e6d2' : '#333'
     });
+
+    await cargarEvento(); // para refrescar la interfaz
   } catch (error) {
     console.error("Error al eliminar la invitación:", error);
     await Swal.fire({
@@ -397,6 +404,7 @@ const eliminarInvitacion = async () => {
     });
   }
 };
+
 
 // Galería
 const crearGaleria = async () => {
