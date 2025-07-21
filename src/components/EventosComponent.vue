@@ -43,6 +43,7 @@ import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { addEvento, addCancion, getCancionesByEvento } from '../services/firestoreService';
 import { useAuthStore } from '@/stores/authStore'
+import Swal from 'sweetalert2'
 
 interface Cancion {
     id: string; // Asegúrate de que `id` es de tipo string
@@ -70,19 +71,37 @@ const crearEvento = async () => {
       nombre: nuevoEventoNombre.value,
       fecha: nuevoEventoFecha.value,
       lugar: nuevoEventoLugar.value,
-      creadoPor: user?.uid || 'admin' // guarda UID o "admin" por defecto
+      creadoPor: user?.uid || 'admin'
     }
 
     const id = await addEvento(evento)
 
     if (id) {
-      alert(`Evento creado con ID: ${id}`)
+      await Swal.fire({
+        title: 'Evento creado',
+        text: `Tu evento fue creado con ID: ${id}`,
+        icon: 'success',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#4a90e2',
+        background: window.matchMedia('(prefers-color-scheme: dark)').matches ? '#2b2b2b' : '#fff',
+        color: window.matchMedia('(prefers-color-scheme: dark)').matches ? '#f0f0f0' : '#333'
+      })
+
       nuevoEventoNombre.value = ''
       nuevoEventoFecha.value = ''
       nuevoEventoLugar.value = ''
     }
   } catch (error) {
     console.error("Error al crear el evento:", error)
+    await Swal.fire({
+      title: 'Error',
+      text: 'No se pudo crear el evento. Por favor intentá de nuevo.',
+      icon: 'error',
+      confirmButtonText: 'Cerrar',
+      confirmButtonColor: '#d33',
+      background: window.matchMedia('(prefers-color-scheme: dark)').matches ? '#2b2b2b' : '#fff',
+      color: window.matchMedia('(prefers-color-scheme: dark)').matches ? '#f0f0f0' : '#333'
+    })
   }
 }
 

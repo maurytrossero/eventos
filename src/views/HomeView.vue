@@ -16,14 +16,29 @@
     </div>
 
     <div class="categories">
-<!-- Mostrar solo si es admin -->
-<div v-if="isAdmin" class="category animate-up">
-  <h3><PhCalendarPlus size="24" /> Eventos</h3>
-  <ul>
-    <li><router-link to="/eventos">Agregar Evento</router-link></li>
-    <li><router-link to="/eventos/lista">Ver Lista</router-link></li>
-  </ul>
-</div>
+      <!-- Mostrar solo si es admin -->
+      <div v-if="isAdmin" class="category animate-up">
+        <h3><PhCalendarPlus size="24" /> Eventos</h3>
+        <ul>
+          <li><router-link to="/eventos">Agregar Evento</router-link></li>
+          <li><router-link to="/eventos/lista">Ver Lista</router-link></li>
+        </ul>
+      </div>
+
+      <!-- Usuarios-->
+      <div v-if="isAdmin" class="category animate-up">
+        <h3><PhUser size="24" /> Usuarios</h3>
+        <ul>
+          <li><router-link to="/usuarios">Gestión de Usuarios</router-link></li>
+        </ul>
+      </div>
+
+      <div class="category animate-up">
+        <h3><PhHouse size="24" /> Inicio</h3>
+        <ul>
+          <li><router-link to="/">Ir a Inicio</router-link></li>
+        </ul>
+      </div>
       <div class="category animate-up">
         <h3><PhHouse size="24" /> Inicio</h3>
         <ul>

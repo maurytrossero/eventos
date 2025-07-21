@@ -170,13 +170,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue';
+import { ref, onMounted, watch, computed, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getEventoById, addCancion, updateEvento, deleteEvento } from '@/services/firestoreService';
 import ModalDialog from './ModalDialog.vue';
 import { deleteField } from 'firebase/firestore';
 import { useAuthStore } from '@/stores/authStore';
 import QrcodeVue from 'qrcode.vue';
+import Swal from 'sweetalert2';
 
 interface Evento {
   id?: string;
@@ -191,60 +192,52 @@ interface Evento {
 const route = useRoute();
 const router = useRouter();
 const eventoId = route.params.eventoId as string;
+
 const evento = ref<Evento | null>(null);
 const eventoEditable = ref<Evento>({ nombre: '', fecha: '', lugar: '', slug: '' });
 const mostrarModal = ref(false);
-const baseURL = window.location.origin;
 const auth = useAuthStore();
+const baseURL = window.location.origin;
+const prefersDark = ref(window.matchMedia('(prefers-color-scheme: dark)').matches);
 
-// Refs para los wrappers de QR (divs)
+// Referencias para QR
 const qrWrapperInvitacion = ref<HTMLElement | null>(null);
 const qrWrapperGaleria = ref<HTMLElement | null>(null);
 
-// Computed URLs
+// URLs computadas
 const urlInvitacion = computed(() =>
   `${baseURL}/invitacion/${eventoEditable.value.slug || ''}`
 );
-
 const urlGaleria = computed(() =>
   `${baseURL}/galeria/${eventoEditable.value.slug || ''}`
 );
 
-// Descargar QR como imagen PNG
-const descargarQR = (tipo: 'invitacion' | 'galeria') => {
-  const wrapper = tipo === 'invitacion' ? qrWrapperInvitacion.value : qrWrapperGaleria.value;
+// Flag para saber si el componente sigue activo
+let componenteActivo = true;
+onUnmounted(() => {
+  componenteActivo = false;
+});
 
-  if (!wrapper) {
-    alert('No se encontró el contenedor del QR');
-    return;
-  }
-
-  const canvas = wrapper.querySelector('canvas') as HTMLCanvasElement | null;
-
-  if (!canvas || typeof canvas.toDataURL !== 'function') {
-    alert('No se pudo obtener el código QR como imagen');
-    return;
-  }
-
-  const link = document.createElement('a');
-  link.href = canvas.toDataURL('image/png');
-  link.download = `qr-${tipo}-${eventoEditable.value.slug || 'evento'}.png`;
-  link.click();
-};
-
-// Cargar evento desde Firestore
+// Función para cargar el evento
 const cargarEvento = async () => {
-  const data = await getEventoById(eventoId) as Evento & { creadoPor?: string };
-  evento.value = data;
-  eventoEditable.value = { ...data };
+  try {
+    const data = await getEventoById(eventoId) as Evento & { creadoPor?: string };
+    if (!componenteActivo) return;
 
-  // Validar permisos de edición
-  const usuarioEsCreador = data.creadoPor ? data.creadoPor === auth.user?.uid : false;
-  const usuarioEsAdmin = auth.isAdmin;
+    evento.value = data;
+    eventoEditable.value = { ...data };
 
-  if (!usuarioEsCreador && !usuarioEsAdmin) {
-    alert('No tenés permisos para editar este evento');
-    return router.push('/no-autorizado');
+    const usuarioEsCreador = data.creadoPor ? data.creadoPor === auth.user?.uid : false;
+    const usuarioEsAdmin = auth.isAdmin;
+
+    if (!usuarioEsCreador && !usuarioEsAdmin) {
+      alert('No tenés permisos para editar este evento');
+      return router.push('/no-autorizado');
+    }
+  } catch (error) {
+    if (componenteActivo) {
+      console.error("Error al cargar el evento:", error);
+    }
   }
 };
 
@@ -252,7 +245,7 @@ onMounted(() => {
   cargarEvento();
 });
 
-// Autogenerar slug desde el nombre si está vacío
+// Slug autogenerado
 watch(() => eventoEditable.value.nombre, (nuevoNombre) => {
   if (!eventoEditable.value.slug && nuevoNombre) {
     eventoEditable.value.slug = generateSlug(nuevoNombre);
@@ -262,77 +255,154 @@ watch(() => eventoEditable.value.nombre, (nuevoNombre) => {
 function generateSlug(nombre: string): string {
   return nombre
     .toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // saca acentos
-    .replace(/[^a-z0-9]+/g, '-') // reemplaza todo lo que no sea letra o número por guiones
-    .replace(/(^-|-$)+/g, ''); // elimina guiones al inicio o fin
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)+/g, '');
 }
 
-// Guardar cambios en Firestore
+// Guardar cambios
 const guardarCambios = async () => {
-  if (!eventoEditable.value) return;
   try {
     await updateEvento(eventoId, eventoEditable.value);
     evento.value = { ...eventoEditable.value };
-    alert('Evento actualizado con éxito.');
+
+    await Swal.fire({
+      title: 'Guardado exitoso',
+      text: 'El evento fue actualizado correctamente.',
+      icon: 'success',
+      confirmButtonColor: '#4caf50',
+      background: prefersDark.value ? '#2e3b4e' : '#fff',
+      color: prefersDark.value ? '#f0e6d2' : '#333'
+    });
   } catch (error) {
     console.error('Error al guardar cambios:', error);
-    alert('Ocurrió un error al guardar los cambios.');
+    await Swal.fire({
+      title: 'Error',
+      text: 'Ocurrió un error al guardar los cambios.',
+      icon: 'error',
+      confirmButtonColor: '#d33',
+      background: prefersDark.value ? '#2e3b4e' : '#fff',
+      color: prefersDark.value ? '#f0e6d2' : '#333'
+    });
   }
 };
 
-// Eliminar evento completo
+// Eliminar evento
 const eliminarEvento = async () => {
-  const confirmacion = window.confirm('¿Estás seguro de que querés eliminar este evento? Esta acción no se puede deshacer.');
-  if (!confirmacion) return;
+  const confirmacion = await Swal.fire({
+    title: '¿Eliminar evento?',
+    text: 'Esta acción no se puede deshacer.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#888',
+    background: prefersDark.value ? '#2e3b4e' : '#fff',
+    color: prefersDark.value ? '#f0e6d2' : '#333'
+  });
+
+  if (!confirmacion.isConfirmed) return;
+
   try {
+    componenteActivo = false;
     await deleteEvento(eventoId);
-    alert('Evento eliminado con éxito.');
-    router.push({ name: 'eventos-listado' });
+
+    await Swal.fire({
+      title: 'Evento eliminado',
+      icon: 'success',
+      confirmButtonColor: '#4caf50',
+      background: prefersDark.value ? '#2e3b4e' : '#fff',
+      color: prefersDark.value ? '#f0e6d2' : '#333'
+    });
+
+    router.push({ name: 'eventos-lista' });
   } catch (error) {
     console.error('Error al eliminar el evento:', error);
-    alert('Ocurrió un error al eliminar el evento.');
+    await Swal.fire({
+      title: 'Error',
+      text: 'Ocurrió un error al eliminar el evento.',
+      icon: 'error',
+      confirmButtonColor: '#d33',
+      background: prefersDark.value ? '#2e3b4e' : '#fff',
+      color: prefersDark.value ? '#f0e6d2' : '#333'
+    });
   }
 };
 
-// Modal para sugerencia de canciones
-const abrirModal = () => { mostrarModal.value = true; };
-const cerrarModal = () => { mostrarModal.value = false; };
+// QR
+const descargarQR = (tipo: 'invitacion' | 'galeria') => {
+  const wrapper = tipo === 'invitacion' ? qrWrapperInvitacion.value : qrWrapperGaleria.value;
+  if (!wrapper) return alert('No se encontró el contenedor del QR');
+  const canvas = wrapper.querySelector('canvas') as HTMLCanvasElement | null;
+  if (!canvas || typeof canvas.toDataURL !== 'function') return alert('No se pudo obtener el código QR como imagen');
+  const link = document.createElement('a');
+  link.href = canvas.toDataURL('image/png');
+  link.download = `qr-${tipo}-${eventoEditable.value.slug || 'evento'}.png`;
+  link.click();
+};
+
+// Modal
+const abrirModal = () => mostrarModal.value = true;
+const cerrarModal = () => mostrarModal.value = false;
 
 const enviarSugerencia = async (nombreCancion: string, artista: string) => {
   try {
-    const cancion = { nombre: nombreCancion, interprete: artista };
-    await addCancion(eventoId, cancion);
+    await addCancion(eventoId, { nombre: nombreCancion, interprete: artista });
     cerrarModal();
   } catch (error) {
     console.error("Error al enviar sugerencia:", error);
   }
 };
 
-// Acciones relacionadas con la invitación
-const crearInvitacion = () => {
-  router.push({ name: 'evento-invitacion', params: { eventoId } });
-};
-
-const verEditarInvitacion = () => {
-  router.push({ name: 'evento-invitacion', params: { eventoId } });
-};
+// Invitación
+const crearInvitacion = () => router.push({ name: 'evento-invitacion', params: { eventoId } });
+const verEditarInvitacion = () => router.push({ name: 'evento-invitacion', params: { eventoId } });
 
 const eliminarInvitacion = async () => {
+  const confirmacion = await Swal.fire({
+    title: '¿Eliminar invitación?',
+    text: 'Esta acción no se puede deshacer.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Eliminar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#888',
+    background: prefersDark.value ? '#2e3b4e' : '#fff',
+    color: prefersDark.value ? '#f0e6d2' : '#333'
+  });
+
+  if (!confirmacion.isConfirmed) return;
+
   try {
     await updateEvento(eventoId, { invitacion: deleteField() });
     if (evento.value) evento.value.invitacion = undefined;
-    alert('Invitación eliminada con éxito');
+    await Swal.fire({
+      title: 'Invitación eliminada',
+      icon: 'success',
+      confirmButtonColor: '#4caf50',
+      background: prefersDark.value ? '#2e3b4e' : '#fff',
+      color: prefersDark.value ? '#f0e6d2' : '#333'
+    });
   } catch (error) {
     console.error("Error al eliminar la invitación:", error);
-    alert('Ocurrió un error al eliminar la invitación.');
+    await Swal.fire({
+      title: 'Error',
+      text: 'Ocurrió un error al eliminar la invitación.',
+      icon: 'error',
+      confirmButtonColor: '#d33',
+      background: prefersDark.value ? '#2e3b4e' : '#fff',
+      color: prefersDark.value ? '#f0e6d2' : '#333'
+    });
   }
 };
 
-// Acciones relacionadas con la galería
+// Galería
 const crearGaleria = async () => {
   try {
     await updateEvento(eventoId, { galeriaActiva: true });
-    await cargarEvento(); // recarga la info local del evento
+    await cargarEvento();
     router.push({ name: 'evento-galeria-interactiva', params: { eventoId } });
   } catch (error) {
     console.error('Error al activar la galería:', error);
@@ -344,6 +414,7 @@ const irAGaleriaInteractiva = () => {
   router.push({ name: 'evento-galeria-interactiva', params: { eventoId } });
 };
 </script>
+
 
 
 <style scoped>

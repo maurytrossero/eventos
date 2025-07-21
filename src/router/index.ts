@@ -71,6 +71,11 @@ const routes: Array<RouteRecordRaw> = [
   { path: '/cuenta', name: 'cuenta', component: AccountView, meta: { requiresAuth: true } },
   { path: '/ayuda', name: 'ayuda', component: HelpView, meta: { requiresAuth: true } },
 
+  {
+  // Usuarios
+  path: '/usuarios',  name: 'usuarios',  component: () => import('@/views/UsersView.vue'),  meta: { requiresAuth: true, requiresAdmin: true }},
+
+
   // Acceso denegado
   { path: '/no-autorizado', name: 'no-autorizado', component: UnauthorizedView },
 ]
