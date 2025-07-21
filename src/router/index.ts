@@ -70,6 +70,8 @@ const routes: Array<RouteRecordRaw> = [
   
   //Mesas
   {  path: '/evento/:eventoId/mesas',  name: 'evento-mesas',  component: () => import('@/components/fifteen/MesaList.vue'),  props: true},
+  {  path: '/evento/:eventoId/mesas/editar',  name: 'evento-mesas-editar',  component: () => import('@/components/fifteen/MesaManager.vue'),  props: true},
+
 
 
   // E-commerce

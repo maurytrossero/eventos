@@ -164,6 +164,9 @@
           <button @click="verListaMesas" class="accion-button">
             Ver mesas
           </button>
+          <button @click="editarMesas" class="accion-button">
+            Editar mesas
+          </button>
         </div>
       </div>
 
@@ -232,6 +235,11 @@ function verListaInvitados() {
 function verListaMesas() {
   router.push({ name: 'evento-mesas', params: { eventoId } })
 }
+
+function editarMesas() {
+  router.push({ name: 'evento-mesas-editar', params: { eventoId } });
+}
+
 
 const verificarInvitados = async () => {
   try {
