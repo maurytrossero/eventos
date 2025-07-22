@@ -405,8 +405,7 @@ function cambiarTab(tab: typeof tabActual.value) {
 </script>
 
 <style scoped>
-  /* (Conservé tu CSS igual, no cambió) */
-
+  /* Modo claro (por defecto) */
   .selector-contenedor {
     display: flex;
     justify-content: center;
@@ -643,6 +642,65 @@ function cambiarTab(tab: typeof tabActual.value) {
     margin-top: 0.5rem;
   }
 
+  /* Selector plantillas - botón personalizado */
+  .boton-plantilla {
+    background: linear-gradient(135deg, #f76d6d, #f9a8a8);
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(247, 109, 109, 0.5);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .boton-plantilla:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(247, 109, 109, 0.7);
+  }
+
+  /* MODO OSCURO */
+  @media (prefers-color-scheme: dark) {
+    .selector-contenedor {
+      background: linear-gradient(to right, #121212, #1e1e1e);
+    }
+
+    .selector {
+      background-color: #1e1e1e;
+      box-shadow: 0 8px 20px rgba(255, 255, 255, 0.05);
+    }
+
+    .selector h2 {
+      color: #ddd;
+    }
+
+    button {
+      background-color: #1565c0;
+      color: #eee;
+    }
+
+    button:hover {
+      background-color: #0b3d91;
+    }
+
+    .boton-plantilla {
+      background: linear-gradient(135deg, #d75a5a, #e38a8a);
+      box-shadow: 0 4px 10px rgba(227, 138, 138, 0.6);
+      color: #fff;
+    }
+
+    .boton-plantilla:hover {
+      box-shadow: 0 6px 15px rgba(227, 138, 138, 0.85);
+    }
+
+    .cargando {
+      color: #aaa;
+    }
+  }
+
+  /* Responsive para tabs y colapsables */
   @media (max-width: 600px) {
     .tabs {
       flex-direction: column;
@@ -658,81 +716,5 @@ function cambiarTab(tab: typeof tabActual.value) {
       font-size: 1rem;
     }
   }
-  @media (prefers-color-scheme: dark) {
-  .modal-content {
-    background-color: #1e1e1e;
-    color: #eeeeee;
-  }
-
-  .tabs-responsive {
-    background-color: #1e1e1e;
-    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
-  }
-
-  .tabs button {
-    background-color: #2c2c2c;
-    color: #ddd;
-  }
-
-  .tabs button.active {
-    background-color: #1976d2;
-    color: white;
-  }
-
-  .collapse-toggle {
-    background-color: #2c2c2c;
-    color: #ddd;
-  }
-
-  .cerrar {
-    background-color: #333;
-    color: #ddd;
-  }
-
-  .accion {
-    background-color: #333;
-    color: #ddd;
-  }
-
-  .accion.editar {
-    color: #64b5f6;
-  }
-
-  .accion.eliminar {
-    color: #e57373;
-  }
-
-  /* Formularios internos (inputs, etc.) */
-  input,
-  textarea,
-  select {
-    background-color: #2c2c2c;
-    color: #eee;
-    border: 1px solid #555;
-  }
-
-  input:focus,
-  textarea:focus {
-    border-color: #1976d2;
-    box-shadow: 0 0 4px #1976d2aa;
-  }
-}
-.boton-plantilla {
-  background: linear-gradient(135deg, #f76d6d, #f9a8a8);
-  color: white;
-  font-weight: 700;
-  font-size: 1.1rem;
-  padding: 12px 24px;
-  border-radius: 12px;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 4px 10px rgba(247, 109, 109, 0.5);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.boton-plantilla:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 15px rgba(247, 109, 109, 0.7);
-}
-
 </style>
+
