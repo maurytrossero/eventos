@@ -40,15 +40,15 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { addEvento, addCancion, getCancionesByEvento } from '../services/firestoreService';
-import { useAuthStore } from '@/stores/authStore'
-import Swal from 'sweetalert2'
+import { useAuthStore } from '@/stores/authStore';
+import Swal from 'sweetalert2';
 
 interface Cancion {
-    id: string; // Asegúrate de que `id` es de tipo string
-    nombre: string;
-    interprete: string;
+  id: string;
+  nombre: string;
+  interprete: string;
 }
 
 const nuevoEventoNombre = ref('');
@@ -56,25 +56,25 @@ const nuevoEventoFecha = ref('');
 const nuevoEventoLugar = ref('');
 const nuevaCancionNombre = ref('');
 const nuevaCancionArtista = ref('');
-const canciones = ref<Cancion[]>([]); // Inicializa como un arreglo de Cancion
+const canciones = ref<Cancion[]>([]);
 const route = useRoute();
+const router = useRouter();
 const eventoId = route.params.eventoId as string;
-const auth = useAuthStore()
-
+const auth = useAuthStore();
 
 // Función para crear un evento
 const crearEvento = async () => {
   try {
-    const user = auth.user
+    const user = auth.user;
 
     const evento = {
       nombre: nuevoEventoNombre.value,
       fecha: nuevoEventoFecha.value,
       lugar: nuevoEventoLugar.value,
-      creadoPor: user?.uid || 'admin'
-    }
+      creadoPor: user?.uid || 'admin',
+    };
 
-    const id = await addEvento(evento)
+    const id = await addEvento(evento);
 
     if (id) {
       await Swal.fire({
@@ -84,15 +84,20 @@ const crearEvento = async () => {
         confirmButtonText: 'OK',
         confirmButtonColor: '#4a90e2',
         background: window.matchMedia('(prefers-color-scheme: dark)').matches ? '#2b2b2b' : '#fff',
-        color: window.matchMedia('(prefers-color-scheme: dark)').matches ? '#f0f0f0' : '#333'
-      })
+        color: window.matchMedia('(prefers-color-scheme: dark)').matches ? '#f0f0f0' : '#333',
+      });
 
-      nuevoEventoNombre.value = ''
-      nuevoEventoFecha.value = ''
-      nuevoEventoLugar.value = ''
+      nuevoEventoNombre.value = '';
+      nuevoEventoFecha.value = '';
+      nuevoEventoLugar.value = '';
+
+      // Redirigir a /panel si el usuario está logueado
+      if (auth.isLoggedIn) {
+        router.push('/panel');
+      }
     }
   } catch (error) {
-    console.error("Error al crear el evento:", error)
+    console.error('Error al crear el evento:', error);
     await Swal.fire({
       title: 'Error',
       text: 'No se pudo crear el evento. Por favor intentá de nuevo.',
@@ -100,16 +105,18 @@ const crearEvento = async () => {
       confirmButtonText: 'Cerrar',
       confirmButtonColor: '#d33',
       background: window.matchMedia('(prefers-color-scheme: dark)').matches ? '#2b2b2b' : '#fff',
-      color: window.matchMedia('(prefers-color-scheme: dark)').matches ? '#f0f0f0' : '#333'
-    })
+      color: window.matchMedia('(prefers-color-scheme: dark)').matches ? '#f0f0f0' : '#333',
+    });
   }
-}
-
+};
 
 // Función para agregar una canción al evento actual
 const agregarCancion = async () => {
   if (!eventoId) return;
-  const cancion = { nombre: nuevaCancionNombre.value, interprete: nuevaCancionArtista.value };
+  const cancion = {
+    nombre: nuevaCancionNombre.value,
+    interprete: nuevaCancionArtista.value,
+  };
   await addCancion(eventoId, cancion);
   nuevaCancionNombre.value = '';
   nuevaCancionArtista.value = '';
@@ -120,7 +127,7 @@ const agregarCancion = async () => {
 const cargarCanciones = async () => {
   if (!eventoId) return;
   const fetchedCanciones = await getCancionesByEvento(eventoId);
-  canciones.value = fetchedCanciones as Cancion[]; // Asegúrate de que sea un arreglo de Cancion
+  canciones.value = fetchedCanciones as Cancion[];
 };
 
 onMounted(() => {
@@ -129,6 +136,7 @@ onMounted(() => {
   }
 });
 </script>
+
 
 <style scoped>
 .eventos-contenedor {

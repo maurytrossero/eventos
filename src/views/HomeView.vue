@@ -39,12 +39,6 @@
           <li><router-link to="/">Ir a Inicio</router-link></li>
         </ul>
       </div>
-      <div class="category animate-up">
-        <h3><PhHouse size="24" /> Inicio</h3>
-        <ul>
-          <li><router-link to="/">Ir a Inicio</router-link></li>
-        </ul>
-      </div>
 
       <div class="category animate-up">
         <h3><PhInfo size="24" /> Acerca de</h3>
