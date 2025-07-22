@@ -4,15 +4,18 @@
     <div v-if="seleccionando" class="selector-contenedor">
       <div class="selector">
         <h2>Seleccioná un diseño de invitación para el evento</h2>
-        <div class="plantillas">
-          <button
-            v-for="plantilla in plantillasDisponibles"
-            :key="plantilla"
-            @click="seleccionarPlantilla(plantilla)"
-          >
-            {{ plantilla }}
-          </button>
-        </div>
+          <div class="plantillas">
+            <button
+              v-for="plantilla in plantillasDisponibles"
+              :key="plantilla"
+              @click="seleccionarPlantilla(plantilla)"
+              class="boton-plantilla"
+            >
+              <!-- Mapeo para mostrar nombre personalizado -->
+              {{ plantilla === 'FifteenView' ? 'Invitación de 15' : plantilla }}
+            </button>
+          </div>
+
       </div>
     </div>
 
@@ -185,7 +188,7 @@ const mostrarOpciones = ref(false)
 
 const db = getFirestore()
 
-const plantillasDisponibles = ['FifteenView', 'WeddingView']
+const plantillasDisponibles = ['FifteenView']
 
 const isMobile = window.innerWidth <= 600
 
@@ -713,6 +716,23 @@ function cambiarTab(tab: typeof tabActual.value) {
     border-color: #1976d2;
     box-shadow: 0 0 4px #1976d2aa;
   }
+}
+.boton-plantilla {
+  background: linear-gradient(135deg, #f76d6d, #f9a8a8);
+  color: white;
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(247, 109, 109, 0.5);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.boton-plantilla:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(247, 109, 109, 0.7);
 }
 
 </style>
